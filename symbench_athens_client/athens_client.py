@@ -68,7 +68,7 @@ class SymbenchAthensClient:
 
     def get_job_status(self, build_number):
         """Check the job status based on build number"""
-        print(self.server.get_build_info(build_number))
+        self.server.get_build_info(build_number)
 
 
 if __name__ == "__main__":
