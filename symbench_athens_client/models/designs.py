@@ -150,7 +150,8 @@ class HCopter(SeedDesign):
 class HPlane(SeedDesign):
     tube_length: int = Field(
         320,
-        description="Length for Body_Tube_Front_L, Body_Tube_Front_R, Body_Tube_Rear_L, Body_Tube_Rear_R in mm (default 320) "
+        description="Length for Body_Tube_Front_L, Body_Tube_Front_R, "
+        "Body_Tube_Rear_L, Body_Tube_Rear_R in mm (default 320) "
         "Length in x. Do not put props under wings",
         alias="Length_1",
     )
