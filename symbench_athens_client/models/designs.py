@@ -1,5 +1,4 @@
-from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Tuple
 
 from pydantic import BaseModel, Field, root_validator, validator
 
@@ -107,52 +106,3 @@ class QuadSpiderCopter(SeedDesign):
         rot_b = values.get("rot_b", -90.00)
         assert rot_a + rot_b == 0.0, "Sum of Rot_a and Rot_b should be zero"
         return values
-
-
-class Pipeline(BaseModel):
-    name: str = Field(name="JenkinsPipeline")
-
-    parameters: List[str] = Field(..., description="The parameters for the pipeline")
-
-    class Config:
-        validate_assignment = True
-        aribtrary_types_allowed = True
-        allow_mutation = False
-
-
-class JOB_STATUS(Enum):
-    NOT_STARTED = 0
-    STARTED = 1
-    RUNNING = 2
-    SUCCESS = 3
-    FAILED = 4
-
-
-class Job(BaseModel):
-    build_number: Optional[int] = Field(
-        None, description="The jenkins build id for this job"
-    )
-
-    pipeline: Pipeline = Field(..., description="The pipeline for this job")
-
-    status: int = Field(JOB_STATUS.NOT_STARTED, description="The status for this job")
-
-    output: str = Field("", description="The standard output for this job")
-
-    executor: Optional[Any] = Field(
-        None, description="The executor information for this job"
-    )
-
-    design: SeedDesign = Field(..., description="The seed design to run this job on")
-
-    parameters: Dict[str, Any] = Field(
-        {}, description="The build parameters for this job insance"
-    )
-
-    def to_jenkins_parameters(self):
-        design_params = self.design.to_jenkins_parameters()
-        return design_params.update(self.parameters)
-
-    class Config:
-        validate_assignment = True
-        arbitrary_types_allowed = True

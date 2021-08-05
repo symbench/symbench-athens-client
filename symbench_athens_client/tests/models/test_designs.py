@@ -1,10 +1,10 @@
 import pytest
 from pydantic import ValidationError
 
-from symbench_athens_client.models import QuadCopter, QuadSpiderCopter
+from symbench_athens_client.models.designs import QuadCopter, QuadSpiderCopter
 
 
-class TestSeedDesigns:
+class TestDesigns:
     @pytest.fixture(scope="session")
     def qd_copter(self):
         return QuadCopter()

@@ -1,2 +1,2 @@
-python-jenkins
+api4jenkins
 pydantic

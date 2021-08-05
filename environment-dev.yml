@@ -4,7 +4,7 @@ channels:
 dependencies:
   - pip
   - pip:
-    - python-jenkins
+    - api4jenkins
     - pytest
     - black
     - pre-commit
