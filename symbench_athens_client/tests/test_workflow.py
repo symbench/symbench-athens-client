@@ -6,6 +6,7 @@ from symbench_athens_client.models.jobs import clearComponents
 from symbench_athens_client.workflow import WorkFlow
 
 
+@pytest.mark.skip
 class TestWorkflow:
     @pytest.fixture(scope="session")
     def workflow_instance(self):
