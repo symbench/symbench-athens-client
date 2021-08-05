@@ -21,7 +21,16 @@ class SeedDesign(BaseModel):
         return len(self.swap_list) > 0
 
     def to_jenkins_parameters(self):
-        return self.dict(by_alias=True, exclude={"name", "swap_list"})
+        design_vars = self.dict(by_alias=True, exclude={"name", "swap_list"})
+        return {
+            "DesignVars": "".join(
+                f"{k}={v},{v} " for k, v in design_vars.items()
+            ).rstrip()
+        }
+
+    def parameters(self, **kwargs):
+        kwargs["exclude"] = {"name", "swap_list"}
+        return self.dict(**kwargs)
 
     @validator("name", pre=True, always=True)
     def validate_name(cls, name):
@@ -80,9 +89,7 @@ class QuadSpiderCopter(SeedDesign):
         200.00, description="Length of segment Arm_*b in mm", alias="Length_3"
     )
 
-    bend: float = (
-        Field(90, description="Bend Angle of Bend_ in degrees", alias="Bend"),
-    )
+    bend: float = Field(90, description="Bend Angle of Bend_ in degrees", alias="Bend")
 
     rot_a: float = Field(90.0, description="Rotational angle of arm", alias="Rot_a")
 

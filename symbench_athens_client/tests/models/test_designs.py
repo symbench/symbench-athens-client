@@ -21,13 +21,13 @@ class TestDesigns:
         assert "Length_3" in params
 
     def test_quadcopter_jenkins_params(self, qd_spider_copter):
-        params = qd_spider_copter.to_jenkins_parameters()
-        assert "Length_0" in params
-        assert "Length_1" in params
-        assert "Length_2" in params
-        assert "Length_3" in params
-        assert "Rot_a" in params
-        assert "Rot_b" in params
+        params = qd_spider_copter.to_jenkins_parameters()["DesignVars"]
+        assert "Length_0=200.0" in params
+        assert "Length_1=200.0" in params
+        assert "Length_2=200.0" in params
+        assert "Length_3=200.0" in params
+        assert "Rot_a=90.0" in params
+        assert "Rot_b=-90.0" in params
         assert "Length_4" in params
         assert "Length_5" in params
 
