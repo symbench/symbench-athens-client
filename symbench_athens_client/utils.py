@@ -1,4 +1,5 @@
 import logging
+import re
 
 
 def get_logger(name, level):
@@ -16,3 +17,13 @@ def get_logger(name, level):
     logger.addHandler(ch)
 
     return logger
+
+
+def to_camel_case(string):
+    """Convert a string to camelcase"""
+    string = "".join(string.split(" "))
+    string = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", string)
+    string = re.sub("__([A-Z])", r"_\1", string)
+    string = re.sub(r"[-~.]", "_", string)
+    string = re.sub("([a-z0-9])([A-Z])", r"\1_\2", string)
+    return string.lower()
