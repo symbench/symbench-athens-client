@@ -152,15 +152,3 @@ class HPlane(SeedDesign):
 
 class HexRing(SeedDesign):
     pass
-
-
-default_params = {}
-default_params["QuadCopter"] = QuadCopter().to_jenkins_parameters()
-default_params["QuadSpiderCopter"] = QuadSpiderCopter().to_jenkins_parameters()
-default_params["Hplane"] = HPlane().to_jenkins_parameters()
-default_params["HCopter"] = HCopter().to_jenkins_parameters()
-
-with open("default_params.json", "w") as json_file:
-    import json
-
-    json.dump(default_params, json_file, indent=2)
