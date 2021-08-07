@@ -15,6 +15,8 @@ class Component(BaseModel):
 
     manufacturer: str = Field(..., description="Manufacturer", alias="Manufacturer")
 
+    cost: float = Field(..., description="Cost in dollars", alias="Cost [$]")
+
     performance_file: str = Field(
         "", description="Performance File", alias="Performance File"
     )
@@ -47,7 +49,6 @@ class Component(BaseModel):
             if pd.isna(values[field]):
                 values[field] = defaults[field_annos[field]]
             if isinstance(values[field], str):
-                print(values[field].strip())
                 values[field] = values[field].strip()
         return values
 
@@ -58,8 +59,6 @@ class Component(BaseModel):
 
 class Battery(Component):
     """The Battery Component"""
-
-    cost: float = Field(..., description="Cost in dollars", alias="Cost [$]")
 
     length: float = Field(..., description="Length in MM", alias="Length [mm]")
 
@@ -148,6 +147,12 @@ class Propeller(Component):
     weight_lbm: float = Field(..., description="Weight in lbm", alias="Weight [lbm]")
 
 
+class Motor(Component):
+    cost_adapter: float = Field(
+        ..., description="Adapter Cost", alias="Cost Adapter [$]"
+    )
+
+
 class ComponentBuilder:
     """The components repository builder class"""
 
@@ -203,3 +208,7 @@ class ComponentBuilder:
 
 Batteries = ComponentBuilder(Battery, "Battery_Corpus.xlsx")
 Propellers = ComponentBuilder(Propeller, "Propeller_Corpus_Rev3.xlsx")
+# Motors = ComponentBuilder(Motor, "Motor_Corpus.xlsx")
+
+# motors = pd.read_excel(get_data_file_path("Motor_Corpus.xlsx"))
+# print(motors.columns.tolist())
