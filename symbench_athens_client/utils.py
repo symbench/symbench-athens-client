@@ -21,6 +21,8 @@ def get_logger(name, level):
 
 def to_camel_case(string):
     """Convert a string to camelcase"""
+    if string[0].isdigit():
+        string = "_" + string
     string = "".join(string.split(" "))
     string = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", string)
     string = re.sub("__([A-Z])", r"_\1", string)

@@ -11,9 +11,23 @@ class Component(BaseModel):
 
     style: str = Field(..., description="Style", alias="Style")
 
-    name: str = Field(..., description="Name of the battery", alias="Name")
+    name: str = Field(..., description="Name of the component", alias="Name")
 
     manufacturer: str = Field(..., description="Manufacturer", alias="Manufacturer")
+
+    performance_file: str = Field(
+        "", description="Performance File", alias="Performance File"
+    )
+
+    buy_link: str = Field(..., description="Buy Link", alias="Buy Link")
+
+    cad_file: str = Field(..., description="CAD File", alias="CAD File")
+
+    image_file: str = Field(..., description="Image File", alias="Image File")
+
+    product_description: str = Field(
+        ..., description="Product Description", alias="Product Description"
+    )
 
     def __repr__(self):
         return (
@@ -32,6 +46,9 @@ class Component(BaseModel):
         for field in values:
             if pd.isna(values[field]):
                 values[field] = defaults[field_annos[field]]
+            if isinstance(values[field], str):
+                print(values[field].strip())
+                values[field] = values[field].strip()
         return values
 
     class Config:
@@ -84,29 +101,51 @@ class Battery(Component):
         ..., description="Discharge Plug", alias="Discharge Plug"
     )
 
-    performance_file: str = Field(
-        "", description="Performance File", alias="Performance File"
-    )
-
-    buy_link: str = Field(..., description="Buy Link", alias="Buy Link")
-
-    cad_file: str = Field(..., description="CAD File", alias="CAD File")
-
     manf_cad: str = Field(..., description="Manufacturer CAD File", alias="Manf CAD")
-
-    image_file: str = Field(..., description="Image File", alias="Image File")
-
-    product_description: str = Field(
-        ..., description="Product Description", alias="Product Description"
-    )
 
 
 class Propeller(Component):
     """The propeller component"""
 
     cost: float = Field(
-        ...,
+        ..., description="Cost of the propeller in dollars", alias="Cost ($)"
     )
+
+    hub_diameter_in: float = Field(
+        ..., description="Hub diameter in inches", alias="Hub Diameter [in]"
+    )
+
+    hub_diameter_mm: float = Field(
+        ..., description="Hub Diameter in mm", alias="Hub Diameter [mm]"
+    )
+
+    hub_thickness_in: float = Field(
+        ..., description="Hub Thickness in inches", alias="Hub Thickness [in]"
+    )
+
+    hub_thickness_mm: float = Field(
+        ..., description="Hub Thickness in mm", alias="Hub Thickness [mm]"
+    )
+
+    shaft_diameter_in: float = Field(
+        ..., description="Shaft Diameter in inches", alias="Shaft Diameter [in]"
+    )
+
+    shaft_diameter_mm: float = Field(
+        ..., description="Shaft Diameter in mm", alias="Shaft Diameter [mm]"
+    )
+
+    diameter_in: float = Field(
+        ..., description="Diameter in inches", alias="Diameter [in]"
+    )
+
+    diameter_mm: float = Field(..., description="Diameter in mm", alias="Diameter [mm]")
+
+    pitch_in: float = Field(..., description="Pitch in in", alias="Pitch [in]")
+
+    pitch_mm: float = Field(..., description="Pitch in mm", alias="Pitch [mm]")
+
+    weight_lbm: float = Field(..., description="Weight in lbm", alias="Weight [lbm]")
 
 
 class ComponentBuilder:
@@ -163,3 +202,4 @@ class ComponentBuilder:
 
 
 Batteries = ComponentBuilder(Battery, "Battery_Corpus.xlsx")
+Propellers = ComponentBuilder(Propeller, "Propeller_Corpus_Rev3.xlsx")
