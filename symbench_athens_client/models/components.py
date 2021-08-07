@@ -15,6 +15,14 @@ class Component(BaseModel):
 
     manufacturer: str = Field(..., description="Manufacturer", alias="Manufacturer")
 
+    def __repr__(self):
+        return (
+            f"<{self.__class__.__name__}, Category: {self.category}, Name: {self.name}>"
+        )
+
+    def __str__(self):
+        return repr(self)
+
     @root_validator(pre=True)
     def validate(cls, values):
         defaults = {float: 0.0, str: ""}
@@ -121,15 +129,26 @@ class ComponentBuilder:
             )
 
     def __getitem__(self, item):
-        component_names = {
-            component.name: component for component in self.components.values()
-        }
-        if item in component_names:
-            return component_names[item]
+        if isinstance(item, int):
+            components = list(self.components.values())
+            return components[item]
         else:
-            raise KeyError(
-                f"{self.creator.__name__} {item} is missing from the repository"
-            )
+            component_names = {
+                component.name: component for component in self.components.values()
+            }
+            if item in component_names:
+                return component_names[item]
+            else:
+                raise KeyError(
+                    f"{self.creator.__name__} {item} is missing from the repository"
+                )
+
+    def __iter__(self):
+        for component in self.components.values():
+            yield component
+
+    def __len__(self):
+        return len(self.components)
 
     @staticmethod
     def _initialize_components(creator, spreadsheet):
