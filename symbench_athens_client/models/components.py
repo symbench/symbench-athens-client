@@ -1,8 +1,7 @@
 import pandas as pd
-import pkg_resources
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, root_validator
 
-from symbench_athens_client.utils import to_camel_case
+from symbench_athens_client.utils import get_data_file_path, to_camel_case
 
 
 class Component(BaseModel):
@@ -15,6 +14,17 @@ class Component(BaseModel):
     name: str = Field(..., description="Name of the battery", alias="Name")
 
     manufacturer: str = Field(..., description="Manufacturer", alias="Manufacturer")
+
+    @root_validator(pre=True)
+    def validate(cls, values):
+        defaults = {float: 0.0, str: ""}
+        field_annos = {}
+        for field, field_info in cls.__fields__.items():
+            field_annos[field_info.alias] = field_info.type_
+        for field in values:
+            if pd.isna(values[field]):
+                values[field] = defaults[field_annos[field]]
+        return values
 
     class Config:
         allow_mutation = False
@@ -92,6 +102,8 @@ class Propeller(Component):
 
 
 class ComponentBuilder:
+    """The components repository builder class"""
+
     def __init__(self, creator, spreadsheet):
         self.creator = creator
         self.components = self._initialize_components(creator, spreadsheet)
@@ -108,13 +120,20 @@ class ComponentBuilder:
                 f"{self.creator.__name__} {item} is missing from the repository"
             )
 
+    def __getitem__(self, item):
+        component_names = {
+            component.name: component for component in self.components.values()
+        }
+        if item in component_names:
+            return component_names[item]
+        else:
+            raise KeyError(
+                f"{self.creator.__name__} {item} is missing from the repository"
+            )
+
     @staticmethod
     def _initialize_components(creator, spreadsheet):
-        from pkg_resources import resource_filename
-
-        batteries_excel_sheet = resource_filename(
-            "symbench_athens_client", f"data/{spreadsheet}"
-        )
+        batteries_excel_sheet = get_data_file_path(spreadsheet)
         df = pd.read_excel(batteries_excel_sheet)
         dicts = df.to_dict(orient="records")
         components = {}

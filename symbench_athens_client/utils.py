@@ -27,3 +27,10 @@ def to_camel_case(string):
     string = re.sub(r"[-~.]", "_", string)
     string = re.sub("([a-z0-9])([A-Z])", r"\1_\2", string)
     return string.lower()
+
+
+def get_data_file_path(filename):
+    """Get the full path of the filename in the package's data directory"""
+    from pkg_resources import resource_filename
+
+    return resource_filename("symbench_athens_client", f"data/{filename}")
