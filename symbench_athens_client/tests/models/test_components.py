@@ -2,7 +2,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from symbench_athens_client.models.components import Batteries, Battery, Propellers
+from symbench_athens_client.models.components import (
+    Batteries,
+    Battery,
+    Motor,
+    Motors,
+    Propeller,
+    Propellers,
+)
 from symbench_athens_client.utils import get_data_file_path
 
 
@@ -16,6 +23,11 @@ class TestComponents:
     def propellers_dataframe(self):
         propellers_excel = get_data_file_path("Propeller_Corpus_Rev3.xlsx")
         return pd.read_excel(propellers_excel)
+
+    @pytest.fixture(scope="session")
+    def motors_dataframe(self):
+        motors_excel = get_data_file_path("Motor_Corpus.xlsx")
+        return pd.read_excel(motors_excel)
 
     def test_batteries_count(self):
         assert len(Batteries) == 34
@@ -43,3 +55,17 @@ class TestComponents:
         assert propeller_14x4s.diameter_in == 10.5
         assert propeller_14x4s.performance_file == "PER3_105x6.dat"
         assert np.isclose(propeller_14x4s.pitch_mm, 152.4)
+
+    def test_motors_count(self, motors_dataframe):
+        assert len(motors_dataframe) == len(Motors)
+
+    def test_motor_fields(self, motors_dataframe):
+        aliases = set(field.alias for field in Motor.__fields__.values())
+        assert set(motors_dataframe.columns) == aliases
+
+    def test_motor_attributes(self, motors_dataframe):
+        motor_as2308_kv2600 = Motors.as2308_kv2600
+        assert motor_as2308_kv2600
+        assert motor_as2308_kv2600.adapter_length == (24.0, 28.0)
+        assert motor_as2308_kv2600.adapter_diameter == (5.0, 6.0)
+        assert motor_as2308_kv2600.poles == "12N14P"

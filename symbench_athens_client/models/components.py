@@ -1,5 +1,7 @@
+from typing import Tuple, Union
+
 import pandas as pd
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 from symbench_athens_client.utils import get_data_file_path, to_camel_case
 
@@ -47,7 +49,10 @@ class Component(BaseModel):
             field_annos[field_info.alias] = field_info.type_
         for field in values:
             if pd.isna(values[field]):
-                values[field] = defaults[field_annos[field]]
+                try:
+                    values[field] = defaults[field_annos[field]]
+                except KeyError:
+                    pass
             if isinstance(values[field], str):
                 values[field] = values[field].strip()
         return values
@@ -152,6 +157,124 @@ class Motor(Component):
         ..., description="Adapter Cost", alias="Cost Adapter [$]"
     )
 
+    shaft_diameter_mm: float = Field(
+        ..., description="Shaft Diameter in mm", alias="Shaft Diameter [mm]"
+    )
+
+    length_mm: float = Field(..., description="Length in mm", alias="Length [mm]")
+
+    can_diameter: float = Field(
+        ..., description="Can diameter in mm", alias="Can Diameter [mm]"
+    )
+
+    can_length: float = Field(
+        ..., description="Can length in mm", alias="Can Length [mm]"
+    )
+
+    total_length: float = Field(
+        ..., description="Total Length in mm", alias="Total Length [mm]"
+    )
+
+    adapter_length: Union[float, Tuple[float, float]] = Field(
+        ..., description="Adapter Length in mm", alias="Adapter Length [mm]"
+    )
+
+    adapter_diameter: Union[float, Tuple[float, float]] = Field(
+        ..., description="Adapter diameter in mm", alias="Adapter Diameter [mm]"
+    )
+
+    weight_g: float = Field(..., description="Weight in grams", alias="Weight [g]")
+
+    kv: float = Field(..., description="RPM/V", alias="KV [RPM/V]")
+
+    kt: float = Field(..., description="Nm/A", alias="KT [Nm/A]")
+
+    km: float = Field(..., description="KM [Nm/sqrt(W)]", alias="KM [Nm/sqrt(W)]")
+
+    max_current: float = Field(..., description="Max Current", alias="Max Current [A]")
+
+    max_power: float = Field(..., description="Max Power", alias="Max Power [W]")
+
+    internal_resistance: float = Field(
+        ...,
+        description="Internal Resistance [mOhm]",
+        alias="Internal Resistance [mOhm]",
+    )
+
+    io_idle_current: float = Field(
+        ..., description="Io Idle Current @10V[A]", alias="Io Idle Current@10V [A]"
+    )
+
+    poles: str = Field(..., description="Poles", alias="Poles")
+
+    esc_pwm_rate_min: float = Field(
+        ..., description="ESC PWM Rate Min [kHz]", alias="ESC PWM Rate Min [kHz]"
+    )
+
+    esc_pwm_rate_max: float = Field(
+        ..., description="ESC PWM Rate Max [kHz]", alias="ESC PWM Rate Max [kHz]"
+    )
+
+    esc_rate: float = Field(..., description="ESC Rate", alias="ESC Rate [Hz]")
+
+    motor_timing_min: float = Field(
+        ..., description="Motor Timing Min [deg.]", alias="Motor Timing Min [deg.]"
+    )
+
+    motor_timing_max: float = Field(
+        ..., description="Motor Timing Max [deg.]", alias="Motor Timing Max [deg.]"
+    )
+
+    min_no_cells: float = Field(
+        ..., description="Min # of Cells", alias="Min # of Cells"
+    )
+
+    max_no_cells: float = Field(
+        ..., description="Max # of Cells", alias="Max # of Cells"
+    )
+
+    prop_size_rec: Tuple[float, float] = Field(
+        ..., description="Prop Size Rec. [in]", alias="Prop Size Rec. [in]"
+    )
+
+    prop_pitch_rec: Tuple[float, float] = Field(
+        ..., description="Prop Pitch Rec. [in]", alias="Prop Pitch Rec. [in]"
+    )
+
+    esc_bec_class: float = Field(
+        ..., description="ESC/BEC Class", alias="ESC/BEC Class"
+    )
+
+    manf_cad: str = Field(..., description="Manufacturer CAD File", alias="Manf CAD")
+
+    @validator("prop_pitch_rec", pre=True, always=True)
+    def validate_prop_pitch(cls, value):
+        if isinstance(value, str):
+            value = tuple(float(v) for v in value.split(","))
+        return value
+
+    @validator("prop_size_rec", pre=True, always=True)
+    def validate_prop_length(cls, value):
+        if isinstance(value, str):
+            value = tuple(float(v) for v in value.split(","))
+        return value
+
+    @validator("adapter_diameter", pre=True, always=True)
+    def validate_adapter_diameter(cls, value):
+        if isinstance(value, str):
+            value = tuple(float(v) for v in value.split(","))
+        return value
+
+    @validator("adapter_length", pre=True, always=True)
+    def validate_adapter_length(cls, value):
+        if isinstance(value, str):
+            value = tuple(float(v) for v in value.split(","))
+        return value
+
+
+class AutoPilot(Component):
+    pass
+
 
 class ComponentBuilder:
     """The components repository builder class"""
@@ -208,7 +331,4 @@ class ComponentBuilder:
 
 Batteries = ComponentBuilder(Battery, "Battery_Corpus.xlsx")
 Propellers = ComponentBuilder(Propeller, "Propeller_Corpus_Rev3.xlsx")
-# Motors = ComponentBuilder(Motor, "Motor_Corpus.xlsx")
-
-# motors = pd.read_excel(get_data_file_path("Motor_Corpus.xlsx"))
-# print(motors.columns.tolist())
+Motors = ComponentBuilder(Motor, "Motor_Corpus.xlsx")
