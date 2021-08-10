@@ -19,20 +19,16 @@ def get_logger(name, level=logging.DEBUG):
     return logger
 
 
-def to_camel_case(string):
-    """Convert a string to camelcase"""
-    if string[0].isdigit():
-        string = "_" + string
-    string = "".join(string.split(" "))
-    string = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", string)
-    string = re.sub("__([A-Z])", r"_\1", string)
-    string = re.sub(r"[-~.]", "_", string)
-    string = re.sub("([a-z0-9])([A-Z])", r"\1_\2", string)
-    return string.lower()
-
-
 def get_data_file_path(filename):
     """Get the full path of the filename in the package's data directory"""
     from pkg_resources import resource_filename
 
     return resource_filename("symbench_athens_client", f"data/{filename}")
+
+
+def inject_none_for_missing_fields(cls, values):
+    """Given a BaseModel class and a dictionary to populate its fields, inject None for missing fields."""
+    for field_name, field_info in cls.__fields__.items():
+        if field_name not in values and field_info.alias not in values:
+            values[field_name] = None
+    return values

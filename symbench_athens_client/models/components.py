@@ -1,9 +1,12 @@
 import json
-from typing import Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, root_validator, validator
 
-from symbench_athens_client.utils import get_data_file_path
+from symbench_athens_client.utils import (
+    get_data_file_path,
+    inject_none_for_missing_fields,
+)
 
 
 class Component(BaseModel):
@@ -14,6 +17,8 @@ class Component(BaseModel):
         description="The name of the component as is in the graph database",
         alias="Name",
     )
+
+    model: str = Field(..., description="Model name of the Component", alias="MODEL")
 
     classification: str = Field(
         "Battery",
@@ -28,6 +33,15 @@ class Component(BaseModel):
 
     def __str__(self):
         return repr(self)
+
+    @root_validator(pre=True)
+    def inject_model(cls, values):
+        if "Model" in values:
+            values["MODEL"] = values.pop("Model")
+
+        if not values.get("model", values.get("MODEL", values.get("Model"))):
+            values["model"] = values.get("name", values.get("Name"))
+        return values
 
     class Config:
         allow_mutation = False
@@ -95,8 +109,6 @@ class Battery(Component):
         0.0, description="Pack Resistance of the Battery", alias="PACK_RESISTANCE"
     )
 
-    model: str = Field(..., description="Model name of the Battery", alias="MODEL")
-
     weight: float = Field(
         ...,
         description="Weight of the Battery",
@@ -117,174 +129,681 @@ class Battery(Component):
 
 
 class Propeller(Component):
-    """The propeller component"""
+    """The propeller component
 
-    cost: float = Field(
-        ..., description="Cost of the propeller in dollars", alias="Cost ($)"
+    An example of a propeller attributes can be seen below:
+    "PITCH": "226.06",
+    "SHAFT_DIAMETER": "6.35",
+    "HUB_THICKNESS": "15.24",
+    "Performance_File": "PER3_88x89.dat",
+    "DIAMETER": "223.52",
+    "Direction": "1",
+    "Weight": "0.02608",
+    "MODEL": "apc_propellers_8_8x8_9",
+    "Classification": "Propeller"
+    """
+
+    hub_thickness: float = Field(
+        ..., description="HUB_THICKNESS", alias="HUB_THICKNESS"
     )
 
-    hub_diameter_in: float = Field(
-        ..., description="Hub diameter in inches", alias="Hub Diameter [in]"
+    diameter: float = Field(..., description="Diameter", alias="DIAMETER")
+
+    direction: float = Field(..., description="Direction", alias="Direction")
+
+    performance_file: str = Field(
+        ..., description="Performance file location/name", alias="Performance_File"
     )
 
-    hub_diameter_mm: float = Field(
-        ..., description="Hub Diameter in mm", alias="Hub Diameter [mm]"
+    shaft_diameter: float = Field(
+        ..., description="The shaft diameter of the propeller", alias="SHAFT_DIAMETER"
     )
 
-    hub_thickness_in: float = Field(
-        ..., description="Hub Thickness in inches", alias="Hub Thickness [in]"
-    )
+    pitch: float = Field(..., description="The pitch of the propeller", alias="PITCH")
 
-    hub_thickness_mm: float = Field(
-        ..., description="Hub Thickness in mm", alias="Hub Thickness [mm]"
-    )
+    weight: float = Field(..., description="Weight of the propeller", alias="WEIGHT")
 
-    shaft_diameter_in: float = Field(
-        ..., description="Shaft Diameter in inches", alias="Shaft Diameter [in]"
-    )
-
-    shaft_diameter_mm: float = Field(
-        ..., description="Shaft Diameter in mm", alias="Shaft Diameter [mm]"
-    )
-
-    diameter_in: float = Field(
-        ..., description="Diameter in inches", alias="Diameter [in]"
-    )
-
-    diameter_mm: float = Field(..., description="Diameter in mm", alias="Diameter [mm]")
-
-    pitch_in: float = Field(..., description="Pitch in in", alias="Pitch [in]")
-
-    pitch_mm: float = Field(..., description="Pitch in mm", alias="Pitch [mm]")
-
-    weight_lbm: float = Field(..., description="Weight in lbm", alias="Weight [lbm]")
+    @root_validator(pre=True)
+    def validate_propeller_attributes(cls, values):
+        if "Weight" in values:
+            values["WEIGHT"] = values.pop("Weight")
+        return values
 
 
 class Motor(Component):
-    cost_adapter: float = Field(
-        ..., description="Adapter Cost", alias="Cost Adapter [$]"
+    """The Motor Component in the graph database
+
+    An example of motor attributes is shown below:
+
+    "MAX_POWER": "44.0",
+    "TOTAL_LENGTH": "26.0",
+    "CAN_DIAMETER": "17.7",
+    "IO_IDLE_CURRENT@10V": "0.2",
+    "SHAFT_DIAMETER": "4.0",
+    "KT": "0.0030804182533915227",
+    "Max # of Cells": "2.0",
+    "LENGTH": "12.0",
+    "PROP_PITCH_REC.": "2,3",
+    "PROP_SIZE_REC.": "6,7",
+    "MODEL": "MT13063100KV",
+    "ESC/BEC Class": "3.0",
+    "CAN_LENGTH": "6.0",
+    "KM": "0.012371257411140733",
+    "INTERNAL_RESISTANCE": "62.0",
+    "Min # of Cells": "1.0",
+    "MAX_CURRENT": "6.0",
+    "COST": "41.9",
+    "CONTROL_CHANNEL": "none",
+    "WEIGHT": "0.0112",
+    "KV": "3100.0",
+    "Poles": "9N12P",
+    "Classification": "Motor"
+    """
+
+    max_power: float = Field(
+        ..., description="Max power of the motor", alias="MAX_POWER"
     )
 
-    shaft_diameter_mm: float = Field(
-        ..., description="Shaft Diameter in mm", alias="Shaft Diameter [mm]"
+    io_idle_current_at_10V: float = Field(
+        ..., description="Maximum idle current at 10V", alias="IO_IDLE_CURRENT@10V"
     )
 
-    length_mm: float = Field(..., description="Length in mm", alias="Length [mm]")
+    length: float = Field(..., description="Length of the Motor", alias="LENGTH")
 
-    can_diameter: float = Field(
-        ..., description="Can diameter in mm", alias="Can Diameter [mm]"
+    kt: float = Field(..., description="The KT rating of the Motor", alias="KT")
+
+    esc_bec_class: float = Field(
+        ..., description="The ESC/BEC Class", alias="ESC/BEC Class"
     )
 
-    can_length: float = Field(
-        ..., description="Can length in mm", alias="Can Length [mm]"
+    can_length: float = Field(..., description="The can length", alias="CAN_LENGTH")
+
+    total_length: float = Field(..., description="Total length", alias="TOTAL_LENGTH")
+
+    km: float = Field(..., description="KM rating of the motor", alias="KM")
+
+    shaft_diameter: float = Field(
+        ..., description="The shaft diameter of the motor", alias="SHAFT_DIAMETER"
     )
 
-    total_length: float = Field(
-        ..., description="Total Length in mm", alias="Total Length [mm]"
-    )
+    weight: float = Field(..., description="Weight of the motor", alias="WEIGHT")
 
-    adapter_length: Union[float, Tuple[float, float]] = Field(
-        ..., description="Adapter Length in mm", alias="Adapter Length [mm]"
-    )
-
-    adapter_diameter: Union[float, Tuple[float, float]] = Field(
-        ..., description="Adapter diameter in mm", alias="Adapter Diameter [mm]"
-    )
-
-    weight_g: float = Field(..., description="Weight in grams", alias="Weight [g]")
-
-    kv: float = Field(..., description="RPM/V", alias="KV [RPM/V]")
-
-    kt: float = Field(..., description="Nm/A", alias="KT [Nm/A]")
-
-    km: float = Field(..., description="KM [Nm/sqrt(W)]", alias="KM [Nm/sqrt(W)]")
-
-    max_current: float = Field(..., description="Max Current", alias="Max Current [A]")
-
-    max_power: float = Field(..., description="Max Power", alias="Max Power [W]")
+    poles: str = Field(..., description="The poles of the motor", alias="Poles")
 
     internal_resistance: float = Field(
-        ...,
-        description="Internal Resistance [mOhm]",
-        alias="Internal Resistance [mOhm]",
+        ..., description="Internal Resistance of the motor", alias="INTERNAL_RESISTANCE"
     )
 
-    io_idle_current: float = Field(
-        ..., description="Io Idle Current @10V[A]", alias="Io Idle Current@10V [A]"
+    control_channel: Optional[str] = Field(
+        ..., description="The control channel", alias="CONTROL_CHANNEL"
     )
 
-    poles: str = Field(..., description="Poles", alias="Poles")
-
-    esc_pwm_rate_min: float = Field(
-        ..., description="ESC PWM Rate Min [kHz]", alias="ESC PWM Rate Min [kHz]"
+    adapter_length: Optional[Union[float, Tuple[float, float]]] = Field(
+        ..., description="The adapter length", alias="ADAPTER_LENGTH"
     )
 
-    esc_pwm_rate_max: float = Field(
-        ..., description="ESC PWM Rate Max [kHz]", alias="ESC PWM Rate Max [kHz]"
-    )
-
-    esc_rate: float = Field(..., description="ESC Rate", alias="ESC Rate [Hz]")
-
-    motor_timing_min: float = Field(
-        ..., description="Motor Timing Min [deg.]", alias="Motor Timing Min [deg.]"
-    )
-
-    motor_timing_max: float = Field(
-        ..., description="Motor Timing Max [deg.]", alias="Motor Timing Max [deg.]"
-    )
-
-    min_no_cells: float = Field(
-        ..., description="Min # of Cells", alias="Min # of Cells"
+    max_current: float = Field(
+        ..., description="Max current rating of the motor", alias="MAX_CURRENT"
     )
 
     max_no_cells: float = Field(
-        ..., description="Max # of Cells", alias="Max # of Cells"
+        ..., description="Max number of cells in the motor", alias="Max # of Cells"
     )
 
-    prop_size_rec: Tuple[float, float] = Field(
-        ..., description="Prop Size Rec. [in]", alias="Prop Size Rec. [in]"
+    kv: float = Field(..., description="The KV rating of the motor", alias="KV")
+
+    cost: float = Field(..., description="Cost of the motor", alias="COST")
+
+    can_diameter: float = Field(
+        ..., description="The can diameter of the motor", alias="CAN_DIAMETER"
     )
 
-    prop_pitch_rec: Tuple[float, float] = Field(
-        ..., description="Prop Pitch Rec. [in]", alias="Prop Pitch Rec. [in]"
+    min_no_cells: float = Field(
+        ...,
+        description="The minimum number of cells of the motor",
+        alias="Min # of Cells",
     )
 
-    esc_bec_class: float = Field(
-        ..., description="ESC/BEC Class", alias="ESC/BEC Class"
+    prop_size_rec: Union[float, Tuple[float, float]] = Field(
+        ...,
+        description="The propsize rec",
+        alias="PROP_SIZE_REC.",
     )
 
-    manf_cad: str = Field(..., description="Manufacturer CAD File", alias="Manf CAD")
+    prop_pitch_rec: Union[float, Tuple[float, float]] = Field(
+        ..., description="The prop pitch rec", alias="PROP_PITCH_REC."
+    )
 
-    @validator("prop_pitch_rec", pre=True, always=True)
+    esc_pwm_rate_min: Optional[float] = Field(
+        ..., description="ESC_PWM_RATE_MIN", alias="ESC_PWM_RATE_MIN"
+    )
+
+    adapter_diameter: Optional[Union[float, Tuple[float, float]]] = Field(
+        ..., description="Adapter diameter", alias="ADAPTER_DIAMETER"
+    )
+
+    esc_pwm_rate_max: Optional[float] = Field(
+        ..., description="ESC PWM RATE MAX", alias="ESC_PWM_RATE_MAX"
+    )
+
+    cost_adapter: Optional[float] = Field(
+        ...,
+        description="Adapter Cost",
+        alias="COST_ADAPTER",
+    )
+
+    esc_rate: Optional[float] = Field(..., description="ESC_RATE", alias="ESC_RATE")
+
+    @validator("prop_size_rec", pre=True, always=True)
     def validate_prop_pitch(cls, value):
-        if isinstance(value, str):
+        if isinstance(value, str) and "," in value:
             value = tuple(float(v) for v in value.split(","))
         return value
 
-    @validator("prop_size_rec", pre=True, always=True)
+    @validator("prop_pitch_rec", pre=True, always=True)
     def validate_prop_length(cls, value):
-        if isinstance(value, str):
+        if isinstance(value, str) and "," in value:
             value = tuple(float(v) for v in value.split(","))
         return value
 
     @validator("adapter_diameter", pre=True, always=True)
     def validate_adapter_diameter(cls, value):
-        if isinstance(value, str):
+        if isinstance(value, str) and "," in value:
             value = tuple(float(v) for v in value.split(","))
         return value
 
     @validator("adapter_length", pre=True, always=True)
     def validate_adapter_length(cls, value):
-        if isinstance(value, str):
+        if isinstance(value, str) and "," in value:
             value = tuple(float(v) for v in value.split(","))
         return value
 
+    @root_validator(pre=True)
+    def validate_fields(cls, values):
+        if "CONTROL_CHANNEL" in values and values["CONTROL_CHANNEL"] == "none":
+            values["CONTROL_CHANNEL"] = None
+        return inject_none_for_missing_fields(cls, values)
+
 
 class ESC(Component):
+    length: float = Field(..., description="Length of the ESC", alias="LENGTH")
+
+    cont_amps: Optional[float] = Field(
+        ..., description="Continuous ampere ratings", alias="CONT_AMPS"
+    )
+
+    max_voltage: float = Field(..., description="Maximum voltage", alias="MAX_VOLTAGE")
+
+    bec: Optional[Union[float, Tuple]] = Field(
+        ..., description="BEC_RATING", alias="BEC"
+    )
+
+    bec_output_cont_amps: Optional[Union[float, Tuple]] = Field(
+        ...,
+        description="Bec Output in continuous amps",
+        alias="BEC_OUTPUT_CONT_AMPS",
+    )
+
+    bec_output_peak_amps: Optional[float] = Field(
+        ..., description="Bec output peak amps", alias="BEC_OUTPUT_PEAK_AMPS"
+    )
+
+    cost: float = Field(..., description="Cost of the ESC Component", alias="COST")
+
+    bec_output_voltage: Optional[Union[float, Tuple]] = Field(
+        ..., description="Bec output voltage", alias="BEC_OUTPUT_VOLTAGE"
+    )
+
+    control_channel: Optional[str] = Field(
+        ..., description="Control Channel", alias="CONTROL_CHANNEL"
+    )
+
+    esc_bec_class: Optional[float] = Field(
+        ..., description="The ESC/BEC Class", alias="ESC/BEC Class"
+    )
+
+    thickness: float = Field(..., description="THICKNESS", alias="THICKNESS")
+
+    offset: Optional[float] = Field(..., description="Offset", alias="Offset")
+
+    mount_angle: Optional[float] = Field(
+        ..., description="The mount angle", alias="Mount_Angle"
+    )
+
+    tube_od: Optional[float] = Field(..., description="The tube OD", alias="TUBE_OD")
+
+    width: float = Field(..., description="The width of ESC", alias="WIDTH")
+
+    weight: float = Field(..., description="The weight of ESC", alias="WEIGHT")
+
+    peak_amps: Optional[float] = Field(
+        ...,
+        description="The Peak ampere ratings for the ESC controller",
+        alias="PEAK_AMPS",
+    )
+
+    @validator("bec", pre=True, always=True)
+    def validate_bec(cls, value):
+        if isinstance(value, str) and "," in value:
+            value = tuple(float(v) for v in value.split(","))
+        return value
+
+    @validator("bec_output_voltage", pre=True, always=True)
+    def validate_bec_output_voltage(cls, value):
+        if isinstance(value, str) and "," in value:
+            value = tuple(float(v) for v in value.split(","))
+        return value
+
+    @validator("bec_output_cont_amps", pre=True, always=True)
+    def validate_bec_output_cont_amps(cls, value):
+        if isinstance(value, str) and "," in value:
+            value = tuple(float(v) for v in value.split(","))
+        return value
+
+    @root_validator(pre=True)
+    def validate_fields(cls, values):
+        if "Control_Channel" in values:
+            values["CONTROL_CHANNEL"] = values.pop("Control_Channel")
+        for field in ["Offset", "Mount_Angle", "CONTROL_CHANNEL", "TUBE_OD"]:
+            if field in values and values[field] == "none":
+                values[field] = None
+        return inject_none_for_missing_fields(cls, values)
+
+
+class Instrument_Battery(Battery):
+    """The Instrument Battery Component"""
+
+
+class Wing(Component):
+    """The Wing Component"""
+
+    span: Optional[float] = Field(..., description="SPAN property", alias="SPAN")
+
+    aileron_bias: Optional[float] = Field(..., description="BIAS", alias="AILERON_BIAS")
+
+    aoa_cl_max: float = Field(..., description="AoA_CL_Max", alias="AoA_CL_Max")
+
+    offset: Optional[float] = Field(..., description="OFFSET", alias="OFFSET")
+
+    control_channel_flaps: Optional[float] = Field(
+        ..., description="CONTROL_CHANNEL_FLAPS", alias="CONTROL_CHANNEL_FLAPS"
+    )
+
+    cl_max: float = Field(..., description="CL_Max", alias="CL_Max")
+
+    cl_max_cd0_min: float = Field(
+        ..., description="CL_Max_CD0_Min", alias="CL_Max_CD0_Min"
+    )
+
+    last_two: float = Field(..., description="LAST_TWO", alias="LASTTWO")
+
+    chord: Optional[str] = Field(..., description="CHORD", alias="CHORD")
+
+    tube_offset: Optional[str] = Field(
+        ..., description="Tube Offset", alias="TUBE_OFFSET"
+    )
+
+    cl_ld_max: float = Field(..., description="CL_LD_Max", alias="CL_LD_Max")
+
+    servo_width: Optional[float] = Field(
+        ..., description="Servo Width", alias="SERVO_WIDTH"
+    )
+
+    aoa_l0: Optional[float] = Field(..., description="AOA_L0", alias="AoA_L0")
+
+    dcl_daoa_slope: float = Field(
+        ..., description="dCl_dAoA_Slope", alias="dCl_dAoA_Slope"
+    )
+
+    control_channel_ailerons: Optional[str] = Field(
+        ..., description="CONTROL_CHANNEL_AILERONS", alias="CONTROL_CHANNEL_AILERONS"
+    )
+
+    diameter: Optional[float] = Field(..., description="DIAMETER", alias="DIAMETER")
+
+    ld_max: float = Field(..., description="LD_Max", alias="LD_Max")
+
+    servo_length: Optional[float] = Field(
+        ..., description="SERVO_LENGTH", alias="SERVO_LENGTH"
+    )
+
+    cd0_min: float = Field(..., description="CD0_MIn", alias="CD0_Min")
+
+    cd_min: float = Field(..., description="CD_MIN", alias="CD_Min")
+
+    cm0: float = Field(..., description="CM0", alias="CM0")
+
+    flap_bias: Optional[float] = Field(..., description="Flap Bias", alias="FLAP_BIAS")
+
+    @root_validator(pre=True)
+    def validate_fields(cls, values):
+        for field in [
+            "SPAN",
+            "AILERON_BIAS",
+            "OFFSET",
+            "SERVO_WIDTH",
+            "SERVO_LENGTH",
+            "CONTROL_CHANNEL_FLAPS",
+            "DIAMETER",
+            "FLAP_BIAS",
+            "TUBE_OFFSET",
+            "CONTROL_CHANNEL_AILERONS",
+        ]:
+            if field in values and values[field] == "none":
+                values[field] = None
+
+        return values
+
+
+class GPS(Component):
+    """The GPS Component"""
+
+    min_voltage: Optional[float] = Field(
+        ..., description="Minimum Voltage", alias="MIN_VOLTAGE"
+    )
+
+    output_rate: float = Field(..., description="Output Rate", alias="OUTPUT_RATE")
+
+    max_voltage: Optional[float] = Field(
+        ..., description="Maximum Voltage", alias="MAX_VOLTAGE"
+    )
+
+    power_consumption: float = Field(
+        ..., description="Power Consumption", alias="POWER_CONSUMPTION"
+    )
+
+    max_current_range: Optional[float] = Field(
+        ..., description="Max Current Range", alias="MAX_CURRENT_RANGE"
+    )
+
+    cost: float = Field(..., description="COST", alias="Cost")
+
+    gps_loc: str = Field(..., description="GPS_Location", alias="GPS_Location")
+
+    weight: float = Field(..., description="Weight of the GPS", alias="WEIGHT")
+
+    number_of_gnss: float = Field(
+        ..., description="NUMBER_of_GNSS", alias="Number_of_GNSS"
+    )
+
+    gps_accuracy: float = Field(..., description="GPS_ACCURACY", alias="GPS_ACCURACY")
+
+    diameter: float = Field(..., description="Diameter", alias="DIAMETER")
+
+    height: float = Field(..., description="Height", alias="HEIGHT")
+
+    @root_validator(pre=True)
+    def validate_gps_fields(cls, values):
+        return inject_none_for_missing_fields(cls, values)
+
+
+class Servo(Component):
+    travel: float = Field(..., description="Travel", alias="Travel")
+
+    LENF: float = Field(..., description="LenF", alias="LENF")
+
+    min_stall_torque: float = Field(
+        ..., description="Min_Stall_Torque", alias="Min_Stall_Torque"
+    )
+
+    output_shaft_spline: str = Field(
+        ..., description="Output_Shaft_Spline", alias="Output_Shaft_Spline"
+    )
+
+    wire_gauge: float = Field(..., description="Wire_Gauge", alias="Wire_Gauge")
+
+    current_no_load: float = Field(
+        ..., description="Current at no load", alias="Current_No_Load"
+    )
+
+    deadband_width: float = Field(
+        ..., description="Dead Band Width", alias="Deadband_Width"
+    )
+
+    weight: float = Field(..., description="WEIGHT", alias="WEIGHT")
+
+    lend: float = Field(..., description="Lend", alias="LEND")
+
+    min_no_load_speed: float = Field(
+        ..., description="No load speed minimum", alias="Min_No_Load_Speed"
+    )
+
+    idle_current: float = Field(..., description="Current_Idle", alias="Current_Idle")
+
+    max_voltage: float = Field(..., description="Max_Voltage", alias="Max_Voltage")
+
+    len_e: float = Field(..., description="Lene", alias="LENE")
+
+    max_stall_torque: float = Field(
+        ..., description="Max stall torque", alias="Max_Stall_Torque"
+    )
+
+    max_rotation: float = Field(..., description="Max Rotation", alias="Max_Rotation")
+
+    len_a: float = Field(..., description="Len A", alias="LENA")
+
+    min_voltage: float = Field(..., description="Minimum Voltage", alias="Min_Voltage")
+
+    len_c: float = Field(..., description="Len C", alias="LENC")
+
+    max_no_load_speed: float = Field(
+        ..., description="Max_No_Load_Speed", alias="Max_No_Load_Speed"
+    )
+
+    max_pwm_range: str = Field(..., description="Max PWM range", alias="Max_PWM_Range")
+
+    len_b: float = Field(..., description="Len B", alias="LENB")
+
+    stall_current: float = Field(
+        ..., description="Stall Current", alias="Stall_Current"
+    )
+
+    servo_class: str = Field(..., description="Servo Class", alias="Servo_Class")
+
+
+class Receiver(Component):
+    max_voltage: float = Field(..., description="Maximum Voltage", alias="MAX_VOLTAGE")
+
+    width: float = Field(..., description="Width", alias="WIDTH")
+
+    height: float = Field(..., description="Height", alias="HEIGHT")
+
+    weight: float = Field(..., description="Weight", alias="WEIGHT")
+
+    min_voltage: float = Field(..., description="Minimum Voltage", alias="MIN_VOLTAGE")
+
+    power_consumption: float = Field(
+        ..., description="POWER_CONSUMPTION", alias="POWER_CONSUMPTION"
+    )
+
+    length: float = Field(..., description="Length", alias="LENGTH")
+
+    cost: float = Field(..., description="Cost", alias="Cost ($)")
+
+    max_no_channels: float = Field(
+        ..., description="Maximum Number of Channels", alias="Max_Number_of_Channels"
+    )
+
+
+class Sensor(Component):
+    max_voltage: Optional[float] = Field(
+        ..., description="Max Voltage", alias="MAX_VOLTAGE"
+    )
+
+    weight: float = Field(..., description="Weight", alias="WEIGHT")
+
+    cost: float = Field(..., description="COST", alias="Cost")
+
+    length: float = Field(..., description="LENGTH", alias="LENGTH")
+
+    power_consumption: float = Field(
+        ..., description="POWER_CONSUMPTION", alias="POWER_CONSUMPTION"
+    )
+
+    height: float = Field(..., description="Height", alias="HEIGHT")
+
+    min_voltage: Optional[float] = Field(
+        ..., description="MIN_VOLTAGE", alias="MIN_VOLTAGE"
+    )
+
+    voltage_precision: Optional[float] = Field(
+        ..., description="VOLTAGE_PRECISION", alias="VOLTAGE_PRECISION"
+    )
+
+    width: float = Field(..., description="WIDTH", alias="WIDTH")
+
+    max_altitude: Optional[float] = Field(
+        ..., description="Max altitude", alias="MAX_ALTITUDE"
+    )
+
+    min_altitude: Optional[float] = Field(
+        ..., description="Min altitude", alias="MIN_ALTITUDE"
+    )
+
+    altitude_precision: Optional[float] = Field(
+        ..., description="Altitude Precision", alias="ALTITUDE_PRECISION"
+    )
+
+    max_rpm: Optional[float] = Field(..., description="Max rpm", alias="MAX_RPM")
+
+    min_rpm: Optional[float] = Field(..., description="Min rpm", alias="MIN_RPM")
+
+    max_temp: Optional[float] = Field(
+        ..., description="Max Temperature", alias="MAX_TEMP"
+    )
+
+    min_temp: Optional[float] = Field(
+        ..., description="Min Temperature", alias="MIN_TEMP"
+    )
+
+    @root_validator(pre=True)
+    def validate_fields(cls, values):
+        return inject_none_for_missing_fields(cls, values)
+
+
+class Autopilot(Component):
+    max_servo_rail_voltage: float = Field(
+        ..., description="Max servo rail voltage", alias="MAX_SERVO_RAIL_VOLTAGE"
+    )
+
+    can: float = Field(..., description="can", alias="CAN")
+
+    acc_gyro_1: str = Field(..., description="ACCGyro_1", alias="AccGyro_1")
+
+    i2c: float = Field(..., description="I2C", alias="I2C")
+
+    no_of_telem_inputs: float = Field(
+        ..., description="No. of telem inputs", alias="Number_of_Telem_Inputs"
+    )
+
+    uart: Optional[float] = Field(..., description="UART", alias="UART")
+
+    fmu_cached_memory: float = Field(
+        ..., description="FMU_CACHED_MEMORY", alias="FMU_CACHED_MEMORY"
+    )
+
+    width: float = Field(..., description="WIDTH", alias="WIDTH")
+
+    magnetometer: str = Field(..., description="Magnetometer", alias="Magnetometer")
+
+    acc_gyro_3: Optional[str] = Field(..., description="AccGyro_3", alias="AccGyro_3")
+
+    cost: float = Field(..., description="Cost", alias="COST")
+
+    height: float = Field(..., description="height", alias="HEIGHT")
+
+    main_fmu_processor: str = Field(
+        ..., description="MAIN_FMU_PROCESSOR", alias="Main_FMU_Processor"
+    )
+
+    no_of_input_batteries: str = Field(
+        ..., description="No. of input batteries", alias="Number_of_Input_Batteries"
+    )
+
+    weight: float = Field(..., description="Weight", alias="WEIGHT")
+
+    fmu_bits: float = Field(..., description="FMU_Bits", alias="FMU_Bits")
+
+    input_voltage: Optional[Union[float, Tuple[float, float]]] = Field(
+        ..., description="INPUT_VOLTAGE", alias="INPUT_VOLTAGE"
+    )
+
+    barometer_1: str = Field(..., description="Barometer_1", alias="Barometer_1")
+
+    spi: float = Field(..., description="SPI", alias="SPI")
+
+    fmu_speed: float = Field(..., description="FMU_SPEED", alias="FMU_SPEED")
+
+    acc_gyro_2: str = Field(..., description="ACC_GYRO2", alias="AccGyro_2")
+
+    pwm_outputs: float = Field(..., description="PWM_Outputs", alias="PWM_Outputs")
+
+    pwm_inputs: Optional[float] = Field(
+        ..., description="PWM_Inputs", alias="PWM_Inputs"
+    )
+
+    barometer_2: Optional[str] = Field(
+        ..., description="Second barometer", alias="Barometer_2"
+    )
+
+    fmu_ram: float = Field(..., description="FMU_RAM", alias="FMU_RAM")
+
+    adc: float = Field(..., description="ADC", alias="ADC")
+
+    length: float = Field(..., description="LENGTH", alias="LENGTH")
+
+    io_bits: Optional[float] = Field(..., description="IO_Bits", alias="IO_Bits")
+
+    io_processor: Optional[str] = Field(
+        ..., description="IO_Processor", alias="IO_Processor"
+    )
+
+    io_ram: Optional[float] = Field(..., description="IO_RAM", alias="IO_RAM")
+
+    io_speed: Optional[float] = Field(..., description="IO_SPEED", alias="IO_SPEED")
+
+    @validator("input_voltage", pre=True, always=True)
+    def validate_input_voltage(cls, value):
+        if isinstance(value, str) and "," in value:
+            value = tuple(float(v) for v in value.split(","))
+        return value
+
+    @root_validator(pre=True)
+    def validate_fields(cls, values):
+        if "Number_of_Tele_ Inputs" in values:
+            values["Number_of_Telem_Inputs"] = values.pop("Number_of_Tele_ Inputs")
+        return inject_none_for_missing_fields(cls, values)
+
+
+class ParametricComponent(Component):
+    """A parametric component from the graph database"""
+
+    parameters: Dict[str, Any] = Field(
+        ..., description="The Parameters of these components"
+    )
+
+
+class Flange(ParametricComponent):
     pass
 
 
-class ComponentBuilder:
+class Tube(ParametricComponent):
+    pass
+
+
+class Hub(ParametricComponent):
+    pass
+
+
+class Orient(ParametricComponent):
+    pass
+
+
+class CarbonFiberPlate(ParametricComponent):
+    pass
+
+
+class ComponentsBuilder:
     """The components repository builder class"""
 
     def __init__(self, creator, components):
@@ -311,6 +830,7 @@ class ComponentBuilder:
             component_names = {
                 component.name: component for component in self.components.values()
             }
+
             if item in component_names:
                 return component_names[item]
             else:
@@ -328,9 +848,11 @@ class ComponentBuilder:
     @staticmethod
     def _initialize_components(creator, components):
         component_instances = {}
+
         for component_dict in components:
             component_instance = creator.parse_obj(component_dict)
             component_instances[component_instance.name] = component_instance
+
         return component_instances
 
 
@@ -339,14 +861,53 @@ with open(all_comps) as json_file:
     all_comps = json.load(json_file)
 
 
-def get_all_components_of_class(cls_):
+def get_all_components_of_class(cls):
     for key, value in all_comps.items():
-        if value["Classification"] == cls_.__name__:
+        if value["Classification"] == cls.__name__:
             value["Name"] = key
             yield value
 
 
-Batteries = ComponentBuilder(
-    creator=Battery, components=get_all_components_of_class(Battery)
-)
-print(Batteries.__len__())
+def _build_components(cls):
+    return ComponentsBuilder(creator=cls, components=get_all_components_of_class(cls))
+
+
+def _build_parametric_components(cls, names):
+    return ComponentsBuilder(
+        creator=cls,
+        components=(
+            {"Name": comp_name, "parameters": all_comps[comp_name]}
+            for comp_name in names
+        ),
+    )
+
+
+ALL_FLANGES = ["0394_para_flange", "0281_para_flange"]
+ALL_TUBES = ["0281OD_para_tube", "0394OD_para_tube"]
+ALL_HUBS = [
+    "0394od_para_hub_5",
+    "0394od_para_hub_6",
+    "0394od_para_hub_3",
+    "0394od_para_hub_4",
+    "0394od_para_hub_2",
+]
+ALL_ORIENTS = ["Orient"]
+ALL_CFPS = ["para_cf_fplate"]
+
+Batteries = _build_components(Battery)
+Propellers = _build_components(Propeller)
+Motors = _build_components(Motor)
+ESCs = _build_components(ESC)
+Instrument_Batteries = _build_components(Instrument_Battery)
+Wings = _build_components(Wing)
+GPSes = _build_components(GPS)
+Servos = _build_components(Servo)
+Receivers = _build_components(Receiver)
+Sensors = _build_components(Sensor)
+AutoPilots = _build_components(Autopilot)
+# Begin Parametric Components
+Orients = _build_parametric_components(Orient, ALL_ORIENTS)
+Flanges = _build_parametric_components(Flange, ALL_FLANGES)
+Tubes = _build_parametric_components(Tube, ALL_TUBES)
+Hubs = _build_parametric_components(Hub, ALL_HUBS)
+CFPs = _build_parametric_components(CarbonFiberPlate, ALL_CFPS)

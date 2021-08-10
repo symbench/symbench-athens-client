@@ -1,71 +1,138 @@
-import numpy as np
-import pandas as pd
+import json
+import math
+
 import pytest
 
 from symbench_athens_client.models.components import (
+    AutoPilots,
     Batteries,
-    Battery,
-    Motor,
+    CFPs,
+    ESCs,
+    Flanges,
+    GPSes,
+    Hubs,
+    Instrument_Batteries,
     Motors,
-    Propeller,
+    Orients,
     Propellers,
+    Receivers,
+    Sensors,
+    Servos,
+    Tubes,
+    Wings,
 )
 from symbench_athens_client.utils import get_data_file_path
 
 
 class TestComponents:
     @pytest.fixture(scope="session")
-    def batteries_dataframe(self):
-        battery_excel = get_data_file_path("Battery_Corpus.xlsx")
-        return pd.read_excel(battery_excel)
-
-    @pytest.fixture(scope="session")
-    def propellers_dataframe(self):
-        propellers_excel = get_data_file_path("Propeller_Corpus_Rev3.xlsx")
-        return pd.read_excel(propellers_excel)
-
-    @pytest.fixture(scope="session")
-    def motors_dataframe(self):
-        motors_excel = get_data_file_path("Motor_Corpus.xlsx")
-        return pd.read_excel(motors_excel)
+    def all_components(self):
+        with open(get_data_file_path("all_components.json")) as json_file:
+            return json.load(json_file)
 
     def test_batteries_count(self):
-        assert len(Batteries) == 34
+        assert len(Batteries) == 40
 
-    def test_battery_fields(self, batteries_dataframe):
-        aliases = set(field.alias for field in Battery.__fields__.values())
-        assert set(batteries_dataframe.columns) == aliases
+    def test_propellers_count(self):
+        assert len(Propellers) == 414
 
-    def test_batteries_attributes(self, batteries_dataframe):
-        battery_turnigy_nanotech_1450 = Batteries["Turnigy nano-tech 1450mAh 20~40C"]
-        assert battery_turnigy_nanotech_1450.manufacturer == "Turnigy"
-        assert battery_turnigy_nanotech_1450.cost == 11.49
-        assert battery_turnigy_nanotech_1450.length == 85.00
-        assert battery_turnigy_nanotech_1450.width == 34.00
-        assert battery_turnigy_nanotech_1450.num_cells == "2S1P"
-        assert battery_turnigy_nanotech_1450.performance_file == ""
+    def test_servo_count(self):
+        assert len(Servos) == 27
 
-    def test_propellers_count(self, propellers_dataframe):
-        assert len(Propellers) == 417
+    def test_wings_count(self):
+        assert len(Wings) == 136
 
-    def test_propellers_attributes(self, propellers_dataframe):
-        propeller_14x4s = Propellers["10.5x6"]
-        assert propeller_14x4s.name == "10.5x6"
-        assert propeller_14x4s.manufacturer == "APC Propellers"
-        assert propeller_14x4s.diameter_in == 10.5
-        assert propeller_14x4s.performance_file == "PER3_105x6.dat"
-        assert np.isclose(propeller_14x4s.pitch_mm, 152.4)
+    def test_motors_count(self):
+        assert len(Motors) == 83
 
-    def test_motors_count(self, motors_dataframe):
-        assert len(motors_dataframe) == len(Motors)
+    def test_sensors_count(self):
+        assert len(Sensors) == 4
 
-    def test_motor_fields(self, motors_dataframe):
-        aliases = set(field.alias for field in Motor.__fields__.values())
-        assert set(motors_dataframe.columns) == aliases
+    def test_gps_count(self):
+        assert len(GPSes) == 2
 
-    def test_motor_attributes(self, motors_dataframe):
-        motor_as2308_kv2600 = Motors.as2308_kv2600
-        assert motor_as2308_kv2600
-        assert motor_as2308_kv2600.adapter_length == (24.0, 28.0)
-        assert motor_as2308_kv2600.adapter_diameter == (5.0, 6.0)
-        assert motor_as2308_kv2600.poles == "12N14P"
+    def test_autopilot_count(self):
+        assert len(AutoPilots) == 4
+
+    def test_instrument_batteries_count(self):
+        assert len(Instrument_Batteries) == 2
+
+    def test_escs_count(self):
+        assert len(ESCs) == 20
+
+    def test_receivers_count(self):
+        assert len(Receivers) == 1
+
+    def test_orients_count(self):
+        assert len(Orients) == 1
+
+    def test_flanges_count(self):
+        assert len(Flanges) == 2
+
+    def test_tubes_count(self):
+        assert len(Tubes) == 2
+
+    def test_hubs_count(self):
+        assert len(Hubs) == 5
+
+    def test_cfps_count(self):
+        assert len(CFPs) == 1
+
+    def test_motor_properties(self):
+        t_motor_at2827kv900 = Motors.t_motor_AT2826KV900
+        assert t_motor_at2827kv900.control_channel == None
+        assert t_motor_at2827kv900.max_current == 57.0
+        assert t_motor_at2827kv900.poles == "12N14P"
+        assert t_motor_at2827kv900.adapter_length == (30.0, 36.0)
+        assert t_motor_at2827kv900.esc_bec_class == 3.0
+        assert t_motor_at2827kv900.max_power == 820.0
+        assert t_motor_at2827kv900.total_length == 69.5
+        assert t_motor_at2827kv900.cost == 69.99
+        assert t_motor_at2827kv900.shaft_diameter == 5.0
+        assert t_motor_at2827kv900.max_no_cells == 4.0
+        assert t_motor_at2827kv900.adapter_diameter == (6.0, 8.0)
+        assert t_motor_at2827kv900.length == 49.0
+
+    def test_battery_properties(self):
+        battery_turingy_gphene_6000mah = Batteries.TurnigyGraphene6000mAh3S75C
+        assert battery_turingy_gphene_6000mah.number_of_cells == "3S1P"
+        assert battery_turingy_gphene_6000mah.cost == 75.16
+        another_battery = Batteries["Turnigynano-tech3000mAh2040C"]
+        assert math.isnan(another_battery.pack_resistance)
+
+    def test_component_names(self, all_components):
+        for component_name in Batteries.all:
+            assert component_name in all_components
+
+        for component_name in Motors.all:
+            assert component_name in all_components
+
+        for component_name in Wings.all:
+            assert component_name in all_components
+
+    def test_wing_properties(self):
+        test_wing = Wings.right_NACA_2418
+        assert test_wing.tube_offset is None
+        assert test_wing.aileron_bias is None
+        assert test_wing.servo_width is None
+        assert test_wing.control_channel_ailerons is None
+        assert test_wing.diameter is None
+        assert test_wing.flap_bias is None
+
+    def test_servo_properties(self):
+        test_servo = Servos.Hitec_HS_625MG
+        assert test_servo.idle_current == 9.1
+        assert test_servo.servo_class == "Standard"
+        assert test_servo.weight == 0.055200000000000006
+        assert test_servo.deadband_width == 8.0
+
+    def test_gps_properties(self):
+        test_gps = GPSes.GPS_cuav_CUAVNEOV2
+        assert test_gps.output_rate == 10.0
+        assert test_gps.power_consumption == 25.0
+
+    def test_esc_properties(self):
+        test_esc = ESCs.t_motor_FLAME_70A
+        assert test_esc.tube_od is None
+        assert test_esc.cont_amps == 70.0
+        assert test_esc.control_channel is None
