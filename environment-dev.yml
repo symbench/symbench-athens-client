@@ -9,5 +9,4 @@ dependencies:
     - black
     - pre-commit
     - isort
-    - pandas
-    - openpyxl
+    - gremlinpython

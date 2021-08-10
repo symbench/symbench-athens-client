@@ -2,7 +2,7 @@ import logging
 import re
 
 
-def get_logger(name, level):
+def get_logger(name, level=logging.DEBUG):
     """Get a logger instance."""
     logger = logging.getLogger(name)
     ch = logging.StreamHandler()

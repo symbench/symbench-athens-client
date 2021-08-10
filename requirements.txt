@@ -1,4 +1,2 @@
 api4jenkins
 pydantic
-pandas
-openpyxl

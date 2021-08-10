@@ -1,36 +1,24 @@
+import json
 from typing import Tuple, Union
 
-import pandas as pd
 from pydantic import BaseModel, Field, root_validator, validator
 
-from symbench_athens_client.utils import get_data_file_path, to_camel_case
+from symbench_athens_client.utils import get_data_file_path
 
 
 class Component(BaseModel):
     """The Base Component Class"""
 
-    category: str = Field(..., description="Category", alias="Category")
-
-    style: str = Field(..., description="Style", alias="Style")
-
-    name: str = Field(..., description="Name of the component", alias="Name")
-
-    manufacturer: str = Field(..., description="Manufacturer", alias="Manufacturer")
-
-    cost: float = Field(..., description="Cost in dollars", alias="Cost [$]")
-
-    performance_file: str = Field(
-        "", description="Performance File", alias="Performance File"
+    name: str = Field(
+        ...,
+        description="The name of the component as is in the graph database",
+        alias="Name",
     )
 
-    buy_link: str = Field(..., description="Buy Link", alias="Buy Link")
-
-    cad_file: str = Field(..., description="CAD File", alias="CAD File")
-
-    image_file: str = Field(..., description="Image File", alias="Image File")
-
-    product_description: str = Field(
-        ..., description="Product Description", alias="Product Description"
+    classification: str = Field(
+        "Battery",
+        description="The component type for this battery. Redundant but useful info",
+        alias="Classification",
     )
 
     def __repr__(self):
@@ -41,71 +29,91 @@ class Component(BaseModel):
     def __str__(self):
         return repr(self)
 
-    @root_validator(pre=True)
-    def validate(cls, values):
-        defaults = {float: 0.0, str: ""}
-        field_annos = {}
-        for field, field_info in cls.__fields__.items():
-            field_annos[field_info.alias] = field_info.type_
-        for field in values:
-            if pd.isna(values[field]):
-                try:
-                    values[field] = defaults[field_annos[field]]
-                except KeyError:
-                    pass
-            if isinstance(values[field], str):
-                values[field] = values[field].strip()
-        return values
-
     class Config:
         allow_mutation = False
         allow_population_by_field_name = True
+        extra = "forbid"
 
 
 class Battery(Component):
-    """The Battery Component"""
+    """The Battery Component
+    An example of a battery attributes in the Graph database is shown below:
 
-    length: float = Field(..., description="Length in MM", alias="Length [mm]")
 
-    width: float = Field(..., description="Width in MM", alias="Width [mm]")
-
-    thickness: float = Field(..., description="Thickness in MM", alias="Thickness [mm]")
-
-    weight: float = Field(..., description="Weight in grams", alias="Weight [g]")
-
-    voltage: float = Field(..., description="Voltage in Volts", alias="Voltage [V]")
-
-    num_cells: str = Field(..., description="Number of cells", alias="Number of Cells")
-
-    chemistry_type: str = Field(
-        ..., description="Chemistry Type", alias="Chemistry Type"
-    )
-
-    capacity: float = Field(..., description="Capacity in Mah", alias="Capacity [mAh]")
+    "PEAK_DISCHARGE_RATE": "150",
+    "NUMBER_OF_CELLS": "4S1P",
+    "THICKNESS": "34",
+    "CONT_DISCHARGE_RATE": "75",
+    "VOLTAGE": "14.8",
+    "CAPACITY": "6000",
+    "DISCHARGE_PLUG": "XT90",
+    "WIDTH": "69",
+    "CHEMISTRY_TYPE": "LiPo",
+    "COST": "99.8",
+    "PACK_RESISTANCE": "9.0",
+    "MODEL": "TurnigyGraphene6000mAh4S75C",
+    "WEIGHT": "0.8",
+    "LENGTH": "168.0",
+    "Classification": "Battery"
+    """
 
     peak_discharge_rate: float = Field(
-        ..., description="Peak Discharge Rate [C]", alias="Peak Discharge Rate [C]"
+        ...,
+        description="Peak Discharge rate of the Battery",
+        alias="PEAK_DISCHARGE_RATE",
     )
+
+    number_of_cells: str = Field(
+        ..., description="Number of cells", alias="NUMBER_OF_CELLS"
+    )
+
+    thickness: str = Field(..., description="Thickness", alias="THICKNESS")
 
     cont_discharge_rate: float = Field(
-        ..., description="Cont. Discharge Rate [C]", alias="Cont. Discharge Rate [C]"
+        ..., description="Continuous Discharge Rate", alias="CONT_DISCHARGE_RATE"
     )
 
-    pack_resistance: float = Field(
-        ..., description="Pack Resistance [mΩ]", alias="Pack Resistance [mΩ]"
-    )
+    voltage: float = Field(..., description="Voltage", alias="VOLTAGE")
 
-    discharge_cable_size_awg: float = Field(
-        0.0,
-        description="Discharge Cable Size [AWG]",
-        alias="Discharge Cable Size [AWG]",
+    capacity: float = Field(
+        ..., description="Capacity of the Battery", alias="CAPACITY"
     )
 
     discharge_plug: str = Field(
-        ..., description="Discharge Plug", alias="Discharge Plug"
+        ..., description="Discharge Plug Details", alias="DISCHARGE_PLUG"
     )
 
-    manf_cad: str = Field(..., description="Manufacturer CAD File", alias="Manf CAD")
+    width: float = Field(..., description="Width of the Battery", alias="WIDTH")
+
+    chemistry_type: str = Field(
+        ..., description="Chemistry Type of the Battery", alias="CHEMISTRY_TYPE"
+    )
+
+    cost: float = Field(..., description="Cost of the Battery", alias="COST")
+
+    pack_resistance: float = Field(
+        0.0, description="Pack Resistance of the Battery", alias="PACK_RESISTANCE"
+    )
+
+    model: str = Field(..., description="Model name of the Battery", alias="MODEL")
+
+    weight: float = Field(
+        ...,
+        description="Weight of the Battery",
+        alias="WEIGHT",
+    )
+
+    length: float = Field(..., description="Length of the Battery", alias="LENGTH")
+
+    @root_validator(pre=True)
+    def validate_fields(cls, values):
+        if "Chemistry Type" in values:
+            values["CHEMISTRY_TYPE"] = values.pop("Chemistry Type")
+        if "Discharge Plug" in values:
+            values["DISCHARGE_PLUG"] = values.pop("Discharge Plug")
+        if "Number of Cells" in values:
+            values["NUMBER_OF_CELLS"] = values.pop("Number of Cells")
+        return values
 
 
 class Propeller(Component):
@@ -272,16 +280,16 @@ class Motor(Component):
         return value
 
 
-class AutoPilot(Component):
+class ESC(Component):
     pass
 
 
 class ComponentBuilder:
     """The components repository builder class"""
 
-    def __init__(self, creator, spreadsheet):
+    def __init__(self, creator, components):
         self.creator = creator
-        self.components = self._initialize_components(creator, spreadsheet)
+        self.components = self._initialize_components(creator, components)
 
     @property
     def all(self):
@@ -318,17 +326,27 @@ class ComponentBuilder:
         return len(self.components)
 
     @staticmethod
-    def _initialize_components(creator, spreadsheet):
-        batteries_excel_sheet = get_data_file_path(spreadsheet)
-        df = pd.read_excel(batteries_excel_sheet)
-        dicts = df.to_dict(orient="records")
-        components = {}
-        for battery_dict in dicts:
-            comp = creator.parse_obj(battery_dict)
-            components[to_camel_case(comp.name)] = comp
-        return components
+    def _initialize_components(creator, components):
+        component_instances = {}
+        for component_dict in components:
+            component_instance = creator.parse_obj(component_dict)
+            component_instances[component_instance.name] = component_instance
+        return component_instances
 
 
-Batteries = ComponentBuilder(Battery, "Battery_Corpus.xlsx")
-Propellers = ComponentBuilder(Propeller, "Propeller_Corpus_Rev3.xlsx")
-Motors = ComponentBuilder(Motor, "Motor_Corpus.xlsx")
+all_comps = get_data_file_path("all_components.json")
+with open(all_comps) as json_file:
+    all_comps = json.load(json_file)
+
+
+def get_all_components_of_class(cls_):
+    for key, value in all_comps.items():
+        if value["Classification"] == cls_.__name__:
+            value["Name"] = key
+            yield value
+
+
+Batteries = ComponentBuilder(
+    creator=Battery, components=get_all_components_of_class(Battery)
+)
+print(Batteries.__len__())
