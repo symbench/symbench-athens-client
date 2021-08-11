@@ -26,6 +26,7 @@ from symbench_athens_client.models.components import (
     Wing,
     Wings,
 )
+from symbench_athens_client.utils import dict_to_string
 
 
 class SeedDesign(BaseModel):
@@ -37,11 +38,7 @@ class SeedDesign(BaseModel):
 
     def to_jenkins_parameters(self):
         design_vars = self.dict(by_alias=True, include=self.__design_vars__)
-        return {
-            "DesignVars": "".join(
-                f"{k}={v},{v} " for k, v in design_vars.items()
-            ).rstrip()
-        }
+        return {"DesignVars": dict_to_string(design_vars, repeat_values=True)}
 
     def parameters(self):
         return self.dict(include=self.__design_vars__)

@@ -32,3 +32,11 @@ def inject_none_for_missing_fields(cls, values):
         if field_name not in values and field_info.alias not in values:
             values[field_name] = None
     return values
+
+
+def dict_to_string(inp_dict, repeat_values=True):
+    """Convert a dictionary to a comma separated string of key=value or key=value,value"""
+    joined = "".join(
+        f"{k}={v},{v} " if repeat_values else f"{k}={v} " for k, v in inp_dict.items()
+    ).rstrip()
+    return joined[0:-1] if joined[-1] == "," else joined
