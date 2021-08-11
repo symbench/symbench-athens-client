@@ -46,6 +46,24 @@ class SeedDesign(BaseModel):
     def parameters(self):
         return self.dict(include=self.__design_vars__)
 
+    def components(self):
+        all_components = self.dict(
+            by_alias=True, exclude={"name"}.union(self.__design_vars__)
+        )
+        names = {}
+        print(all_components)
+        for component in all_components:
+            names[component] = all_components[component]["Name"]
+        return names
+
+    def iter_components(self, by_alias=True):
+        for field_key, v in self.__dict__.items():
+            if field_key not in self.__design_vars__ and field_key != "name":
+                name = field_key
+                if by_alias:
+                    name = self.__fields__[field_key].alias
+                yield name, v
+
     @validator("name", pre=True, always=True)
     def validate_name(cls, name):
         if name is None or name == "":
