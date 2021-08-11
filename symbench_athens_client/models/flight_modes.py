@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, validator
 from symbench_athens_client.utils import dict_to_string
 
 
-class FlightDynamicsSettings(BaseModel):
+class FlightModeSettings(BaseModel):
     """The Base Flight Dyanamics Settings"""
 
     __attr_aliases__: ClassVar[dict] = {"analysis_type": "Analysis_Type"}
@@ -37,7 +37,7 @@ class FlightDynamicsSettings(BaseModel):
         validate_assignment = True
 
 
-class InitialConditionsFlight(FlightDynamicsSettings):
+class InitialConditionsFlight(FlightModeSettings):
     """The Initial Conditions Flight"""
 
     @property
@@ -45,7 +45,7 @@ class InitialConditionsFlight(FlightDynamicsSettings):
         return 1
 
 
-class TrimSteadyFlight(FlightDynamicsSettings):
+class TrimSteadyFlight(FlightModeSettings):
     """The Trim Steady Flight"""
 
     @property
@@ -53,7 +53,7 @@ class TrimSteadyFlight(FlightDynamicsSettings):
         return 2
 
 
-class FlightPathFlight(FlightDynamicsSettings):
+class FlightPathFlight(FlightModeSettings):
     """The Flight path flight"""
 
     __attr_aliases__: ClassVar[dict] = {

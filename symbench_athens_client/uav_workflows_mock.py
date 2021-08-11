@@ -1,7 +1,7 @@
 from symbench_athens_client.models.designs import SeedDesign
-from symbench_athens_client.models.uav_analysis import (
+from symbench_athens_client.models.flight_modes import (
     CircularFlight,
-    FlightDynamicsSettings,
+    FlightModeSettings,
     InitialConditionsFlight,
     RacingOvalFlight,
     RiseAndHoverFlight,
@@ -15,7 +15,7 @@ def _merge_params_fd(design, analysis_mode, num_samples):
         design, SeedDesign
     ), "Please provide a proper seed design instance"
     assert isinstance(
-        analysis_mode, FlightDynamicsSettings
+        analysis_mode, FlightModeSettings
     ), "Please provide a proper analysis setting instance"
     params = design.to_jenkins_parameters()
     params["DesignVars"] = (
