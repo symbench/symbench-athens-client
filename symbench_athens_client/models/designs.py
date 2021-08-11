@@ -1,12 +1,9 @@
-from typing import ClassVar, List, Tuple
+from typing import ClassVar
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, validator
 
 from symbench_athens_client.models.components import (
     ESC,
-    GPS,
-    Autopilot,
-    Autopilots,
     Batteries,
     Battery,
     CarbonFiberPlate,
@@ -14,21 +11,14 @@ from symbench_athens_client.models.components import (
     ESCs,
     Flange,
     Flanges,
-    GPSes,
     Hub,
     Hubs,
-    Instrument_Batteries,
-    Instrument_Battery,
     Motor,
     Motors,
     Orient,
     Orients,
     Propeller,
     Propellers,
-    Receiver,
-    Receivers,
-    Sensor,
-    Sensors,
     Servo,
     Servos,
     Tube,
