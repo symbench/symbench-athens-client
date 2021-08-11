@@ -4,7 +4,7 @@ import math
 import pytest
 
 from symbench_athens_client.models.components import (
-    AutoPilots,
+    Autopilots,
     Batteries,
     CFPs,
     ESCs,
@@ -52,7 +52,7 @@ class TestComponents:
         assert len(GPSes) == 2
 
     def test_autopilot_count(self):
-        assert len(AutoPilots) == 4
+        assert len(Autopilots) == 4
 
     def test_instrument_batteries_count(self):
         assert len(Instrument_Batteries) == 2

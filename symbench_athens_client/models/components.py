@@ -904,7 +904,7 @@ GPSes = _build_components(GPS)
 Servos = _build_components(Servo)
 Receivers = _build_components(Receiver)
 Sensors = _build_components(Sensor)
-AutoPilots = _build_components(Autopilot)
+Autopilots = _build_components(Autopilot)
 # Begin Parametric Components
 Orients = _build_parametric_components(Orient, ALL_ORIENTS)
 Flanges = _build_parametric_components(Flange, ALL_FLANGES)
