@@ -89,3 +89,9 @@ class TestDesigns:
         assert h_plane.rear_prop_l == Propellers["apc_propellers_4_75x4_75EP"]
         assert h_plane.rear_prop_r == Propellers["apc_propellers_4_75x4_75E"]
         assert h_plane.rear_tube_c == Tubes["0394OD_para_tube"]
+
+    def test_allow_population_by_field_name(self):
+        design = QuadCopter(arm_length=225.9)
+        assert design.parameters()["Length_0"] == 225.9
+        design_2 = QuadSpiderCopter(support_length=330.24)
+        assert design_2.support_length == 330.24

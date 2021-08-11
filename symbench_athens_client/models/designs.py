@@ -44,7 +44,7 @@ class SeedDesign(BaseModel):
         }
 
     def parameters(self):
-        return self.dict(include=self.__design_vars__)
+        return self.dict(by_alias=True, include=self.__design_vars__)
 
     def components(self):
         all_components = self.dict(
@@ -73,6 +73,7 @@ class SeedDesign(BaseModel):
     class Config:
         validate_assignment = True
         arbitrary_types_allowed = True
+        allow_population_by_field_name = True
 
 
 class QuadCopter(SeedDesign):
