@@ -10,15 +10,15 @@ class FlightModeSettings(BaseModel):
 
     __attr_aliases__: ClassVar[dict] = {"analysis_type": "Analysis_Type"}
 
-    @property
-    def analysis_type(self):
-        raise NotImplemented
-
     requested_velocity: float = Field(
         10.0,
         alias="Requested_Velocity",
         description="The requested velocity for the FD-Simulation",
     )
+
+    @property
+    def analysis_type(self):
+        raise NotImplemented
 
     def to_jenkins_parameters(self):
         params = self.parameters()
@@ -35,6 +35,7 @@ class FlightModeSettings(BaseModel):
 
     class Config:
         validate_assignment = True
+        allow_population_by_field_name = True
 
 
 class InitialConditionsFlight(FlightModeSettings):

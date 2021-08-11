@@ -1,9 +1,4 @@
-from symbench_athens_client.models.designs import (
-    HCopter,
-    HPlane,
-    QuadCopter,
-    QuadSpiderCopter,
-)
+from symbench_athens_client.models.designs import QuadCopter
 from symbench_athens_client.uav_workflows_mock import (
     fly_circle,
     fly_rise_and_hover,
@@ -22,3 +17,6 @@ class TestUAVWorkflowsMock:
             design, num_samples=29, requested_velocity=20.0
         )
         assert params["NumSamples"] == 29
+        assert params["PETName"] == "/D_Testing/PET/FlightDyn_V1"
+        assert "Requested_Velocity=20.0" in params["DesignVars"]
+        assert "Length_0=330.0,330.0" in params["DesignVars"]

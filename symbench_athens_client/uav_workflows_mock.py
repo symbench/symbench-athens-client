@@ -47,6 +47,7 @@ def fly_with_initial_conditions(design, num_samples=1, requested_velocity=10.0):
     initial_condition_flight = InitialConditionsFlight(
         requested_velocity=requested_velocity
     )
+    print(initial_condition_flight.requested_velocity)
     return _merge_params_fd(design, initial_condition_flight, num_samples)
 
 
