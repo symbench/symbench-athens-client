@@ -37,16 +37,19 @@ class TestDesigns:
         params = qd_spider_copter.to_jenkins_parameters()
         assert (
             params["DesignVars"]
-            == "Length_0=220.0,220.0 Length_1=155.0,155.0 Length_2=80.0,80.0 Length_3=80.0,80.0 Length_4=0.0,0.0 Length_5=0.0,0.0 Param_0=120.0,120.0"
+            == "Length_0=220.0,220.0 Length_1=155.0,155.0 Length_2=80.0,80.0 Length_3=80.0,80.0 Length_8=0.0,0.0 Length_9=0.0,0.0 Param_0=120.0,120.0"
         )
 
     def test_hplane_jenkins_params(self, h_plane):
         params = h_plane.to_jenkins_parameters()
-        assert params["DesignVars"] == "Length_1=320.0,320.0"
+        assert (
+            params["DesignVars"]
+            == "Length_1=320.0,320.0 Length_8=0.0,0.0 Length_9=0.0,0.0"
+        )
 
     def test_hcopter_jenkins_params(self, h_copter):
         params = h_copter.to_jenkins_parameters()
         assert (
             params["DesignVars"]
-            == "Length_0=500.0,500.0 Length_1=95.0,95.0 Length_2=0.0,0.0 Length_3=0.0,0.0"
+            == "Length_0=500.0,500.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0"
         )
