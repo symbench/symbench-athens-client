@@ -33,6 +33,9 @@ class FlightDynamicsSettings(BaseModel):
 
         return params
 
+    class Config:
+        validate_assignment = True
+
 
 class InitialConditionsFlight(FlightDynamicsSettings):
     """The Initial Conditions Flight"""
