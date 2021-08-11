@@ -18,5 +18,7 @@ class TestUAVWorkflowsMock:
     def test_fly_with_initial_conditions(self):
         design = QuadCopter()
         design.arm_length = 330.0
-        params = fly_with_initial_conditions(design, requested_velocity=20.0)
-        assert params
+        params = fly_with_initial_conditions(
+            design, num_samples=29, requested_velocity=20.0
+        )
+        assert params["NumSamples"] == 29

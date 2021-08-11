@@ -10,7 +10,7 @@ from symbench_athens_client.models.uav_analysis import (
 )
 
 
-def _merge_params_fd(design, analysis_mode):
+def _merge_params_fd(design, analysis_mode, num_samples):
     assert isinstance(
         design, SeedDesign
     ), "Please provide a proper seed design instance"
@@ -23,11 +23,11 @@ def _merge_params_fd(design, analysis_mode):
     )
     params["PETName"] = "/D_Testing/PET/FlightDyn_V1"
     params["graphGUID"] = design.name
-    params["NumSamples"] = 1
+    params["NumSamples"] = num_samples
     return params
 
 
-def fly_with_initial_conditions(design, requested_velocity=10.0):
+def fly_with_initial_conditions(design, num_samples=1, requested_velocity=10.0):
     """Fly with initial conditions workflow
 
     Run the UAVWorkflows' flight dynamics test bench to execute a flight from initial conditions
@@ -39,16 +39,18 @@ def fly_with_initial_conditions(design, requested_velocity=10.0):
     ----------
     design: symbench_athens_client.models.designs.SeedDesign
         The design to run this workflow on
+    num_samples: int, default=1
+        The number of samples to run for
     requested_velocity: float, default=10.0
         The requested velocity for this flight
     """
     initial_condition_flight = InitialConditionsFlight(
         requested_velocity=requested_velocity
     )
-    return _merge_params_fd(design, initial_condition_flight)
+    return _merge_params_fd(design, initial_condition_flight, num_samples)
 
 
-def fly_trim_steady(design, requested_velocity=10.0):
+def fly_trim_steady(design, num_samples=1, requested_velocity=10.0):
     """Fly with initial conditions workflow
 
     Run the UAVWorkflows' flight dynamics test bench to perform a trim analysis to U = x(1) forward speed, level steady flight.
@@ -59,15 +61,17 @@ def fly_trim_steady(design, requested_velocity=10.0):
     ----------
     design: symbench_athens_client.models.designs.SeedDesign
         The design to run this workflow on
+    num_samples: int, default=1
+        The number of samples to run for
     requested_velocity: float, default=10.0
         The requested velocity for this run
     """
     trim_steady_flight = TrimSteadyFlight(requested_velocity=requested_velocity)
 
-    return _merge_params_fd(design, trim_steady_flight)
+    return _merge_params_fd(design, trim_steady_flight, num_samples)
 
 
-def fly_straight_line(design, **kwargs):
+def fly_straight_line(design, num_samples=1, **kwargs):
     """Fly Circle workflow
 
     Run the UAVWorkflows' flight dynamics test bench to execute a straight line flight path
@@ -80,6 +84,8 @@ def fly_straight_line(design, **kwargs):
     ----------
     design: symbench_athens_client.models.designs.SeedDesign
         The design to run this workflow on
+    num_samples: int, default=1
+        The number of samples to run for
     **kwargs:
         The KeyWord Arguments to the CircularFlight's constructor listed below:
         - 'requested_velocity',
@@ -96,10 +102,10 @@ def fly_straight_line(design, **kwargs):
         The module with different flight path methods
     """
     flight_mode = StraightLineFlight(**kwargs)
-    return _merge_params_fd(design, flight_mode)
+    return _merge_params_fd(design, flight_mode, num_samples)
 
 
-def fly_circle(design, **kwargs):
+def fly_circle(design, num_samples=1, **kwargs):
     """Fly Circle workflow
 
     Run the UAVWorkflows' flight dynamics test bench to execute a circular flight path
@@ -112,6 +118,8 @@ def fly_circle(design, **kwargs):
     ----------
     design: symbench_athens_client.models.designs.SeedDesign
         The design to run this workflow on
+    num_samples: int, default=1
+        The number of samples to run for
     **kwargs:
         The KeyWord Arguments to the CircularFlight's constructor listed below:
         - 'requested_velocity',
@@ -128,10 +136,10 @@ def fly_circle(design, **kwargs):
         The module with different flight path methods
     """
     circular_flight_mode = CircularFlight(**kwargs)
-    return _merge_params_fd(design, circular_flight_mode)
+    return _merge_params_fd(design, circular_flight_mode, num_samples)
 
 
-def fly_rise_and_hover(design, **kwargs):
+def fly_rise_and_hover(design, num_samples=1, **kwargs):
     """Fly Rise and Hover (i.e. Vertical Rise)
 
     Run the UAVWorkflows' flight dynamics test bench to execute a rise and hover
@@ -144,6 +152,8 @@ def fly_rise_and_hover(design, **kwargs):
     ----------
     design: symbench_athens_client.models.designs.SeedDesign
         The design to run this workflow on
+    num_samples: int, default=1
+        The number of samples to run for
     **kwargs:
         The KeyWord Arguments to the CircularFlight's constructor listed below:
         - 'requested_velocity',
@@ -160,9 +170,38 @@ def fly_rise_and_hover(design, **kwargs):
         The module with different flight path methods
     """
     circular_flight_mode = RiseAndHoverFlight(**kwargs)
-    return _merge_params_fd(design, circular_flight_mode)
+    return _merge_params_fd(design, circular_flight_mode, num_samples)
 
 
-def racing_oval_flight(design, **kwargs):
+def racing_oval_flight(design, num_samples=1, **kwargs):
+    """Fly Racing Oval Flight
+
+    Run the UAVWorkflows' flight dynamics test bench to execute a Racing Oval Flight
+    (Mock Implementation returning only jenkins parameters)
+
+    Prefixed Settings for this FD workflow are: Analysis_Type is 3, Flight_Path is 5.
+    See the **kwargs below to see what can be requested.
+
+    Parameters
+    ----------
+    design: symbench_athens_client.models.designs.SeedDesign
+        The design to run this workflow on
+    num_samples: int, default=1
+        The number of samples to run for
+    **kwargs:
+        The KeyWord Arguments to the CircularFlight's constructor listed below:
+        - 'requested_velocity',
+        - 'requested_lateral_speed', (this has no effect and is always set to zero)
+        - 'q_position',
+        - 'q_velocity',
+        - 'q_angluar_velocity',
+        - 'q_angles',
+        - 'r'
+
+    See Also
+    --------
+    symbench_athens_client.models.uav_analysis
+        The module with different flight path methods
+    """
     racing_oval_flight_mode = RacingOvalFlight(**kwargs)
-    return _merge_params_fd(design, racing_oval_flight_mode)
+    return _merge_params_fd(design, racing_oval_flight_mode, num_samples)
