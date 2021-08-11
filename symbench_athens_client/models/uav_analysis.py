@@ -21,13 +21,17 @@ class FlightDynamicsSettings(BaseModel):
     )
 
     def to_jenkins_parameters(self):
+        params = self.parameters()
+        return {"DesignVars": dict_to_string(params, repeat_values=False)}
+
+    def parameters(self):
         params = self.dict(by_alias=True)
 
         for k, v in self.__attr_aliases__.items():
             if hasattr(self, k):
                 params[v] = getattr(self, k)
 
-        return {"DesignVars": dict_to_string(params, repeat_values=False)}
+        return params
 
 
 class InitialConditionsFlight(FlightDynamicsSettings):
