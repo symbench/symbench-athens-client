@@ -27,9 +27,7 @@ class Component(BaseModel):
     )
 
     def __repr__(self):
-        return (
-            f"<{self.__class__.__name__}, Category: {self.category}, Name: {self.name}>"
-        )
+        return f"<{self.__class__.__name__}, Category: {self.classification}, Name: {self.name}>"
 
     def __str__(self):
         return repr(self)
