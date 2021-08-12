@@ -174,7 +174,7 @@ def fly_rise_and_hover(design, num_samples=1, **kwargs):
     return _merge_params_fd(design, circular_flight_mode, num_samples)
 
 
-def racing_oval_flight(design, num_samples=1, **kwargs):
+def fly_racing_oval(design, num_samples=1, **kwargs):
     """Fly Racing Oval Flight
 
     Run the UAVWorkflows' flight dynamics test bench to execute a Racing Oval Flight

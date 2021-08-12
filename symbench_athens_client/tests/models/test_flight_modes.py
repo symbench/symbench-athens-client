@@ -10,7 +10,7 @@ from symbench_athens_client.models.flight_modes import (
 )
 
 
-class TestUAVAnalysis:
+class TestFlightModes:
     @pytest.fixture(scope="session")
     def initial_conditions_flight(self):
         return InitialConditionsFlight()
