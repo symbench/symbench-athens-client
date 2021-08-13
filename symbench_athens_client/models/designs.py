@@ -1,4 +1,4 @@
-from typing import ClassVar
+from typing import ClassVar, Dict, List, Optional
 
 from pydantic import BaseModel, Field, validator
 
@@ -36,6 +36,10 @@ class SeedDesign(BaseModel):
         "", alias="name", description="Name of the seed design in the graph database"
     )
 
+    swap_list: Dict[str, List[str]] = Field(
+        {}, description="list of swap components for this design", alias="swap_list"
+    )
+
     def to_jenkins_parameters(self):
         design_vars = self.dict(by_alias=True, include=self.__design_vars__)
         return {"DesignVars": dict_to_string(design_vars, repeat_values=True)}
@@ -45,13 +49,25 @@ class SeedDesign(BaseModel):
 
     def components(self):
         all_components = self.dict(
-            by_alias=True, exclude={"name"}.union(self.__design_vars__)
+            by_alias=True, exclude={"name", "swap_list"}.union(self.__design_vars__)
         )
         names = {}
         print(all_components)
         for component in all_components:
             names[component] = all_components[component]["Name"]
         return names
+
+    def reset_name(self):
+        self.name = self.__class__.__name__
+
+    def clear_swap(self, component_instance_name=None):
+        if component_instance_name is None:
+            self.swap_list = {}
+        else:
+            del self.swap_list[component_instance_name]
+
+    def needs_swap(self):
+        return len(self.swap_list) > 0
 
     def iter_components(self, by_alias=True):
         for field_key, v in self.__dict__.items():
@@ -60,6 +76,16 @@ class SeedDesign(BaseModel):
                 if by_alias:
                     name = self.__fields__[field_key].alias
                 yield name, v
+
+    def __setattr__(self, key, value):
+        if key not in self.__design_vars__ and (key != "name" and key != "swap_list"):
+            if getattr(self, key) != value:
+                field_info_for_key = self.__fields__[key]
+                if not self.swap_list.get(field_info_for_key.alias):
+                    self.swap_list[field_info_for_key.alias] = [getattr(self, key).name]
+                self.swap_list[field_info_for_key.alias].append(value.name)
+
+        super().__setattr__(key, value)
 
     @validator("name", pre=True, always=True)
     def validate_name(cls, name):
