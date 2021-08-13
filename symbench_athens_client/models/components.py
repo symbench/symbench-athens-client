@@ -1,3 +1,4 @@
+import csv
 import json
 from typing import Any, Dict, Optional, Tuple, Union
 
@@ -843,6 +844,15 @@ class ComponentsBuilder:
     def __len__(self):
         return len(self.components)
 
+    def to_csv(self, filename):
+        """Write these components to a csv_file"""
+        keys = [field.alias for _, field in self.creator.__fields__.items()]
+        with open(filename, "w", newline="") as op_csv:
+            dict_writer = csv.DictWriter(op_csv, keys)
+            dict_writer.writeheader()
+            for component in self.components.values():
+                dict_writer.writerow(component.dict(by_alias=True))
+
     @staticmethod
     def _initialize_components(creator, components):
         component_instances = {}
@@ -852,6 +862,9 @@ class ComponentsBuilder:
             component_instances[component_instance.name] = component_instance
 
         return component_instances
+
+    def __repr__(self):
+        return f"<{self.creator.__name__} Library, Count: {self.__len__()}>"
 
 
 all_comps = get_data_file_path("all_components.json")
