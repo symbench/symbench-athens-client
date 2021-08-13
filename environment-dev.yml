@@ -10,3 +10,4 @@ dependencies:
     - pre-commit
     - isort
     - gremlinpython
+    - tomark
