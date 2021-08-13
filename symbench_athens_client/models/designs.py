@@ -417,6 +417,8 @@ class QuadSpiderCopter(SeedDesign):
 
 
 class HCopter(SeedDesign):
+    """The H-Copter Seed Design"""
+
     __design_vars__ = {
         "arm_length",
         "support_length",
@@ -554,6 +556,8 @@ class HCopter(SeedDesign):
 
 
 class HPlane(SeedDesign):
+    """The H-Plane Seed Design"""
+
     __design_vars__ = {"tube_length", "batt_mount_x_offset", "batt_mount_z_offset"}
 
     tube_length: float = Field(
