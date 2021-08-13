@@ -162,10 +162,15 @@ class UAVWorkflowRunner(SymbenchAthensClient):
 
         Parameters
         ----------
+        design: symebench_athens_client.models.designs.SeedDesign
+            The Seed design to run this testbench on
+
         num_samples: int, default=1
             Number of samples to execute for Monte Carlo DOE, uniformly sampled
+
         clone: bool, default=True
             If True, clone the design before starting HoverCalc
+
         clear: bool, default=True
             If True, clear the design after completing HoverCalc
 
@@ -191,6 +196,49 @@ class UAVWorkflowRunner(SymbenchAthensClient):
 
         self.logger.info(
             f"Finished HoverCalc on {design.name} with number_samples={num_samples}, clone={clone}, clear={clear}"
+        )
+
+        return results
+
+    def run_geometry_v1(self, design, num_samples=1, clone=True, clear=True):
+        """Run GeometryV1 test bench on the design
+
+        Parameters
+        ----------
+        design: symebench_athens_client.models.designs.SeedDesign
+            The Seed design to run this testbench on
+
+        num_samples: int, default=1
+            Number of samples to execute for Monte Carlo DOE, uniformly sampled\
+
+        clone: bool, default=True
+            If True, clone the design before starting HoverCalc
+
+        clear: bool, default=True
+            If True, clear the design after completing HoverCalc
+
+        Notes
+        -----
+        If some components in the design need swapping, those components will be swapped in the database
+        """
+        self.logger.info(
+            f"Starting GeometryV1 on {design.name} with number_samples={num_samples}, clone={clone}, clear={clear}"
+        )
+        if clone:
+            self._clone_design(design)
+
+        if design.needs_swap():
+            self._swap_components(design)
+
+        geometry_v1 = GeometryV1(design=design, num_samples=num_samples)
+
+        results = self._run_uav_workflow(geometry_v1)
+
+        if clear:
+            self._clear_design(design)
+
+        self.logger.info(
+            f"Finished GeometryV1 on {design.name} with number_samples={num_samples}, clone={clone}, clear={clear}"
         )
 
         return results
