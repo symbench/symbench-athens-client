@@ -45,9 +45,9 @@ The quadcopter seed design
 
 
 ### Jenkins Design Variables and Defaults:
-| Length_0 | Length_1 | Length_8 | Length_9 |
-|-----|-----|-----|-----|
-| 220.0 | 95.0 | 0.0 | 0.0 |
+| DesignVars |
+|-----|
+| Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 |
 
 
 
@@ -117,9 +117,9 @@ The QuadSpiderCopter seed design.
 
 
 ### Jenkins Design Variables and Defaults:
-| Length_0 | Length_1 | Length_2 | Length_3 | Length_8 | Length_9 | Param_0 |
-|-----|-----|-----|-----|-----|-----|-----|
-| 220.0 | 155.0 | 80.0 | 80.0 | 0.0 | 0.0 | 120.0 |
+| DesignVars |
+|-----|
+| Length_0=220.0,220.0 Length_1=155.0,155.0 Length_2=80.0,80.0 Length_3=80.0,80.0 Length_8=0.0,0.0 Length_9=0.0,0.0 Param_0=120.0,120.0 |
 
 
 
@@ -170,9 +170,9 @@ The H-Copter Seed Design
 
 
 ### Jenkins Design Variables and Defaults:
-| Length_0 | Length_1 | Length_8 | Length_9 |
-|-----|-----|-----|-----|
-| 500.0 | 95.0 | 0.0 | 0.0 |
+| DesignVars |
+|-----|
+| Length_0=500.0,500.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 |
 
 
 
@@ -245,9 +245,9 @@ The H-Plane Seed Design
 
 
 ### Jenkins Design Variables and Defaults:
-| Length_1 | Length_8 | Length_9 |
-|-----|-----|-----|
-| 320.0 | 0.0 | 0.0 |
+| DesignVars |
+|-----|
+| Length_1=320.0,320.0 Length_8=0.0,0.0 Length_9=0.0,0.0 |
 
 
 
