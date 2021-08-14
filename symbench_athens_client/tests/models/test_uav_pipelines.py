@@ -79,3 +79,15 @@ class TestFlightModes:
 
     def test_racing_oval_flight_parameters(self, racing_oval_flight):
         assert racing_oval_flight.flight_path == 5
+
+    def test_fly_circle_sweep(self, circular_flight):
+        circular_flight.q_angles = 90.0, 25.0
+        circular_flight.requested_vertical_speed = 100.0, 200.5
+        assert (
+            "Q_Angles=90.0,95.0"
+            in circular_flight.to_jenkins_parameters()["DesignVars"]
+        )
+        assert (
+            "Requested_Vertical_Speed=100.0,200.5"
+            in circular_flight.to_jenkins_parameters()["DesignVars"]
+        )

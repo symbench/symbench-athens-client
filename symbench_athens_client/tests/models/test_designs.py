@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from symbench_athens_client.models.components import (
     Batteries,
@@ -93,5 +94,20 @@ class TestDesigns:
     def test_allow_population_by_field_name(self):
         design = QuadCopter(arm_length=225.9)
         assert design.parameters()["Length_0"] == 225.9
-        design_2 = QuadSpiderCopter(support_length=330.24)
-        assert design_2.support_length == 330.24
+        design_2 = QuadSpiderCopter(support_length=(330.24, 330.25))
+        assert design_2.support_length == (330.24, 330.25)
+        assert design_2.parameters()["Length_1"] == (330.24, 330.25)
+
+    def test_parametric_sweeps(self):
+        design = QuadCopter(arm_length=(20, 24), support_length=(60, 100))
+        assert (
+            "Length_0=20.0,24.0 Length_1=60.0,100.0"
+            in design.to_jenkins_parameters()["DesignVars"]
+        )
+
+    def test_sweep_assignment(self):
+        design = QuadSpiderCopter()
+        with pytest.raises(ValidationError):
+            design.bend_angle = (90, 45)
+        design.bend_angle = (200, 210)
+        assert "Param_0=200.0,210.0" in design.to_jenkins_parameters()["DesignVars"]

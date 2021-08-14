@@ -1,5 +1,5 @@
 import logging
-import re
+from typing import Iterable
 
 
 def get_logger(name, level=logging.DEBUG):
@@ -34,8 +34,12 @@ def inject_none_for_missing_fields(cls, values):
     return values
 
 
-def dict_to_string(inp_dict, repeat_values=True):
-    """Convert a dictionary to a comma separated string of key=value or key=value,value"""
+def dict_to_design_vars(inp_dict, repeat_values=True):
+    """Convert a dictionary to a comma separated string to be used as jenkins pipeline input"""
+    should_repeat = lambda v: repeat_values and not isinstance(v, Iterable)
+    get_single = lambda v: ",".join(str(x) for x in v) if isinstance(v, Iterable) else v
+
     return "".join(
-        f"{k}={v},{v} " if repeat_values else f"{k}={v} " for k, v in inp_dict.items()
+        f"{k}={v},{v} " if should_repeat(v) else f"{k}={get_single(v)} "
+        for k, v in inp_dict.items()
     ).rstrip()

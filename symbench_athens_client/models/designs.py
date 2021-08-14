@@ -1,4 +1,4 @@
-from typing import ClassVar, Dict, List, Optional
+from typing import ClassVar, Dict, List, Tuple, Union
 
 from pydantic import BaseModel, Field, validator
 
@@ -26,7 +26,7 @@ from symbench_athens_client.models.components import (
     Wing,
     Wings,
 )
-from symbench_athens_client.utils import dict_to_string
+from symbench_athens_client.utils import dict_to_design_vars
 
 
 class SeedDesign(BaseModel):
@@ -42,7 +42,7 @@ class SeedDesign(BaseModel):
 
     def to_jenkins_parameters(self):
         design_vars = self.dict(by_alias=True, include=self.__design_vars__)
-        return {"DesignVars": dict_to_string(design_vars, repeat_values=True)}
+        return {"DesignVars": dict_to_design_vars(design_vars, repeat_values=True)}
 
     def parameters(self):
         return self.dict(by_alias=True, include=self.__design_vars__)
@@ -109,25 +109,25 @@ class QuadCopter(SeedDesign):
         "batt_mount_z_offset",
     }
 
-    arm_length: float = Field(
+    arm_length: Union[float, Tuple[float, float]] = Field(
         220.0,
         description="Length of Arm_0, Arm_1, Arm_2, Arm_3 in mm",
         alias="Length_0",
     )
 
-    support_length: float = Field(
+    support_length: Union[float, Tuple[float, float]] = Field(
         95.0,
         description="Length of support_0, Support_1, Support_2, Support_3 in mm",
         alias="Length_1",
     )
 
-    batt_mount_x_offset: float = Field(
+    batt_mount_x_offset: Union[float, Tuple[float, float]] = Field(
         0.0,
         description="X-Offset of the battery mounting position from center of the plate in mm",
         alias="Length_8",
     )
 
-    batt_mount_z_offset: float = Field(
+    batt_mount_z_offset: Union[float, Tuple[float, float]] = Field(
         0.0,
         description="Z-Offset of the battery mounting position from center of the plate in mm",
         alias="Length_9",
@@ -227,6 +227,14 @@ class QuadCopter(SeedDesign):
 
     hub_4_way: Hub = Field(Hubs["0394od_para_hub_4"], alias="Hub_4Way")
 
+    @validator(*__design_vars__, pre=True, always=True)
+    def validate_design_vars_tuple(cls, value):
+        if isinstance(value, Tuple):
+            assert (
+                value[0] <= value[1]
+            ), "The first element should be less than the second one; while using ranges"
+        return value
+
 
 class QuadSpiderCopter(SeedDesign):
     """The QuadSpiderCopter seed design."""
@@ -241,41 +249,41 @@ class QuadSpiderCopter(SeedDesign):
         "bend_angle",
     }
 
-    arm_length: float = Field(
+    arm_length: Union[float, Tuple[float, float]] = Field(
         220.0,
         description="Length of Arm_0, Arm_1, Arm_2, Arm_3 in mm",
         alias="Length_0",
     )
 
-    support_length: float = Field(
+    support_length: Union[float, Tuple[float, float]] = Field(
         155.0,
         description="Length for Support_0, Support_1, Support_2, Support_3 in mm",
         alias="Length_1",
     )
 
-    arm_a_length: float = Field(
+    arm_a_length: Union[float, Tuple[float, float]] = Field(
         80.0,
         description="Length for Arm_0a, Arm_1a, Arm_2a, Arm_3a in mm",
         alias="Length_2",
     )
 
-    arm_b_length: float = Field(
+    arm_b_length: Union[float, Tuple[float, float]] = Field(
         80.0, description="Length of segment Arm_*b in mm", alias="Length_3"
     )
 
-    batt_mount_x_offset: float = Field(
+    batt_mount_x_offset: Union[float, Tuple[float, float]] = Field(
         0.0,
         description="X-Offset of the battery mounting position from center of the plate in mm",
         alias="Length_8",
     )
 
-    batt_mount_z_offset: float = Field(
+    batt_mount_z_offset: Union[float, Tuple[float, float]] = Field(
         0.0,
         description="Z-Offset of the battery mounting position from center of the plate in mm",
         alias="Length_9",
     )
 
-    bend_angle: float = Field(
+    bend_angle: Union[float, Tuple[float, float]] = Field(
         120.0,
         description="ANGHORZCONN for Bend_0a, Bend_0b, Bend_1a, Bend_1b, Bend_2a, Bend_2b, Bend_3a, Bend_3b",
         alias="Param_0",
@@ -441,6 +449,14 @@ class QuadSpiderCopter(SeedDesign):
         Hubs["0394od_para_hub_2"], description="Bend 3-B", alias="Bend_3b"
     )
 
+    @validator(*__design_vars__, pre=True, always=True)
+    def validate_design_vars_tuple(cls, value):
+        if isinstance(value, Tuple):
+            assert (
+                value[0] <= value[1]
+            ), "The first element should be less than the second one; while using ranges"
+        return value
+
 
 class HCopter(SeedDesign):
     """The H-Copter Seed Design"""
@@ -452,25 +468,25 @@ class HCopter(SeedDesign):
         "batt_mount_z_offset",
     }
 
-    arm_length: float = Field(
+    arm_length: Union[float, Tuple[float, float]] = Field(
         500.0,
         description="Length of Arm_0, Arm_1, Arm_2, Arm_3 in mm (default 500)",
         alias="Length_0",
     )
 
-    support_length: float = Field(
+    support_length: Union[float, Tuple[float, float]] = Field(
         95.0,
         description="Length of Support_0, Support_1, Support_2, Support_3 in mm (default 95)",
         alias="Length_1",
     )
 
-    batt_mount_x_offset: float = Field(
+    batt_mount_x_offset: Union[float, Tuple[float, float]] = Field(
         0.0,
         description="X Offset of battery mounting position from center of plate in mm (default 0)",
         alias="Length_8",
     )
 
-    batt_mount_z_offset: float = Field(
+    batt_mount_z_offset: Union[float, Tuple[float, float]] = Field(
         0.0,
         description="Z Offset of battery mounting position from center of plate in mm (default 0)",
         alias="Length_9",
@@ -580,13 +596,21 @@ class HCopter(SeedDesign):
         Hubs["0394od_para_hub_4"], description="The Center Hub", alias="CtrHub_4Way"
     )
 
+    @validator(*__design_vars__, pre=True, always=True)
+    def validate_design_vars_tuple(cls, value):
+        if isinstance(value, Tuple):
+            assert (
+                value[0] <= value[1]
+            ), "The first element should be less than the second one; while using ranges"
+        return value
+
 
 class HPlane(SeedDesign):
     """The H-Plane Seed Design"""
 
     __design_vars__ = {"tube_length", "batt_mount_x_offset", "batt_mount_z_offset"}
 
-    tube_length: float = Field(
+    tube_length: Union[float, Tuple[float, float]] = Field(
         320.0,
         description="Length for Body_Tube_Front_L, Body_Tube_Front_R, "
         "Body_Tube_Rear_L, Body_Tube_Rear_R in mm (default 320) "
@@ -594,13 +618,13 @@ class HPlane(SeedDesign):
         alias="Length_1",
     )
 
-    batt_mount_x_offset: float = Field(
+    batt_mount_x_offset: Union[float, Tuple[float, float]] = Field(
         0.0,
         description="X Offset of battery mounting position from center of plate in mm (default 0)",
         alias="Length_8",
     )
 
-    batt_mount_z_offset: float = Field(
+    batt_mount_z_offset: Union[float, Tuple[float, float]] = Field(
         0.0,
         description="Z Offset of battery mounting position from center of plate in mm (default 0)",
         alias="Length_9",
@@ -893,6 +917,14 @@ class HPlane(SeedDesign):
         description="The battery",
         alias="Battery_0",
     )
+
+    @validator(*__design_vars__, pre=True, always=True)
+    def validate_design_vars_tuple(cls, value):
+        if isinstance(value, Tuple):
+            assert (
+                value[0] <= value[1]
+            ), "The first element should be less than the second one; while using ranges"
+        return value
 
 
 class HexRing(SeedDesign):
