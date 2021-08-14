@@ -8,6 +8,8 @@ from symbench_athens_client.utils import dict_to_string
 
 
 class UAVWorkflows(JenkinsPipeline):
+    """UAV_Workflows pipeline."""
+
     __attr_aliases__: ClassVar[dict] = {"pet_name": "PETName"}
 
     @property
@@ -38,7 +40,7 @@ class UAVWorkflows(JenkinsPipeline):
         for k, v in self.__attr_aliases__.items():
             if hasattr(self, k):
                 params[v] = getattr(self, k)
-        params["GraphGUID"] = self.design.name
+        params["graphGUID"] = self.design.name
 
         params.update(self.design.to_jenkins_parameters())
         params["DesignVars"] = '"' + params["DesignVars"] + '"'
@@ -50,29 +52,27 @@ class UAVWorkflows(JenkinsPipeline):
 
 
 class HoverCalc(UAVWorkflows):
+    """The `HoverCalc_V1` TestBench for UAV_Workflows."""
+
     @property
     def pet_name(self):
         return "/D_Testing/PET/HoverCalc_V1"
 
 
 class GeometryV1(UAVWorkflows):
+    """The `Geometry_V1` TestBench for UAV_Workflows."""
+
     @property
     def pet_name(self):
         return "/D_Testing/PET/Geom_V1"
 
 
 class FlightDynamicsV1(UAVWorkflows):
-    """The Base Flight Dyanamics Workflow"""
+    """The Base `FlightDyn_V1` TestBench for UAV_Workflows."""
 
-    __design_vars__: ClassVar[dict] = {"requested_velocity"}
+    __design_vars__: ClassVar = {}
 
     __fixed_design_vars__: ClassVar[dict] = {"analysis_type": "Analysis_Type"}
-
-    requested_velocity: float = Field(
-        10.0,
-        alias="Requested_Velocity",
-        description="The requested velocity for the FD-Simulation",
-    )
 
     @property
     def analysis_type(self):
@@ -92,14 +92,15 @@ class FlightDynamicsV1(UAVWorkflows):
         for k, v in self.__attr_aliases__.items():
             if hasattr(self, k):
                 params[v] = getattr(self, k)
-        params["GraphGUID"] = self.design.name
+        params["graphGUID"] = self.design.name
         design_params = self.design.to_jenkins_parameters()
         design_vars_parametric = dict_to_string(
-            self.dict(by_alias=True, include=self.__design_vars__), repeat_values=False
+            self.dict(by_alias=True, include=self.__design_vars__),
+            repeat_values=True,
         )
         design_vars_fixed = dict_to_string(
             {v: getattr(self, k) for k, v in self.__fixed_design_vars__.items()},
-            repeat_values=False,
+            repeat_values=True,
         )
         params["DesignVars"] = " ".join(
             [design_params["DesignVars"], design_vars_parametric, design_vars_fixed]
@@ -109,7 +110,7 @@ class FlightDynamicsV1(UAVWorkflows):
 
 
 class InitialConditionsFlight(FlightDynamicsV1):
-    """The Initial Conditions Flight"""
+    """The InitialConditions Flight, using `analysis_type=1` in `FlightDynamics`."""
 
     @property
     def analysis_type(self):
@@ -117,7 +118,7 @@ class InitialConditionsFlight(FlightDynamicsV1):
 
 
 class TrimSteadyFlight(FlightDynamicsV1):
-    """The Trim Steady Flight"""
+    """The Trim Steady Flight, using `analysis_type=2` in `FlightDyanmics`."""
 
     @property
     def analysis_type(self):
@@ -125,11 +126,11 @@ class TrimSteadyFlight(FlightDynamicsV1):
 
 
 class FlightPathFlight(FlightDynamicsV1):
-    """The Flight path flight"""
+    """The Flight path flight, using `analysis_type=3`(has many subclasses)."""
 
-    __design_vars__: ClassVar[dict] = {
-        "requested_velocity",
+    __design_vars__: ClassVar[set] = {
         "requested_lateral_speed",
+        "requested_vertical_speed",
         "q_position",
         "q_velocity",
         "q_angular_velocity",
@@ -155,6 +156,12 @@ class FlightPathFlight(FlightDynamicsV1):
         description="The requested lateral speed",
     )
 
+    requested_vertical_speed: float = Field(
+        default=1.0,
+        alias="Requested_Vertical_Speed",
+        description="The requested vertical speed",
+    )
+
     q_position: float = Field(
         default=1.0, alias="Q_Position", description="The Q-Position"
     )
@@ -173,7 +180,7 @@ class FlightPathFlight(FlightDynamicsV1):
 
 
 class StraightLineFlight(FlightPathFlight):
-    """The Straight line flight"""
+    """The Straight line flight, subclasses `FlightPathFlight`, `analysis_type=3`, `flight_path=1`."""
 
     @property
     def flight_path(self):
@@ -181,7 +188,7 @@ class StraightLineFlight(FlightPathFlight):
 
 
 class CircularFlight(FlightPathFlight):
-    """The Circular flight"""
+    """The Circular flight, subclasses `FlightPathFlight`, `analysis_type=3`, `flight_path=3`."""
 
     @property
     def flight_path(self):
@@ -189,7 +196,7 @@ class CircularFlight(FlightPathFlight):
 
 
 class RiseAndHoverFlight(FlightPathFlight):
-    """The rise and hover flight"""
+    """The rise and hover flight, subclasses `FlightPathFlight`, `analysis_type=3`, `flight_path=4`."""
 
     @property
     def flight_path(self):
@@ -203,7 +210,7 @@ class RiseAndHoverFlight(FlightPathFlight):
 
 
 class RacingOvalFlight(FlightPathFlight):
-    """The racing oval flight"""
+    """The racing oval flight, subclasses FlightPathFlight, `analysis_type=3`, `flight_path=5`."""
 
     @property
     def flight_path(self):

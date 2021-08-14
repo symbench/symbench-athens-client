@@ -99,7 +99,8 @@ class SymbenchAthensClient:
 
         build = item.get_build()
         self.logger.info(
-            f"Job {job_name} is running. The build parameters are {parameters}"
+            f"Job {job_name} is running. The build number is {build.number}."
+            f"\nThe build parameters are {parameters}"
         )
         while not build.result:
             time.sleep(5)

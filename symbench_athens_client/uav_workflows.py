@@ -53,7 +53,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             The design to clone
         """
 
-        clone_name = new_name or f"{design.name}_{str(uuid4())}"
+        clone_name = new_name or f"{design.name}{str(uuid4())}"
         self.logger.info(f"About to clone design {design.name} to {clone_name}")
 
         clone_job = CloneDesign(from_design_name=design.name, to_design_name=clone_name)
@@ -73,7 +73,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         """
         clear_job = ClearDesign(design_name=design.name)
 
-        self.logger.info(f"About to clear design {design}")
+        self.logger.info(f"About to clear design {design.name}")
 
         self.build_and_wait(clear_job.pipeline_name, clear_job.to_jenkins_parameters())
 
@@ -212,10 +212,10 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             Number of samples to execute for Monte Carlo DOE, uniformly sampled\
 
         clone: bool, default=True
-            If True, clone the design before starting HoverCalc
+            If True, clone the design before starting Geom_V1
 
         clear: bool, default=True
-            If True, clear the design after completing HoverCalc
+            If True, clear the design after completing Geom_V1
 
         Notes
         -----
@@ -239,6 +239,370 @@ class UAVWorkflowRunner(SymbenchAthensClient):
 
         self.logger.info(
             f"Finished GeometryV1 on {design.name} with number_samples={num_samples}, clone={clone}, clear={clear}"
+        )
+
+        return results
+
+    def fly_with_initial_conditions(
+        self, design, num_samples=1, clone=True, clear=True
+    ):
+        """Fly with initial conditions workflow
+
+        Run the UAVWorkflows' flight dynamics test bench to execute a flight from initial conditions
+        Prefixed Settings for this FD workflow are: Analysis_Type is 1
+
+        Parameters
+        ----------
+        design: symebench_athens_client.models.designs.SeedDesign
+            The Seed design to run this testbench on
+
+        num_samples: int, default=1
+            Number of samples to execute for Monte Carlo DOE, uniformly sampled
+
+        clone: bool, default=True
+            If True, clone the design before starting FD_V1
+
+        clear: bool, default=True
+            If True, clear the design after completing FD_V1
+
+        Notes
+        -----
+        If some components in the design need swapping, those components will be swapped in the database
+        """
+        self.logger.info(
+            f"Starting FlightDynamicsV1(Initial Conditions Flight) on "
+            f"{design.name} with number_samples={num_samples}, clone={clone}, clear={clear}"
+        )
+        if clone:
+            self._clone_design(design)
+
+        if design.needs_swap():
+            self._swap_components(design)
+
+        initial_condition_flight = InitialConditionsFlight(
+            design=design, num_samples=num_samples
+        )
+
+        results = self._run_uav_workflow(initial_condition_flight)
+
+        if clear:
+            self._clear_design(design)
+
+        self.logger.info(
+            f"Finished FlightDynamicsV1(Initial Conditions Flight) on {design.name} "
+            f"with number_samples={num_samples}, clone={clone}, clear={clear}"
+        )
+
+        return results
+
+    def fly_trim_steady(self, design, num_samples=1, clone=True, clear=True):
+        """Fly with trim analysis
+
+        Run the UAVWorkflows' flight dynamics test bench to perform a
+        trim analysis to U = x(1) forward speed, level steady flight.
+
+        Prefixed Settings for this FD workflow are: Analysis_Type is 2
+
+        Parameters
+        ----------
+        design: symebench_athens_client.models.designs.SeedDesign
+            The Seed design to run this testbench on
+
+        num_samples: int, default=1
+            Number of samples to execute for Monte Carlo DOE, uniformly sampled
+
+        clone: bool, default=True
+            If True, clone the design before starting FD_V1
+
+        clear: bool, default=True
+            If True, clear the design after completing FD_V1
+
+        Notes
+        -----
+        If some components in the design need swapping, those components will be swapped in the database
+        """
+        self.logger.info(
+            f"Starting FlightDynamicsV1(TrimSteadyFlight) on "
+            f"{design.name} with number_samples={num_samples}, clone={clone}, clear={clear}."
+        )
+        if clone:
+            self._clone_design(design)
+
+        if design.needs_swap():
+            self._swap_components(design)
+
+        initial_condition_flight = TrimSteadyFlight(
+            design=design, num_samples=num_samples
+        )
+
+        results = self._run_uav_workflow(initial_condition_flight)
+
+        if clear:
+            self._clear_design(design)
+
+        self.logger.info(
+            f"Finished FlightDynamicsV1(TrimSteadyFlight) on {design.name} "
+            f"with number_samples={num_samples}, clone={clone}, clear={clear}"
+        )
+
+        return results
+
+    def fly_straight_line(
+        self, design, num_samples=1, clone=True, clear=True, **kwargs
+    ):
+        """Fly straight line
+
+         Run the UAVWorkflows' flight dynamics test bench to execute a straight line flight path
+
+         Prefixed Settings for this FD workflow are: Analysis_Type is 3, Flight_Path is 1.
+         See the **kwargs below to see what can be requested.
+
+        Parameters
+        ----------
+        design: symebench_athens_client.models.designs.SeedDesign
+            The Seed design to run this testbench on
+
+        num_samples: int, default=1
+            Number of samples to execute for Monte Carlo DOE, uniformly sampled
+
+        clone: bool, default=True
+            If True, clone the design before starting HoverCalc
+
+        clear: bool, default=True
+            If True, clear the design after completing HoverCalc
+
+        **kwargs: dict
+            The KeyWord Arguments to the StraightLineFlight's constructor listed below:
+                - 'requested_lateral_speed',
+                - 'requested_vertical_speed'
+                - 'q_position',
+                - 'q_velocity',
+                - 'q_angluar_velocity',
+                - 'q_angles',
+                - 'r'
+
+        Notes
+        -----
+        If some components in the design need swapping, those components will be swapped in the database
+        """
+        self.logger.info(
+            f"Starting FlightDynamicsV1(StraightLineFlight) on "
+            f"{design.name} with number_samples={num_samples}, clone={clone}, clear={clear}."
+            f"Other Parameters are {kwargs}"
+        )
+        if clone:
+            self._clone_design(design)
+
+        if design.needs_swap():
+            self._swap_components(design)
+
+        straight_line_flight = StraightLineFlight(
+            design=design, num_samples=num_samples, **kwargs
+        )
+
+        results = self._run_uav_workflow(straight_line_flight)
+
+        if clear:
+            self._clear_design(design)
+
+        self.logger.info(
+            f"Finished FlightDynamicsV1(StraightLineFlight) on {design.name} "
+            f"with number_samples={num_samples}, clone={clone}, clear={clear}."
+            f"Other Parameters are {kwargs}"
+        )
+
+        return results
+
+    def fly_circle(self, design, num_samples=1, clone=True, clear=True, **kwargs):
+        """Fly circular flight path
+
+         Run the UAVWorkflows' flight dynamics test bench to execute a circular flight path
+
+         Prefixed Settings for this FD workflow are: Analysis_Type is 3, Flight_Path is 3.
+         See the **kwargs below to see what can be requested.
+
+        Parameters
+        ----------
+        design: symebench_athens_client.models.designs.SeedDesign
+            The Seed design to run this testbench on
+
+        num_samples: int, default=1
+            Number of samples to execute for Monte Carlo DOE, uniformly sampled
+
+        clone: bool, default=True
+            If True, clone the design before starting FD_V1
+
+        clear: bool, default=True
+            If True, clear the design after completing FD_V1
+
+        **kwargs: dict
+            The KeyWord Arguments to the StraightLineFlight's constructor listed below:
+                - 'requested_lateral_speed',
+                - 'requested_vertical_speed'
+                - 'q_position',
+                - 'q_velocity',
+                - 'q_angluar_velocity',
+                - 'q_angles',
+                - 'r'
+
+        Notes
+        -----
+        If some components in the design need swapping, those components will be swapped in the database
+        """
+        self.logger.info(
+            f"Starting FlightDynamicsV1(CircularFlight) on "
+            f"{design.name} with number_samples={num_samples}, clone={clone}, clear={clear}."
+            f"Other Parameters are {kwargs}"
+        )
+        if clone:
+            self._clone_design(design)
+
+        if design.needs_swap():
+            self._swap_components(design)
+
+        circular_flight = CircularFlight(
+            design=design, num_samples=num_samples, **kwargs
+        )
+
+        results = self._run_uav_workflow(circular_flight)
+
+        if clear:
+            self._clear_design(design)
+
+        self.logger.info(
+            f"Finished FlightDynamicsV1(CircularFlight) on {design.name} "
+            f"with number_samples={num_samples}, clone={clone}, clear={clear}."
+            f"Other Parameters are {kwargs}"
+        )
+
+        return results
+
+    def fly_rise_and_hover(
+        self, design, num_samples=1, clone=True, clear=True, **kwargs
+    ):
+        """Fly a rise and hover path
+
+         Run the UAVWorkflows' flight dynamics test bench to execute a rise and hover flight
+
+         Prefixed Settings for this FD workflow are: Analysis_Type is 3, Flight_Path is 4.
+         See the **kwargs below to see what can be requested.
+
+        Parameters
+        ----------
+        design: symebench_athens_client.models.designs.SeedDesign
+            The Seed design to run this testbench on
+
+        num_samples: int, default=1
+            Number of samples to execute for Monte Carlo DOE, uniformly sampled
+
+        clone: bool, default=True
+            If True, clone the design before starting FD_V1
+
+        clear: bool, default=True
+            If True, clear the design after completing FD_V1
+
+        **kwargs: dict
+            The KeyWord Arguments to the StraightLineFlight's constructor listed below:
+                - 'requested_lateral_speed', (This is always set to zero)
+                - 'requested_vertical_speed'
+                - 'q_position',
+                - 'q_velocity',
+                - 'q_angluar_velocity',
+                - 'q_angles',
+                - 'r'
+
+        Notes
+        -----
+        If some components in the design need swapping, those components will be swapped in the database
+        """
+        self.logger.info(
+            f"Starting FlightDynamicsV1(RiseAndHoverFlight) on "
+            f"{design.name} with number_samples={num_samples}, clone={clone}, clear={clear}."
+            f"Other Parameters are {kwargs}"
+        )
+        if clone:
+            self._clone_design(design)
+
+        if design.needs_swap():
+            self._swap_components(design)
+
+        rise_and_hover_flight = RiseAndHoverFlight(
+            design=design, num_samples=num_samples, **kwargs
+        )
+
+        results = self._run_uav_workflow(rise_and_hover_flight)
+
+        if clear:
+            self._clear_design(design)
+
+        self.logger.info(
+            f"Finished FlightDynamicsV1(RiseAndHoverFlight) on {design.name} "
+            f"with number_samples={num_samples}, clone={clone}, clear={clear}."
+            f"Other Parameters are {kwargs}"
+        )
+
+        return results
+
+    def fly_racing_oval(self, design, num_samples=1, clone=True, clear=True, **kwargs):
+        """Fly racing oval
+
+         Run the UAVWorkflows' flight dynamics test bench to execute a rise and hover flight
+
+         Prefixed Settings for this FD workflow are: Analysis_Type is 3, Flight_Path is 5.
+         See the **kwargs below to see what can be requested.
+
+        Parameters
+        ----------
+        design: symebench_athens_client.models.designs.SeedDesign
+            The Seed design to run this testbench on
+
+        num_samples: int, default=1
+            Number of samples to execute for Monte Carlo DOE, uniformly sampled
+
+        clone: bool, default=True
+            If True, clone the design before starting FD_V1
+
+        clear: bool, default=True
+            If True, clear the design after completing FD_V1
+
+        **kwargs: dict
+            The KeyWord Arguments to the StraightLineFlight's constructor listed below:
+                - 'requested_lateral_speed',
+                - 'requested_vertical_speed'
+                - 'q_position',
+                - 'q_velocity',
+                - 'q_angluar_velocity',
+                - 'q_angles',
+                - 'r'
+
+        Notes
+        -----
+        If some components in the design need swapping, those components will be swapped in the database
+        """
+        self.logger.info(
+            f"Starting FlightDynamicsV1(RacingOvalFlight) on "
+            f"{design.name} with number_samples={num_samples}, clone={clone}, clear={clear}."
+            f"Other Parameters are {kwargs}"
+        )
+        if clone:
+            self._clone_design(design)
+
+        if design.needs_swap():
+            self._swap_components(design)
+
+        racing_oval_flight = RacingOvalFlight(
+            design=design, num_samples=num_samples, **kwargs
+        )
+
+        results = self._run_uav_workflow(racing_oval_flight)
+
+        if clear:
+            self._clear_design(design)
+
+        self.logger.info(
+            f"Finished FlightDynamicsV1(RacingOvalFlight) on {design.name} "
+            f"with number_samples={num_samples}, clone={clone}, clear={clear}."
+            f"Other Parameters are {kwargs}"
         )
 
         return results

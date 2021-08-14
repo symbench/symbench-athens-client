@@ -1,2 +1,2 @@
-class TestJobs:
+class TestPipelines:
     pass
