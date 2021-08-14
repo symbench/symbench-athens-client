@@ -136,3 +136,6 @@ class TestComponents:
         assert test_esc.tube_od is None
         assert test_esc.cont_amps == 70.0
         assert test_esc.control_channel is None
+
+    def test_repr(self):
+        assert repr(Batteries["TurnigyGraphene1600mAh4S75C"])

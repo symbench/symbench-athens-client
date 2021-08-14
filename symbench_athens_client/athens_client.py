@@ -2,10 +2,9 @@ import logging
 import time
 
 import api4jenkins
-from api4jenkins import user
 from api4jenkins.exceptions import ItemNotFoundError
-from api4jenkins.item import Item
 
+from symbench_athens_client.exceptions import JobFailedError
 from symbench_athens_client.utils import get_logger
 
 __all__ = ["SymbenchAthensClient"]
@@ -30,6 +29,8 @@ class SymbenchAthensClient:
     """
 
     def __init__(self, jenkins_url, username, password, log_level=logging.DEBUG):
+        self.username = username
+        self.password = password
         self.server = api4jenkins.Jenkins(jenkins_url, auth=(username, password))
         self.logger = get_logger(self.__class__.__name__, log_level)
         self.logger.info(f"User with username {username} successfully logged in")
@@ -97,8 +98,16 @@ class SymbenchAthensClient:
         self.logger.info(f"Job {job_name} is built")
 
         build = item.get_build()
-        self.logger.info(f"Job {job_name} is running")
+        self.logger.info(
+            f"Job {job_name} is running. The build number is {build.number}."
+            f"\nThe build parameters are {parameters}"
+        )
         while not build.result:
-            time.sleep(1)
+            time.sleep(5)
+            self.logger.debug(f"Still running the job {job_name}")
         self.logger.info(f"Job {job_name} is finished. The result is {build.result}")
+        if build.result != "SUCCESS":
+            raise JobFailedError(
+                "Job Failed. Please check the build parameters among others"
+            )
         return build
