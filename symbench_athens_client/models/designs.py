@@ -800,7 +800,7 @@ class HPlane(SeedDesign):
         alias="Front_Flange_L",
     )
 
-    front_flange_l: Flange = Field(
+    front_flange_c: Flange = Field(
         Flanges["0394_para_flange"],
         description="The Front center flange",
         alias="Front_Flange_C",

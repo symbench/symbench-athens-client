@@ -221,7 +221,8 @@ The H-Plane Seed Design
 | rear_tube_l | Rear_Tube_L | 0394OD_para_tube |
 | rear_tube_c | Rear_Tube_C | 0394OD_para_tube |
 | rear_tube_r | Rear_Tube_R | 0394OD_para_tube |
-| front_flange_l | Front_Flange_C | 0394_para_flange |
+| front_flange_l | Front_Flange_L | 0394_para_flange |
+| front_flange_c | Front_Flange_C | 0394_para_flange |
 | front_flange_r | Front_Flange_R | 0394_para_flange |
 | rear_flange_l | Rear_Flange_L | 0394_para_flange |
 | rear_flange_r | Rear_Flange_R | 0394_para_flange |
