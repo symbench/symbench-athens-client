@@ -84,7 +84,7 @@ The Straight line flight, subclasses `FlightPathFlight`, `analysis_type=3`, `fli
 | name | Jenkins Name | default | description |
 |-----|-----|-----|-----|
 | requested_lateral_speed | Requested_Lateral_Speed | 10.0 | The requested lateral speed |
-| requested_vertical_speed | Requested_Vertical_Speed | 1.0 | None |
+| requested_vertical_speed | Requested_Vertical_Speed | 1.0 | The requested vertical speed |
 | q_position | Q_Position | 1.0 | The Q-Position |
 | q_velocity | Q_Velocity | 1.0 | The Q-Velocity |
 | q_angular_velocity | Q_Angular_velocity | 1.0 | The Q-Angular Velocity |
@@ -120,7 +120,7 @@ The Circular flight, subclasses `FlightPathFlight`, `analysis_type=3`, `flight_p
 | name | Jenkins Name | default | description |
 |-----|-----|-----|-----|
 | requested_lateral_speed | Requested_Lateral_Speed | 10.0 | The requested lateral speed |
-| requested_vertical_speed | Requested_Vertical_Speed | 1.0 | None |
+| requested_vertical_speed | Requested_Vertical_Speed | 1.0 | The requested vertical speed |
 | q_position | Q_Position | 1.0 | The Q-Position |
 | q_velocity | Q_Velocity | 1.0 | The Q-Velocity |
 | q_angular_velocity | Q_Angular_velocity | 1.0 | The Q-Angular Velocity |
@@ -156,7 +156,7 @@ The rise and hover flight, subclasses `FlightPathFlight`, `analysis_type=3`, `fl
 | name | Jenkins Name | default | description |
 |-----|-----|-----|-----|
 | requested_lateral_speed | Requested_Lateral_Speed | 10.0 | The requested lateral speed |
-| requested_vertical_speed | Requested_Vertical_Speed | 1.0 | None |
+| requested_vertical_speed | Requested_Vertical_Speed | 1.0 | The requested vertical speed |
 | q_position | Q_Position | 1.0 | The Q-Position |
 | q_velocity | Q_Velocity | 1.0 | The Q-Velocity |
 | q_angular_velocity | Q_Angular_velocity | 1.0 | The Q-Angular Velocity |
@@ -192,7 +192,7 @@ The racing oval flight, subclasses FlightPathFlight, `analysis_type=3`, `flight_
 | name | Jenkins Name | default | description |
 |-----|-----|-----|-----|
 | requested_lateral_speed | Requested_Lateral_Speed | 10.0 | The requested lateral speed |
-| requested_vertical_speed | Requested_Vertical_Speed | 1.0 | None |
+| requested_vertical_speed | Requested_Vertical_Speed | 1.0 | The requested vertical speed |
 | q_position | Q_Position | 1.0 | The Q-Position |
 | q_velocity | Q_Velocity | 1.0 | The Q-Velocity |
 | q_angular_velocity | Q_Angular_velocity | 1.0 | The Q-Angular Velocity |
