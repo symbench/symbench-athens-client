@@ -111,3 +111,13 @@ class TestDesigns:
             design.bend_angle = (90, 45)
         design.bend_angle = (200, 210)
         assert "Param_0=200.0,210.0" in design.to_jenkins_parameters()["DesignVars"]
+
+    def test_component_init(self):
+        with pytest.raises(TypeError):
+            QuadCopter(battery_0=Batteries[0])
+
+        with pytest.raises(TypeError):
+            QuadSpiderCopter(battery_0=Batteries[1])
+
+        design = QuadCopter()
+        assert design.swap_list == {}

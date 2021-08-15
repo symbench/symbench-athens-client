@@ -15,7 +15,7 @@ from symbench_athens_client.models.uav_pipelines import (
 class TestFlightModes:
     @pytest.fixture(scope="session")
     def initial_conditions_flight(self):
-        return InitialConditionsFlight(design=QuadCopter(design=QuadCopter()))
+        return InitialConditionsFlight(design=QuadCopter())
 
     @pytest.fixture(scope="session")
     def trim_flight(self):

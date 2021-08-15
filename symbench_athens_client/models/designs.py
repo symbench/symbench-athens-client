@@ -30,6 +30,7 @@ from symbench_athens_client.utils import dict_to_design_vars
 
 
 class SeedDesign(BaseModel):
+
     __design_vars__: ClassVar[str] = {}
 
     name: str = Field(
@@ -108,6 +109,20 @@ class QuadCopter(SeedDesign):
         "batt_mount_x_offset",
         "batt_mount_z_offset",
     }
+
+    def __init__(
+        self,
+        arm_length=220.0,
+        support_length=95.0,
+        batt_mount_x_offset=0.0,
+        batt_mount_z_offset=0.0,
+    ):
+        super(QuadCopter, self).__init__(
+            arm_length=arm_length,
+            support_length=support_length,
+            batt_mount_x_offset=batt_mount_x_offset,
+            batt_mount_z_offset=batt_mount_z_offset,
+        )
 
     arm_length: Union[float, Tuple[float, float]] = Field(
         220.0,
@@ -248,6 +263,26 @@ class QuadSpiderCopter(SeedDesign):
         "batt_mount_z_offset",
         "bend_angle",
     }
+
+    def __init__(
+        self,
+        arm_length=220.0,
+        support_length=155.0,
+        arm_a_length=80.0,
+        arm_b_length=80.0,
+        batt_mount_x_offset=0.0,
+        batt_mount_z_offset=0.0,
+        bend_angle=120.0,
+    ):
+        super(QuadSpiderCopter, self).__init__(
+            arm_length=arm_length,
+            support_length=support_length,
+            arm_a_length=arm_a_length,
+            arm_b_length=arm_b_length,
+            batt_mount_x_offset=batt_mount_x_offset,
+            batt_mount_z_offset=batt_mount_z_offset,
+            bend_angle=bend_angle,
+        )
 
     arm_length: Union[float, Tuple[float, float]] = Field(
         220.0,
@@ -468,6 +503,20 @@ class HCopter(SeedDesign):
         "batt_mount_z_offset",
     }
 
+    def __init__(
+        self,
+        arm_length=500.0,
+        support_length=95.0,
+        batt_mount_x_offset=0.0,
+        batt_mount_z_offset=0.0,
+    ):
+        super(HCopter, self).__init__(
+            arm_length=arm_length,
+            support_length=support_length,
+            batt_mount_x_offset=batt_mount_x_offset,
+            batt_mount_z_offset=batt_mount_z_offset,
+        )
+
     arm_length: Union[float, Tuple[float, float]] = Field(
         500.0,
         description="Length of Arm_0, Arm_1, Arm_2, Arm_3 in mm (default 500)",
@@ -609,6 +658,15 @@ class HPlane(SeedDesign):
     """The H-Plane Seed Design"""
 
     __design_vars__ = {"tube_length", "batt_mount_x_offset", "batt_mount_z_offset"}
+
+    def __init__(
+        self, tube_length=320.0, batt_mount_x_offset=0.0, batt_mount_z_offset=0.0
+    ):
+        super(HPlane, self).__init__(
+            tube_length=tube_length,
+            batt_mount_x_offset=batt_mount_x_offset,
+            batt_mount_z_offset=batt_mount_z_offset,
+        )
 
     tube_length: Union[float, Tuple[float, float]] = Field(
         320.0,
