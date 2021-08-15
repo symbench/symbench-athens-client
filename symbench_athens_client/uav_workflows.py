@@ -7,6 +7,8 @@ from tempfile import TemporaryDirectory
 from uuid import uuid4
 
 import requests
+from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
+from gremlin_python.process.anonymous_traversal import traversal
 
 from symbench_athens_client.athens_client import SymbenchAthensClient
 from symbench_athens_client.models.pipelines import (
@@ -42,10 +44,25 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         communicate with the jenkins server
     """
 
-    def __init__(self, jenkins_url, username, password, log_level=logging.DEBUG):
+    def __init__(
+        self, jenkins_url, username, password, gremlin_url, log_level=logging.DEBUG
+    ):
         super().__init__(jenkins_url, username, password, log_level)
+        self.gremlin_url = gremlin_url
 
-    def _clone_design(self, design, new_name=None):
+    def get_all_design_names(self):
+        """Get all the design names in the graph-database."""
+        import nest_asyncio  # Hack to make it work in jupyter notebook. Further Investigating necessary
+
+        nest_asyncio.apply()
+        connection = DriverRemoteConnection("ws://localhost:8182/gremlin", "g")
+        g = traversal().withRemote(connection)
+        self.logger.info(f"Connected to gremlin server at {self.gremlin_url}")
+        designs = g.V().hasLabel("[avm]Design").values("[]Name").toList()
+        connection.close()
+        return set(designs)
+
+    def clone_design(self, design):
         """Clone a design from the graph database
 
         Parameters
@@ -53,8 +70,15 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         design: symbench_athens_client.models.designs.SeedDesign
             The design to clone
         """
+        all_designs = self.get_all_design_names()
+        i = 0
 
-        clone_name = new_name or f"{design.name}{str(uuid4())}"
+        clone_name = design.name + f"Clone{i+1}"
+
+        while clone_name in all_designs:
+            clone_name = design.name + f"Clone{i+1}"
+            i += 1
+
         self.logger.info(f"About to clone design {design.name} to {clone_name}")
 
         clone_job = CloneDesign(from_design_name=design.name, to_design_name=clone_name)
@@ -64,7 +88,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         design.name = clone_name
         self.logger.info(f"Successfully cloned the design as {design.name}")
 
-    def _clear_design(self, design):
+    def clear_design(self, design):
         """Clear a design from the graph database
 
         Parameters
@@ -183,7 +207,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             f"Starting HoverCalc on {design.name} with number_samples={num_samples}, clone={clone}, clear={clear}"
         )
         if clone:
-            self._clone_design(design)
+            self.clone_design(design)
 
         if design.needs_swap():
             self._swap_components(design)
@@ -193,7 +217,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         results = self._run_uav_workflow(hover_calc)
 
         if clear:
-            self._clear_design(design)
+            self.clear_design(design)
 
         self.logger.info(
             f"Finished HoverCalc on {design.name} with number_samples={num_samples}, clone={clone}, clear={clear}"
@@ -226,7 +250,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             f"Starting GeometryV1 on {design.name} with number_samples={num_samples}, clone={clone}, clear={clear}"
         )
         if clone:
-            self._clone_design(design)
+            self.clone_design(design)
 
         if design.needs_swap():
             self._swap_components(design)
@@ -236,7 +260,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         results = self._run_uav_workflow(geometry_v1)
 
         if clear:
-            self._clear_design(design)
+            self.clear_design(design)
 
         self.logger.info(
             f"Finished GeometryV1 on {design.name} with number_samples={num_samples}, clone={clone}, clear={clear}"
@@ -275,7 +299,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             f"{design.name} with number_samples={num_samples}, clone={clone}, clear={clear}"
         )
         if clone:
-            self._clone_design(design)
+            self.clone_design(design)
 
         if design.needs_swap():
             self._swap_components(design)
@@ -287,7 +311,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         results = self._run_uav_workflow(initial_condition_flight)
 
         if clear:
-            self._clear_design(design)
+            self.clear_design(design)
 
         self.logger.info(
             f"Finished FlightDynamicsV1(Initial Conditions Flight) on {design.name} "
@@ -327,7 +351,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             f"{design.name} with number_samples={num_samples}, clone={clone}, clear={clear}."
         )
         if clone:
-            self._clone_design(design)
+            self.clone_design(design)
 
         if design.needs_swap():
             self._swap_components(design)
@@ -339,7 +363,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         results = self._run_uav_workflow(initial_condition_flight)
 
         if clear:
-            self._clear_design(design)
+            self.clear_design(design)
 
         self.logger.info(
             f"Finished FlightDynamicsV1(TrimSteadyFlight) on {design.name} "
@@ -392,7 +416,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             f"Other Parameters are {kwargs}"
         )
         if clone:
-            self._clone_design(design)
+            self.clone_design(design)
 
         if design.needs_swap():
             self._swap_components(design)
@@ -404,7 +428,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         results = self._run_uav_workflow(straight_line_flight)
 
         if clear:
-            self._clear_design(design)
+            self.clear_design(design)
 
         self.logger.info(
             f"Finished FlightDynamicsV1(StraightLineFlight) on {design.name} "
@@ -456,7 +480,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             f"Other Parameters are {kwargs}"
         )
         if clone:
-            self._clone_design(design)
+            self.clone_design(design)
 
         if design.needs_swap():
             self._swap_components(design)
@@ -468,7 +492,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         results = self._run_uav_workflow(circular_flight)
 
         if clear:
-            self._clear_design(design)
+            self.clear_design(design)
 
         self.logger.info(
             f"Finished FlightDynamicsV1(CircularFlight) on {design.name} "
@@ -522,7 +546,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             f"Other Parameters are {kwargs}"
         )
         if clone:
-            self._clone_design(design)
+            self.clone_design(design)
 
         if design.needs_swap():
             self._swap_components(design)
@@ -534,7 +558,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         results = self._run_uav_workflow(rise_and_hover_flight)
 
         if clear:
-            self._clear_design(design)
+            self.clear_design(design)
 
         self.logger.info(
             f"Finished FlightDynamicsV1(RiseAndHoverFlight) on {design.name} "
@@ -586,7 +610,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             f"Other Parameters are {kwargs}"
         )
         if clone:
-            self._clone_design(design)
+            self.clone_design(design)
 
         if design.needs_swap():
             self._swap_components(design)
@@ -598,7 +622,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         results = self._run_uav_workflow(racing_oval_flight)
 
         if clear:
-            self._clear_design(design)
+            self.clear_design(design)
 
         self.logger.info(
             f"Finished FlightDynamicsV1(RacingOvalFlight) on {design.name} "
@@ -650,7 +674,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             f"Other Parameters are {kwargs}"
         )
         if clone:
-            self._clone_design(design)
+            self.clone_design(design)
 
         if design.needs_swap():
             self._swap_components(design)
@@ -662,7 +686,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         results = self._run_uav_workflow(all_paths_flight)
 
         if clear:
-            self._clear_design(design)
+            self.clear_design(design)
 
         self.logger.info(
             f"Finished FlightDynamicsV1(FlyAllPaths) on {design.name} "

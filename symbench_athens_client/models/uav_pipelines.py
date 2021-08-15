@@ -102,8 +102,18 @@ class FlightDynamicsV1(UAVWorkflows):
             {v: getattr(self, k) for k, v in self.__fixed_design_vars__.items()},
             repeat_values=True,
         )
+        print(design_vars_fixed, design_vars_parametric == "")
         params["DesignVars"] = " ".join(
-            [design_params["DesignVars"], design_vars_parametric, design_vars_fixed]
+            list(
+                filter(
+                    lambda x: x != "",
+                    [
+                        design_params["DesignVars"],
+                        design_vars_parametric,
+                        design_vars_fixed,
+                    ],
+                )
+            )
         ).strip()
         params["DesignVars"] = '"' + params["DesignVars"] + '"'
         return params
