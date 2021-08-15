@@ -16,6 +16,7 @@ from symbench_athens_client.models.pipelines import (
 )
 from symbench_athens_client.models.uav_pipelines import (
     CircularFlight,
+    FlightPathsAll,
     GeometryV1,
     HoverCalc,
     InitialConditionsFlight,
@@ -601,6 +602,70 @@ class UAVWorkflowRunner(SymbenchAthensClient):
 
         self.logger.info(
             f"Finished FlightDynamicsV1(RacingOvalFlight) on {design.name} "
+            f"with number_samples={num_samples}, clone={clone}, clear={clear}."
+            f"Other Parameters are {kwargs}"
+        )
+
+        return results
+
+    def fly_all_paths(self, design, num_samples=1, clone=True, clear=True, **kwargs):
+        """Fly on all Paths
+
+         Run the UAVWorkflows'  Flight Dynamics test bench on all flight paths
+
+         Prefixed Settings for this FD workflow are: None
+         See the **kwargs below to see what can be requested.
+
+        Parameters
+        ----------
+        design: symebench_athens_client.models.designs.SeedDesign
+            The Seed design to run this testbench on
+
+        num_samples: int, default=1
+            Number of samples to execute for Monte Carlo DOE, uniformly sampled
+
+        clone: bool, default=True
+            If True, clone the design before starting FD_V1
+
+        clear: bool, default=True
+            If True, clear the design after completing FD_V1
+
+        **kwargs: dict
+            The KeyWord Arguments to the FlightPathsAll's constructor listed below:
+                - 'requested_lateral_speed',
+                - 'requested_vertical_speed'
+                - 'q_position',
+                - 'q_velocity',
+                - 'q_angluar_velocity',
+                - 'q_angles',
+                - 'r'
+
+        Notes
+        -----
+        If some components in the design need swapping, those components will be swapped in the database
+        """
+        self.logger.info(
+            f"Starting FlightDynamicsV1(FlyAllPaths) on "
+            f"{design.name} with number_samples={num_samples}, clone={clone}, clear={clear}."
+            f"Other Parameters are {kwargs}"
+        )
+        if clone:
+            self._clone_design(design)
+
+        if design.needs_swap():
+            self._swap_components(design)
+
+        all_paths_flight = FlightPathsAll(
+            design=design, num_samples=num_samples, **kwargs
+        )
+
+        results = self._run_uav_workflow(all_paths_flight)
+
+        if clear:
+            self._clear_design(design)
+
+        self.logger.info(
+            f"Finished FlightDynamicsV1(FlyAllPaths) on {design.name} "
             f"with number_samples={num_samples}, clone={clone}, clear={clear}."
             f"Other Parameters are {kwargs}"
         )

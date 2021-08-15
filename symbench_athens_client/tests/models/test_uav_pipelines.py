@@ -3,6 +3,7 @@ import pytest
 from symbench_athens_client.models.designs import QuadCopter
 from symbench_athens_client.models.uav_pipelines import (
     CircularFlight,
+    FlightPathsAll,
     InitialConditionsFlight,
     RacingOvalFlight,
     RiseAndHoverFlight,
@@ -35,6 +36,10 @@ class TestFlightModes:
     @pytest.fixture(scope="session")
     def racing_oval_flight(self):
         return RacingOvalFlight(design=QuadCopter())
+
+    @pytest.fixture(scope="session")
+    def all_flights_path(self):
+        return FlightPathsAll(design=QuadCopter())
 
     def test_initial_conditions_flight_parameters(self, initial_conditions_flight):
         assert (
@@ -81,13 +86,26 @@ class TestFlightModes:
         assert racing_oval_flight.flight_path == 5
 
     def test_fly_circle_sweep(self, circular_flight):
-        circular_flight.q_angles = 90.0, 25.0
+        circular_flight.q_angles = 25, 90
         circular_flight.requested_vertical_speed = 100.0, 200.5
         assert (
-            "Q_Angles=90.0,95.0"
+            "Q_Angles=25.0,90.0"
             in circular_flight.to_jenkins_parameters()["DesignVars"]
         )
         assert (
             "Requested_Vertical_Speed=100.0,200.5"
             in circular_flight.to_jenkins_parameters()["DesignVars"]
+        )
+
+    def test_flight_paths_all(self, all_flights_path):
+        assert (
+            "Analysis_Type"
+            not in all_flights_path.to_jenkins_parameters()["DesignVars"]
+        )
+        assert (
+            "Flight_Path" not in all_flights_path.to_jenkins_parameters()["DesignVars"]
+        )
+        assert (
+            all_flights_path.to_jenkins_parameters()["PETName"]
+            == "/D_Testing/PET/FlightDyn_V1_AllPaths"
         )
