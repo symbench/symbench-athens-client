@@ -436,7 +436,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             If True, clear the design after completing FD_V1
 
         **kwargs: dict
-            The KeyWord Arguments to the StraightLineFlight's constructor listed below:
+            The KeyWord Arguments to the CircularFlight's constructor listed below:
                 - 'requested_lateral_speed',
                 - 'requested_vertical_speed'
                 - 'q_position',
@@ -502,7 +502,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             If True, clear the design after completing FD_V1
 
         **kwargs: dict
-            The KeyWord Arguments to the StraightLineFlight's constructor listed below:
+            The KeyWord Arguments to the RiseAndHoverFlight's constructor listed below:
                 - 'requested_lateral_speed', (This is always set to zero)
                 - 'requested_vertical_speed'
                 - 'q_position',
@@ -566,7 +566,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             If True, clear the design after completing FD_V1
 
         **kwargs: dict
-            The KeyWord Arguments to the StraightLineFlight's constructor listed below:
+            The KeyWord Arguments to the RacingOvalFlight's constructor listed below:
                 - 'requested_lateral_speed',
                 - 'requested_vertical_speed'
                 - 'q_position',
