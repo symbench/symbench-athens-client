@@ -131,7 +131,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
                                 for k, v in row.items():
                                     try:
                                         row[k] = eval(v)
-                                    except SyntaxError:
+                                    except (SyntaxError, NameError):
                                         pass
                                 ops.append(row)
 
