@@ -104,7 +104,7 @@ class FlightDynamicsV1(UAVWorkflows):
         )
         params["DesignVars"] = " ".join(
             [design_params["DesignVars"], design_vars_parametric, design_vars_fixed]
-        )
+        ).strip()
         params["DesignVars"] = '"' + params["DesignVars"] + '"'
         return params
 
