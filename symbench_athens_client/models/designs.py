@@ -53,9 +53,10 @@ class SeedDesign(BaseModel):
             by_alias=True, exclude={"name", "swap_list"}.union(self.__design_vars__)
         )
         names = {}
-        print(all_components)
+
         for component in all_components:
             names[component] = all_components[component]["Name"]
+
         return names
 
     def reset_name(self):
