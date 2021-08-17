@@ -251,6 +251,205 @@ class QuadCopter(SeedDesign):
             ), "The first element should be less than the second one; while using ranges"
         return value
 
+    def calculate_creo_parameters(self):
+        pass
+
+    def to_fd_input(
+        self,
+        test_bench_path,
+        filename=None,
+        analysis_type=3,
+        flight_path=1,
+        requested_vertical_speed=10.0,
+        requested_lateral_speed=1.0,
+        q_position=1.0,
+        q_velocity=1.0,
+        q_angular_velocity=1.0,
+        q_angles=1.0,
+        r=1.0,
+    ):
+        """Get SWRi's flight dynamics model's input files for this design
+
+        Parameters
+        ----------
+        test_bench_path: str, pathlib.Path
+            The location of the testbench data to use by uav_analysis.testbench_data.TestBenchData
+        filename: str, pathlib.Path
+            The Path of the input file, should have an .inp extension
+        analysis_type: int, default=3
+            The analysis type for this input file (3=flight path analysis, 2=Trim Steady, 1=Initial Conditions)
+        flight_path: int, default=1
+            The flight path for analysis_type of 3, (1=fly straight line, 2=Unused, 3= fly circle, 4 = rise and hover, 5 = racing oval
+        requested_vertical_speed: float, default=10.0
+            The requested vertical speed for the FD software
+        requested_lateral_speed: float, default=10.0
+            The requested lateral speed for the FD software
+        q_position: float, default=1.0
+            The Q-Position for the LQR controller
+        q_velocity: float, default=1.0
+            The Q-Velocity for the LQR controller
+        q_angular_velocity: float, default=1.0
+            The Q-Angular velocity for the LQR controller
+        q_angles: float, default=1.0
+            The Q-Angles velocity for the LQR controller
+        r: float, default=1.0
+            The R-parameter for the LQR controller
+        """
+        masses = self._get_mass_properties(test_bench_path)
+        propeller_1 = self.propeller_0.to_fd_inp()
+        propeller_1["for"] = 0
+        propeller_1.update(self.motor_0.to_fd_inp())
+        propeller_1.update(masses["propeller_0"])
+
+        propeller_2 = self.propeller_1.to_fd_inp()
+        propeller_2.update(self.motor_1.to_fd_inp())
+        propeller_2.update(masses["propeller_1"])
+        propeller_2["for"] = 1
+
+        propeller_3 = self.propeller_2.to_fd_inp()
+        propeller_3.update(self.motor_2.to_fd_inp())
+        propeller_3.update(masses["propeller_2"])
+        propeller_3["for"] = 2
+
+        propeller_4 = self.propeller_3.to_fd_inp()
+        propeller_4.update(self.motor_3.to_fd_inp())
+        propeller_4.update(masses["propeller_3"])
+        propeller_4["for"] = 3
+
+        self._assign_normals(propeller_1)
+        self._assign_normals(propeller_2)
+        self._assign_normals(propeller_3)
+        self._assign_normals(propeller_4)
+        self._assign_controls_and_battery(
+            propeller_1, propeller_2, propeller_3, propeller_4
+        )
+
+        aircraft_data = {
+            "cname": f"'UAV_{self.name}' ! M name of the aircraft",
+            "ctype": f"'SymCPS UAV Design'  ! Type of the Aircraft",
+            "num_wings": 0,
+            "uc_initial": [
+                "0.4d0, 0.5d0, 0.6d0, 0.7d0 ! inputs for controls",
+                "0.5d0, 0.5d0, 0.5d0, 0.5d0",
+            ],
+            "time": "0.d0",
+            "dt": "1.de-03",
+            "dt_output": "1.0d0",
+            "time_end": "1000.d0",
+            "Unwind": "0.d0",
+            "Vewind": "0.d0",
+            "Wdwind": "0.d0",
+            "debug": 0,
+            "num_propellers": 4,
+            "num_batteries": 1,
+            "i_analysis_type": analysis_type,
+            "x_initial": "0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 1.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0",
+        }
+
+        aircraft_data.update(masses["aircraft"])
+
+        fd_params = {
+            "aircraft": aircraft_data,
+            "propellers": [propeller_1, propeller_2, propeller_3, propeller_4],
+            "controls": {
+                "i_flight_path": flight_path,
+                "requested_lateral_speed": requested_lateral_speed,
+                "requested_vertical_speed": requested_vertical_speed,
+                "iaileron": 5,
+                "iflap": 6,
+                "Q_position": q_position,
+                "Q_velocity": q_velocity,
+                "Q_angular_velocity": q_angular_velocity,
+                "Q_angles": q_angles,
+                "R": r,
+            },
+        }
+
+        if filename is not None:
+            with open(filename, "w") as fd_inp:
+                fd_inp.write(self._to_fd_inp(fd_params))
+        else:
+            return fd_params
+
+    def _get_mass_properties(self, testbench_path):
+        """Get estimated mass properties for the quadcopter(works only for single parameters for now)"""
+        from symbench_athens_client.utils import get_mass_estimates_for_quadcopter
+
+        if isinstance(self.arm_length, Tuple) or isinstance(self.support_length, Tuple):
+            raise ValueError(
+                "Cannot estimate mass properties for a range."
+                "Please set discrete values for the design variables"
+            )
+        property_estimates = get_mass_estimates_for_quadcopter(testbench_path, self)
+        return {
+            "propeller_0": {
+                "x": property_estimates.pop("Prop_0_x"),
+                "y": property_estimates.pop("Prop_0_y"),
+                "z": property_estimates.pop("Prop_0_z"),
+            },
+            "propeller_1": {
+                "x": property_estimates.pop("Prop_1_x"),
+                "y": property_estimates.pop("Prop_1_y"),
+                "z": property_estimates.pop("Prop_1_z"),
+            },
+            "propeller_2": {
+                "x": property_estimates.pop("Prop_2_x"),
+                "y": property_estimates.pop("Prop_2_y"),
+                "z": property_estimates.pop("Prop_2_z"),
+            },
+            "propeller_3": {
+                "x": property_estimates.pop("Prop_3_x"),
+                "y": property_estimates.pop("Prop_3_y"),
+                "z": property_estimates.pop("Prop_3_z"),
+            },
+            "aircraft": property_estimates,
+        }
+
+    @staticmethod
+    def _assign_normals(propeller_dict):
+        propeller_dict.update({"nx": 0.0, "ny": 0.0, "nz": -1.0})
+
+    @staticmethod
+    def _assign_controls_and_battery(self, *propeller_dicts):
+        for i, inp_dict in enumerate(propeller_dicts):
+            inp_dict["icontrol"] = i + 1
+            inp_dict["ibattery"] = 1
+
+    @staticmethod
+    def _to_fd_inp(input_dict):
+        """Write the flight dynamics input file (Clean refactorable implementation)"""
+        inp_lines = ["&aircraft_data"]
+        duplicate_entries = []
+        for key, value in input_dict["aircraft"].items():
+            if isinstance(value, list):
+                for j in range(1, len(value)):
+                    duplicate_entries.append(f"\taircraft%{key}\t = {value[j]}")
+                inp_lines.append(f"\taircraft%{key}\t = {value[0]}")
+            else:
+                inp_lines.append(f"\taircraft%{key}\t = {value}")
+
+        for entry in duplicate_entries:
+            inp_lines.append(entry)
+
+        inp_lines.append("\n\n")
+
+        for propeller_dict in input_dict["propellers"]:
+            for_components = propeller_dict.pop("for")
+            comment_line = f"!   Propeller{for_components+1} uses components named Prop_{for_components}, Motor_{for_components}, ESC_{for_components}"
+            inp_lines.append(comment_line)
+            for key, value in propeller_dict.items():
+                inp_lines.append(
+                    f"\t propeller({for_components+1})%{key}\t= {str(value)}"
+                )
+
+            inp_lines.append("\n\n")
+
+        inp_lines.append("!\t Controls")
+        for key, value in input_dict["controls"].items():
+            inp_lines.append(f"\tcontrol%{key} = {value}")
+        inp_lines.append("\n/")
+        return "\n".join(inp_lines)
+
 
 class QuadSpiderCopter(SeedDesign):
     """The QuadSpiderCopter seed design."""

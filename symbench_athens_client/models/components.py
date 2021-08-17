@@ -116,6 +116,15 @@ class Battery(Component):
 
     length: float = Field(..., description="Length of the Battery", alias="LENGTH")
 
+    def to_fd_inp(self):
+        return {
+            "num_cells": self.number_of_cells,
+            "voltage": self.voltage,
+            "capacity": self.capacity,
+            "C_Continuous": self.cont_discharge_rate,
+            "C_peak": self.peak_discharge_rate,
+        }
+
     @root_validator(pre=True)
     def validate_fields(cls, values):
         if "Chemistry Type" in values:
@@ -161,6 +170,20 @@ class Propeller(Component):
     pitch: float = Field(..., description="The pitch of the propeller", alias="PITCH")
 
     weight: float = Field(..., description="Weight of the propeller", alias="WEIGHT")
+
+    def to_fd_inp(self):
+        return {
+            "cname": f"'{self.name}'",
+            "ctype": "'MR'",
+            "prop_fname": f"'../../../Tables/PropData/{self.name}.dat'",
+            "x": None,
+            "y": None,
+            "z": None,
+            "nx": None,
+            "ny": None,
+            "nz": None,
+            "radius": self.diameter / 2,
+        }
 
     @root_validator(pre=True)
     def validate_propeller_attributes(cls, values):
@@ -292,6 +315,19 @@ class Motor(Component):
     )
 
     esc_rate: Optional[float] = Field(..., description="ESC_RATE", alias="ESC_RATE")
+
+    def to_fd_inp(self):
+        return {
+            "motor_fname": f"'../../Motors/{self.name}'",
+            "KV": self.kv,
+            "KT": self.kt,
+            "I_max": self.max_current,
+            "I_idle": self.io_idle_current_at_10V,
+            "maxpower": self.max_power,
+            "Rw": self.internal_resistance / 1000.0,
+            "icontrol": None,
+            "ibattery": None,
+        }
 
     @validator("prop_size_rec", pre=True, always=True)
     def validate_prop_pitch(cls, value):
