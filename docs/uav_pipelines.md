@@ -216,3 +216,31 @@ The racing oval flight, subclasses FlightPathFlight, `analysis_type=3`, `flight_
 
 
 
+
+
+## FlightPathsAll
+
+Run all the FlightPathFlights' Analysis (1, 3, 4 and 5)
+
+
+ Parameters that can be changed are listed below:
+
+| name | Jenkins Name | default | description |
+|-----|-----|-----|-----|
+| requested_lateral_speed | Requested_Lateral_Speed | 10.0 | The requested lateral speed |
+| requested_vertical_speed | Requested_Vertical_Speed | 1.0 | The requested vertical speed |
+| q_position | Q_Position | 1.0 | The Q-Position |
+| q_velocity | Q_Velocity | 1.0 | The Q-Velocity |
+| q_angular_velocity | Q_Angular_velocity | 1.0 | The Q-Angular Velocity |
+| q_angles | Q_Angles | 1.0 | The Q-Angles |
+| r | R | 1.0 | The R-Parameter |
+
+
+
+### Jenkins Design Variables and Defaults (Assuming a QuadCopter seed design):
+| NumSamples | PETName | graphGUID | DesignVars |
+|-----|-----|-----|-----|
+| 1 | /D_Testing/PET/FlightDyn_V1_AllPaths | QuadCopter | "Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 Requested_Lateral_Speed=10.0,10.0 Requested_Vertical_Speed=1.0,1.0 Q_Position=1.0,1.0 Q_Velocity=1.0,1.0 Q_Angular_velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0 " |
+
+
+

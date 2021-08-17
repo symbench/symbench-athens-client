@@ -18,7 +18,7 @@ class UAVWorkflows(JenkinsPipeline):
 
     @property
     def pet_name(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     design: SeedDesign = Field(
         ...,
@@ -76,7 +76,7 @@ class FlightDynamicsV1(UAVWorkflows):
 
     @property
     def analysis_type(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     @property
     def pet_name(self):
@@ -102,9 +102,19 @@ class FlightDynamicsV1(UAVWorkflows):
             {v: getattr(self, k) for k, v in self.__fixed_design_vars__.items()},
             repeat_values=True,
         )
+        print(design_vars_fixed, design_vars_parametric == "")
         params["DesignVars"] = " ".join(
-            [design_params["DesignVars"], design_vars_parametric, design_vars_fixed]
-        )
+            list(
+                filter(
+                    lambda x: x != "",
+                    [
+                        design_params["DesignVars"],
+                        design_vars_parametric,
+                        design_vars_fixed,
+                    ],
+                )
+            )
+        ).strip()
         params["DesignVars"] = '"' + params["DesignVars"] + '"'
         return params
 
@@ -148,7 +158,7 @@ class FlightPathFlight(FlightDynamicsV1):
 
     @property
     def flight_path(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     requested_lateral_speed: Union[float, Tuple[float, float]] = Field(
         default=10.0,
@@ -189,6 +199,16 @@ class FlightPathFlight(FlightDynamicsV1):
                 value[0] <= value[1]
             ), "The first element should be less than the second one; while using ranges"
         return value
+
+
+class FlightPathsAll(FlightPathFlight):
+    """Run all the FlightPathFlights' Analysis (1, 3, 4 and 5)"""
+
+    __fixed_design_vars__ = {}
+
+    @property
+    def pet_name(self):
+        return "/D_Testing/PET/FlightDyn_V1_AllPaths"
 
 
 class StraightLineFlight(FlightPathFlight):

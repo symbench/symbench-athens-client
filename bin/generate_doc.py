@@ -8,6 +8,7 @@ from symbench_athens_client.models.designs import (
 )
 from symbench_athens_client.models.uav_pipelines import (
     CircularFlight,
+    FlightPathsAll,
     GeometryV1,
     HoverCalc,
     InitialConditionsFlight,
@@ -109,6 +110,7 @@ if __name__ == "__main__":
             CircularFlight,
             RiseAndHoverFlight,
             RacingOvalFlight,
+            FlightPathsAll,
         ]
     )
 
