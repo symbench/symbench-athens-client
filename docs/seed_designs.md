@@ -25,7 +25,7 @@ The quadcopter seed design
 | propeller_0 | Prop_0 | apc_propellers_6x4EP |
 | propeller_1 | Prop_1 | apc_propellers_6x4E |
 | propeller_2 | Prop_2 | apc_propellers_6x4EP |
-| propeller_3 | Prop_3 | apc_propellers_6x4EP |
+| propeller_3 | Prop_3 | apc_propellers_6x4E |
 | flange_0 | Flange_0 | 0394_para_flange |
 | flange_1 | Flange_1 | 0394_para_flange |
 | flange_2 | Flange_2 | 0394_para_flange |
@@ -79,8 +79,8 @@ The QuadSpiderCopter seed design.
 | motor_2 | Motor_2 | kde_direct_KDE2306XF2550 |
 | motor_3 | Motor_3 | kde_direct_KDE2306XF2550 |
 | propeller_0 | Prop_0 | apc_propellers_10x7E |
-| propeller_1 | Prop_1 | apc_propellers_10x7E |
-| propeller_2 | Prop_2 | apc_propellers_10x7E |
+| propeller_1 | Prop_1 | apc_propellers_10x7EP |
+| propeller_2 | Prop_2 | apc_propellers_10x7EP |
 | propeller_3 | Prop_3 | apc_propellers_10x7E |
 | flange_0 | Flange_0 | 0394_para_flange |
 | flange_1 | Flange_1 | 0394_para_flange |
@@ -147,10 +147,10 @@ The H-Copter Seed Design
 | motor_1 | Motor_1 | kde_direct_KDE2306XF2550 |
 | motor_2 | Motor_2 | kde_direct_KDE2306XF2550 |
 | motor_3 | Motor_3 | kde_direct_KDE2306XF2550 |
-| propeller_0 | Prop_0 | apc_propellers_4_75x4_75EP |
+| propeller_0 | Prop_0 | apc_propellers_4_75x4_75E |
 | propeller_1 | Prop_1 | apc_propellers_4_75x4_75EP |
 | propeller_2 | Prop_2 | apc_propellers_4_75x4_75EP |
-| propeller_3 | Prop_3 | apc_propellers_4_75x4_75EP |
+| propeller_3 | Prop_3 | apc_propellers_4_75x4_75E |
 | flange_0 | Flange_0 | 0394_para_flange |
 | flange_1 | Flange_1 | 0394_para_flange |
 | flange_2 | Flange_2 | 0394_para_flange |
