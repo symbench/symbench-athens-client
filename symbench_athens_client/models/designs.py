@@ -381,6 +381,9 @@ class QuadCopter(SeedDesign):
                 "Please set discrete values for the design variables"
             )
         property_estimates = get_mass_estimates_for_quadcopter(testbench_path, self)
+        property_estimates["x_fuse"] = property_estimates["x_cm"]
+        property_estimates["y_fuse"] = property_estimates["y_cm"]
+        property_estimates["z_fuse"] = property_estimates["z_cm"]
         return {
             "propeller_0": {
                 "x": property_estimates.pop("Prop_0_x"),
