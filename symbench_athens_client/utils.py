@@ -87,7 +87,6 @@ def get_mass_estimates_for_quadcopter(testbench_data_path, quad_copter):
     for key, value in formulae.items():
         mass_estimates_key = key.replace("aircraft.", "")
         try:
-            print(value.evalf(subs=aircraft_parameters))
             mass_properties[mass_estimates_key] = value.evalf(subs=aircraft_parameters)
         except AttributeError:
             mass_properties[mass_estimates_key] = value
