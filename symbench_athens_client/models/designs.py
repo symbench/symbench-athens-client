@@ -1,6 +1,6 @@
 from typing import ClassVar, Dict, List, Tuple, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 from symbench_athens_client.models.components import (
     ESC,
@@ -184,7 +184,7 @@ class QuadCopter(SeedDesign):
     )
 
     propeller_1: Propeller = Field(
-        Propellers.apc_propellers_6x4EP, description="Propeller 1", alias="Prop_1"
+        Propellers.apc_propellers_6x4E, description="Propeller 1", alias="Prop_1"
     )
 
     propeller_2: Propeller = Field(
@@ -192,7 +192,7 @@ class QuadCopter(SeedDesign):
     )
 
     propeller_3: Propeller = Field(
-        Propellers.apc_propellers_6x4EP, description="Propeller 2", alias="Prop_3"
+        Propellers.apc_propellers_6x4E, description="Propeller 2", alias="Prop_3"
     )
 
     flange_0: Flange = Field(
@@ -453,6 +453,14 @@ class QuadCopter(SeedDesign):
         inp_lines.append("\n/")
         return "\n".join(inp_lines)
 
+    def validate_propellers_directions(self):
+        assert (
+            self.propeller_0.direction + self.propeller_1.direction == 0
+        ), "Propeller 0 and 1 should have opposite directions"
+        assert (
+            self.propeller_2.direction + self.propeller_3.direction == 0
+        ), "Propeller 2 and 3 should have opposite directions"
+
 
 class QuadSpiderCopter(SeedDesign):
     """The QuadSpiderCopter seed design."""
@@ -562,11 +570,11 @@ class QuadSpiderCopter(SeedDesign):
     )
 
     propeller_1: Propeller = Field(
-        Propellers.apc_propellers_10x7E, description="Propeller 1", alias="Prop_1"
+        Propellers.apc_propellers_10x7EP, description="Propeller 1", alias="Prop_1"
     )
 
     propeller_2: Propeller = Field(
-        Propellers.apc_propellers_10x7E, description="Propeller 2", alias="Prop_2"
+        Propellers.apc_propellers_10x7EP, description="Propeller 2", alias="Prop_2"
     )
 
     propeller_3: Propeller = Field(
@@ -687,6 +695,14 @@ class QuadSpiderCopter(SeedDesign):
         Hubs["0394od_para_hub_2"], description="Bend 3-B", alias="Bend_3b"
     )
 
+    def validate_propellers_directions(self):
+        assert (
+            self.propeller_0.direction + self.propeller_1.direction == 0
+        ), "Propeller 0 and 1 should have opposite directions"
+        assert (
+            self.propeller_2.direction + self.propeller_3.direction == 0
+        ), "Propeller 2 and 3 should have opposite directions"
+
     @validator(*__design_vars__, pre=True, always=True)
     def validate_design_vars_tuple(cls, value):
         if isinstance(value, Tuple):
@@ -775,7 +791,7 @@ class HCopter(SeedDesign):
     )
 
     propeller_0: Propeller = Field(
-        Propellers.apc_propellers_4_75x4_75EP, description="Propeller 0", alias="Prop_0"
+        Propellers.apc_propellers_4_75x4_75E, description="Propeller 0", alias="Prop_0"
     )
 
     propeller_1: Propeller = Field(
@@ -787,7 +803,7 @@ class HCopter(SeedDesign):
     )
 
     propeller_3: Propeller = Field(
-        Propellers.apc_propellers_4_75x4_75EP, description="Propeller 2", alias="Prop_3"
+        Propellers.apc_propellers_4_75x4_75E, description="Propeller 2", alias="Prop_3"
     )
 
     flange_0: Flange = Field(
@@ -855,6 +871,14 @@ class HCopter(SeedDesign):
                 value[0] <= value[1]
             ), "The first element should be less than the second one; while using ranges"
         return value
+
+    def validate_propellers_directions(self):
+        assert (
+            self.propeller_0.direction + self.propeller_1.direction == 0
+        ), "Propeller 0 and 1 should have opposite directions"
+        assert (
+            self.propeller_2.direction + self.propeller_3.direction == 0
+        ), "Propeller 2 and 3 should have opposite directions"
 
 
 class HPlane(SeedDesign):
@@ -1106,13 +1130,13 @@ class HPlane(SeedDesign):
     rear_prop_l: Propeller = Field(
         Propellers.apc_propellers_4_75x4_75EP,
         description="The rear-left propeller",
-        alias="Front_Prop_L",
+        alias="Rear_Prop_L",
     )
 
     rear_prop_r: Propeller = Field(
         Propellers.apc_propellers_4_75x4_75E,
         description="The rear-right propeller",
-        alias="Front_Prop_R",
+        alias="Rear_Prop_R",
     )
 
     front_motor_l: Motor = Field(
