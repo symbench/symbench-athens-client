@@ -229,8 +229,8 @@ The H-Plane Seed Design
 | front_prop_c | Front_Prop_C | apc_propellers_4_75x4_75EC |
 | front_prop_l | Front_Prop_L | apc_propellers_4_75x4_75E |
 | front_prop_r | Front_Prop_R | apc_propellers_4_75x4_75EP |
-| rear_prop_l | Front_Prop_L | apc_propellers_4_75x4_75EP |
-| rear_prop_r | Front_Prop_R | apc_propellers_4_75x4_75E |
+| rear_prop_l | Rear_Prop_L | apc_propellers_4_75x4_75EP |
+| rear_prop_r | Rear_Prop_R | apc_propellers_4_75x4_75E |
 | front_motor_l | Front_Motor_L | kde_direct_KDE2306XF2550 |
 | front_motor_r | Front_Motor_R | kde_direct_KDE2306XF2550 |
 | front_motor_c | Front_Motor_C | kde_direct_KDE2306XF2550 |
