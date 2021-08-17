@@ -928,13 +928,13 @@ class HPlane(SeedDesign):
     rear_prop_l: Propeller = Field(
         Propellers.apc_propellers_4_75x4_75EP,
         description="The rear-left propeller",
-        alias="Front_Prop_L",
+        alias="Rear_Prop_L",
     )
 
     rear_prop_r: Propeller = Field(
         Propellers.apc_propellers_4_75x4_75E,
         description="The rear-right propeller",
-        alias="Front_Prop_R",
+        alias="Rear_Prop_R",
     )
 
     front_motor_l: Motor = Field(
