@@ -192,7 +192,7 @@ class QuadCopter(SeedDesign):
     )
 
     propeller_3: Propeller = Field(
-        Propellers.apc_propellers_6x4EP, description="Propeller 2", alias="Prop_3"
+        Propellers.apc_propellers_6x4E, description="Propeller 2", alias="Prop_3"
     )
 
     flange_0: Flange = Field(
