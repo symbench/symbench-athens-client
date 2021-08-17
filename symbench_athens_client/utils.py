@@ -91,7 +91,5 @@ def get_mass_estimates_for_quadcopter(testbench_data_path, quad_copter):
             mass_properties[mass_estimates_key] = value.evalf(subs=aircraft_parameters)
         except AttributeError:
             mass_properties[mass_estimates_key] = value
-    import pprint
 
-    pprint.pprint(formulae.keys())
     return mass_properties
