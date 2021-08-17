@@ -1,6 +1,6 @@
 from typing import ClassVar, Dict, List, Tuple, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 from symbench_athens_client.models.components import (
     ESC,
@@ -184,7 +184,7 @@ class QuadCopter(SeedDesign):
     )
 
     propeller_1: Propeller = Field(
-        Propellers.apc_propellers_6x4EP, description="Propeller 1", alias="Prop_1"
+        Propellers.apc_propellers_6x4E, description="Propeller 1", alias="Prop_1"
     )
 
     propeller_2: Propeller = Field(
@@ -250,6 +250,14 @@ class QuadCopter(SeedDesign):
                 value[0] <= value[1]
             ), "The first element should be less than the second one; while using ranges"
         return value
+
+    def validate_propellers_directions(self):
+        assert (
+            self.propeller_0.direction + self.propeller_1.direction == 0
+        ), "Propeller 0 and 1 should have opposite directions"
+        assert (
+            self.propeller_2.direction + self.propeller_3.direction == 0
+        ), "Propeller 2 and 3 should have opposite directions"
 
 
 class QuadSpiderCopter(SeedDesign):

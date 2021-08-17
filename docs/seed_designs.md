@@ -23,7 +23,7 @@ The quadcopter seed design
 | motor_2 | Motor_2 | t_motor_AT2312KV1400 |
 | motor_3 | Motor_3 | t_motor_AT2312KV1400 |
 | propeller_0 | Prop_0 | apc_propellers_6x4EP |
-| propeller_1 | Prop_1 | apc_propellers_6x4EP |
+| propeller_1 | Prop_1 | apc_propellers_6x4E |
 | propeller_2 | Prop_2 | apc_propellers_6x4EP |
 | propeller_3 | Prop_3 | apc_propellers_6x4EP |
 | flange_0 | Flange_0 | 0394_para_flange |

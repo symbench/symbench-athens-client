@@ -46,7 +46,7 @@ The Trim Steady Flight, using `analysis_type=2` in `FlightDyanmics`.
 ### Jenkins Design Variables and Defaults (Assuming a QuadCopter seed design):
 | NumSamples | PETName | graphGUID | DesignVars |
 |-----|-----|-----|-----|
-| 1 | /D_Testing/PET/FlightDyn_V1 | QuadCopter | "Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0  Analysis_Type=2,2" |
+| 1 | /D_Testing/PET/FlightDyn_V1 | QuadCopter | "Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 Analysis_Type=2,2" |
 
 
 
@@ -68,7 +68,7 @@ The InitialConditions Flight, using `analysis_type=1` in `FlightDynamics`.
 ### Jenkins Design Variables and Defaults (Assuming a QuadCopter seed design):
 | NumSamples | PETName | graphGUID | DesignVars |
 |-----|-----|-----|-----|
-| 1 | /D_Testing/PET/FlightDyn_V1 | QuadCopter | "Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0  Analysis_Type=1,1" |
+| 1 | /D_Testing/PET/FlightDyn_V1 | QuadCopter | "Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 Analysis_Type=1,1" |
 
 
 
@@ -240,7 +240,7 @@ Run all the FlightPathFlights' Analysis (1, 3, 4 and 5)
 ### Jenkins Design Variables and Defaults (Assuming a QuadCopter seed design):
 | NumSamples | PETName | graphGUID | DesignVars |
 |-----|-----|-----|-----|
-| 1 | /D_Testing/PET/FlightDyn_V1_AllPaths | QuadCopter | "Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 Requested_Lateral_Speed=10.0,10.0 Requested_Vertical_Speed=1.0,1.0 Q_Position=1.0,1.0 Q_Velocity=1.0,1.0 Q_Angular_velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0 " |
+| 1 | /D_Testing/PET/FlightDyn_V1_AllPaths | QuadCopter | "Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 Requested_Lateral_Speed=10.0,10.0 Requested_Vertical_Speed=1.0,1.0 Q_Position=1.0,1.0 Q_Velocity=1.0,1.0 Q_Angular_velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0" |
 
 
 
