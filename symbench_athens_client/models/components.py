@@ -123,7 +123,7 @@ class Battery(Component):
             "voltage": self.voltage,
             "capacity": self.capacity,
             "C_Continuous": self.cont_discharge_rate,
-            "C_peak": self.peak_discharge_rate,
+            "C_Peak": self.peak_discharge_rate,
         }
 
     @root_validator(pre=True)
