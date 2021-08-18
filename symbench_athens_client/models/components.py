@@ -933,14 +933,14 @@ def _build_parametric_components(cls, names):
     )
 
 
-ALL_FLANGES = ["0394_para_flange", "0281_para_flange"]
+ALL_FLANGES = ["0394_para_flange"]
 ALL_TUBES = ["0281OD_para_tube", "0394OD_para_tube"]
 ALL_HUBS = [
-    "0394od_para_hub_5",
-    "0394od_para_hub_6",
+    "0394od_para_hub_2",
     "0394od_para_hub_3",
     "0394od_para_hub_4",
-    "0394od_para_hub_2",
+    "0394od_para_hub_5",
+    "0394od_para_hub_6"
 ]
 ALL_ORIENTS = ["Orient"]
 ALL_CFPS = ["para_cf_fplate"]
