@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 from typing import Any, Dict, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, root_validator, validator
@@ -118,7 +119,7 @@ class Battery(Component):
 
     def to_fd_inp(self):
         return {
-            "num_cells": self.number_of_cells,
+            "num_cells": int(self.number_of_cells[0]),
             "voltage": self.voltage,
             "capacity": self.capacity,
             "C_Continuous": self.cont_discharge_rate,
@@ -171,11 +172,12 @@ class Propeller(Component):
 
     weight: float = Field(..., description="Weight of the propeller", alias="WEIGHT")
 
-    def to_fd_inp(self):
+    def to_fd_inp(self, data_path):
         return {
             "cname": f"'{self.name}'",
             "ctype": "'MR'",
-            "prop_fname": f"'../../../Tables/PropData/{self.name}.dat'",
+            "prop_fname": f"'{str(data_path)}{os.sep}{self.performance_file}'",
+            "Ir": (self.weight * self.diameter ** 2 / 12.0),
             "x": None,
             "y": None,
             "z": None,
@@ -183,6 +185,7 @@ class Propeller(Component):
             "ny": None,
             "nz": None,
             "radius": self.diameter / 2,
+            "spin": int(self.direction),
         }
 
     @root_validator(pre=True)

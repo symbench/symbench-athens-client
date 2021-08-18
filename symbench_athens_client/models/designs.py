@@ -257,11 +257,12 @@ class QuadCopter(SeedDesign):
     def to_fd_input(
         self,
         test_bench_path,
+        propellers_data_path=None,
         filename=None,
         analysis_type=3,
         flight_path=1,
         requested_vertical_speed=10.0,
-        requested_lateral_speed=1.0,
+        requested_lateral_speed=1,
         q_position=1.0,
         q_velocity=1.0,
         q_angular_velocity=1.0,
@@ -274,6 +275,8 @@ class QuadCopter(SeedDesign):
         ----------
         test_bench_path: str, pathlib.Path
             The location of the testbench data to use by uav_analysis.testbench_data.TestBenchData
+        propellers_data_path: str, pathlib.Path
+            The base directory for propellers data
         filename: str, pathlib.Path
             The Path of the input file, should have an .inp extension
         analysis_type: int, default=3
@@ -282,7 +285,7 @@ class QuadCopter(SeedDesign):
             The flight path for analysis_type of 3, (1=fly straight line, 2=Unused, 3= fly circle, 4 = rise and hover, 5 = racing oval
         requested_vertical_speed: float, default=10.0
             The requested vertical speed for the FD software
-        requested_lateral_speed: float, default=10.0
+        requested_lateral_speed: int, default=1
             The requested lateral speed for the FD software
         q_position: float, default=1.0
             The Q-Position for the LQR controller
@@ -296,22 +299,22 @@ class QuadCopter(SeedDesign):
             The R-parameter for the LQR controller
         """
         masses = self._get_mass_properties(test_bench_path)
-        propeller_1 = self.propeller_0.to_fd_inp()
+        propeller_1 = self.propeller_0.to_fd_inp(propellers_data_path)
         propeller_1["for"] = 0
         propeller_1.update(self.motor_0.to_fd_inp())
         propeller_1.update(masses["propeller_0"])
 
-        propeller_2 = self.propeller_1.to_fd_inp()
+        propeller_2 = self.propeller_1.to_fd_inp(propellers_data_path)
         propeller_2.update(self.motor_1.to_fd_inp())
         propeller_2.update(masses["propeller_1"])
         propeller_2["for"] = 1
 
-        propeller_3 = self.propeller_2.to_fd_inp()
+        propeller_3 = self.propeller_2.to_fd_inp(propellers_data_path)
         propeller_3.update(self.motor_2.to_fd_inp())
         propeller_3.update(masses["propeller_2"])
         propeller_3["for"] = 2
 
-        propeller_4 = self.propeller_3.to_fd_inp()
+        propeller_4 = self.propeller_3.to_fd_inp(propellers_data_path)
         propeller_4.update(self.motor_3.to_fd_inp())
         propeller_4.update(masses["propeller_3"])
         propeller_4["for"] = 3
@@ -333,7 +336,7 @@ class QuadCopter(SeedDesign):
                 "0.5d0, 0.5d0, 0.5d0, 0.5d0",
             ],
             "time": "0.d0",
-            "dt": "1.de-03",
+            "dt": "1.d-03",
             "dt_output": "1.0d0",
             "time_end": "1000.d0",
             "Unwind": "0.d0",
@@ -351,9 +354,10 @@ class QuadCopter(SeedDesign):
         fd_params = {
             "aircraft": aircraft_data,
             "propellers": [propeller_1, propeller_2, propeller_3, propeller_4],
+            "battery": self.battery_0.to_fd_inp(),
             "controls": {
                 "i_flight_path": flight_path,
-                "requested_lateral_speed": requested_lateral_speed,
+                "requested_lateral_speed": int(requested_lateral_speed),
                 "requested_vertical_speed": requested_vertical_speed,
                 "iaileron": 5,
                 "iflap": 6,
@@ -413,7 +417,7 @@ class QuadCopter(SeedDesign):
         propeller_dict.update({"nx": 0.0, "ny": 0.0, "nz": -1.0})
 
     @staticmethod
-    def _assign_controls_and_battery(self, *propeller_dicts):
+    def _assign_controls_and_battery(*propeller_dicts):
         for i, inp_dict in enumerate(propeller_dicts):
             inp_dict["icontrol"] = i + 1
             inp_dict["ibattery"] = 1
@@ -426,15 +430,15 @@ class QuadCopter(SeedDesign):
         for key, value in input_dict["aircraft"].items():
             if isinstance(value, list):
                 for j in range(1, len(value)):
-                    duplicate_entries.append(f"\taircraft%{key}\t = {value[j]}")
-                inp_lines.append(f"\taircraft%{key}\t = {value[0]}")
+                    duplicate_entries.append(f"   aircraft%{key}     = {value[j]}")
+                inp_lines.append(f"   aircraft%{key}     = {value[0]}")
             else:
-                inp_lines.append(f"\taircraft%{key}\t = {value}")
+                inp_lines.append(f"   aircraft%{key}     = {value}")
 
         for entry in duplicate_entries:
             inp_lines.append(entry)
 
-        inp_lines.append("\n\n")
+        inp_lines.append("\n")
 
         for propeller_dict in input_dict["propellers"]:
             for_components = propeller_dict.pop("for")
@@ -442,15 +446,21 @@ class QuadCopter(SeedDesign):
             inp_lines.append(comment_line)
             for key, value in propeller_dict.items():
                 inp_lines.append(
-                    f"\t propeller({for_components+1})%{key}\t= {str(value)}"
+                    f"   propeller({for_components+1})%{key}   = {str(value)}"
                 )
 
-            inp_lines.append("\n\n")
+            inp_lines.append("\n")
+
+        inp_lines.append("!\t Battery 1 is component named: Battery_0")
+        for key, value in input_dict["battery"].items():
+            inp_lines.append(f"   battery(1)%{key}    = {value}")
+
+        inp_lines.append("\n")
 
         inp_lines.append("!\t Controls")
         for key, value in input_dict["controls"].items():
-            inp_lines.append(f"\tcontrol%{key} = {value}")
-        inp_lines.append("\n/")
+            inp_lines.append(f"   control%{key} = {value}")
+        inp_lines.append("/\n\n")
         return "\n".join(inp_lines)
 
     def validate_propellers_directions(self):

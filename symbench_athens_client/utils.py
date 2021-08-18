@@ -2,7 +2,7 @@ import logging
 from functools import lru_cache
 from typing import Iterable
 
-from uav_analysis.mass_properties import quad_copter_fixed_bemp
+from uav_analysis.mass_properties import quad_copter_fixed_bemp2
 from uav_analysis.testbench_data import TestbenchData
 
 
@@ -54,7 +54,7 @@ def estimate_mass_formulae(tb_data_loc):
     """Estimate mass properties of a design based on a fixed BEMP config testbench"""
     tb_data = TestbenchData()
     tb_data.load(tb_data_loc)
-    return quad_copter_fixed_bemp(tb_data)
+    return quad_copter_fixed_bemp2(tb_data)
 
 
 def get_mass_estimates_for_quadcopter(testbench_data_path, quad_copter):
