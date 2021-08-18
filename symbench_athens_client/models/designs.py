@@ -48,14 +48,18 @@ class SeedDesign(BaseModel):
     def parameters(self):
         return self.dict(by_alias=True, include=self.__design_vars__)
 
-    def components(self):
+    def components(self, by_alias=True):
         all_components = self.dict(
-            by_alias=True, exclude={"name", "swap_list"}.union(self.__design_vars__)
+            by_alias=by_alias, exclude={"name", "swap_list"}.union(self.__design_vars__)
         )
         names = {}
 
         for component in all_components:
-            names[component] = all_components[component]["Name"]
+            names[component] = (
+                all_components[component]["Name"]
+                if by_alias
+                else all_components[component]["name"]
+            )
 
         return names
 

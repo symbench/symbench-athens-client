@@ -1,6 +1,5 @@
 import csv
 import json
-import os
 from typing import Any, Dict, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, root_validator, validator
@@ -176,7 +175,7 @@ class Propeller(Component):
         return {
             "cname": f"'{self.name}'",
             "ctype": "'MR'",
-            "prop_fname": f"'{str(data_path)}{os.sep}{self.performance_file}'"
+            "prop_fname": f"'{str(data_path)}{self.performance_file}'"
             if data_path
             else f"'{self.performance_file}'",
             "Ir": (self.weight * self.diameter ** 2 / 12.0),

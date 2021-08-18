@@ -4,3 +4,7 @@ class JobFailedError(Exception):
 
 class ParametersMismatchError(Exception):
     """Error to be raised when there are insufficient parameters for a build."""
+
+
+class FDMFailedException(Exception):
+    """Exception to be raised when the FDM process failed."""
