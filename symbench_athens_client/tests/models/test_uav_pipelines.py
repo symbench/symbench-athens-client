@@ -70,7 +70,7 @@ class TestFlightModes:
         circular_flight.design.q_position = 100
 
         assert (
-            "Q_Position=100.0,100.0 Q_Velocity=1.0,1.0 Q_Angular_velocity=1.0,1.0 Q_Angles=90.0,90.0 R=1.0,1.0 Length_0=220.0,220.0"
+            "Q_Position=100.0,100.0 Q_Velocity=1.0,1.0 Q_Angular_Velocity=1.0,1.0 Q_Angles=90.0,90.0 R=1.0,1.0 Length_0=220.0,220.0"
             in circular_flight.to_jenkins_parameters()["DesignVars"]
         )
 
@@ -78,7 +78,7 @@ class TestFlightModes:
         print(rise_and_hover_flight.to_jenkins_parameters()["DesignVars"])
 
         assert (
-            "Q_Angular_velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0"
+            "Q_Angular_Velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0"
             in rise_and_hover_flight.to_jenkins_parameters()["DesignVars"]
         )
 

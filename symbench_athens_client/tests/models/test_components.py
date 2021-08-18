@@ -31,10 +31,10 @@ class TestComponents:
             return json.load(json_file)
 
     def test_batteries_count(self):
-        assert len(Batteries) == 40
+        assert len(Batteries) == 34
 
     def test_propellers_count(self):
-        assert len(Propellers) == 414
+        assert len(Propellers) == 416
 
     def test_servo_count(self):
         assert len(Servos) == 27
@@ -55,7 +55,7 @@ class TestComponents:
         assert len(Autopilots) == 4
 
     def test_instrument_batteries_count(self):
-        assert len(Instrument_Batteries) == 2
+        assert len(Instrument_Batteries) == 3
 
     def test_escs_count(self):
         assert len(ESCs) == 20
@@ -67,7 +67,7 @@ class TestComponents:
         assert len(Orients) == 1
 
     def test_flanges_count(self):
-        assert len(Flanges) == 2
+        assert len(Flanges) == 1
 
     def test_tubes_count(self):
         assert len(Tubes) == 2

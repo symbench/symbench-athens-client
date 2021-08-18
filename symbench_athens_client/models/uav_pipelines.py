@@ -205,7 +205,7 @@ class FlightPathsAll(FlightPathFlight):
             "graphGUID": self.design.name,
             "PETName": self.pet_name,
             "NumSamples": self.num_samples,
-            "DesignVars": dict_to_design_vars(params),
+            "DesignVars": '"' + dict_to_design_vars(params) + '"',
         }
 
 
