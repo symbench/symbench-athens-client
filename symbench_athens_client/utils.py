@@ -1,5 +1,9 @@
 import logging
+from functools import lru_cache
 from typing import Iterable
+
+from uav_analysis.mass_properties import quad_copter_fixed_bemp2
+from uav_analysis.testbench_data import TestbenchData
 
 
 def get_logger(name, level=logging.DEBUG):
@@ -43,3 +47,48 @@ def dict_to_design_vars(inp_dict, repeat_values=True):
         f"{k}={v},{v} " if should_repeat(v) else f"{k}={get_single(v)} "
         for k, v in inp_dict.items()
     ).rstrip()
+
+
+@lru_cache(maxsize=128)
+def estimate_mass_formulae(tb_data_loc):
+    """Estimate mass properties of a design based on a fixed BEMP config testbench"""
+    tb_data = TestbenchData()
+    tb_data.load(tb_data_loc)
+    return quad_copter_fixed_bemp2(tb_data)
+
+
+def get_mass_estimates_for_quadcopter(testbench_data_path, quad_copter):
+    """Given a quadcopter seed design, calculate the mass properties using creo surrogate estimator.
+
+    Parameters
+    ----------
+    testbench_data_path: str, pathlib.Path
+        The zip file location for the uav_analusis.testbench_data.TestBenchData
+    quad_copter: instance of symbench_athens_client.models.design.QuadCopter
+        The instance of the QuadCopter seed design to estimate properties for=
+
+    Returns
+    -------
+    dict
+        The dictionary of mass properties estimates
+    """
+    from symbench_athens_client.models.designs import QuadCopter
+
+    assert isinstance(
+        quad_copter, QuadCopter
+    ), "The function estimator only works for quadcopter seed design"
+
+    aircraft_parameters = quad_copter.dict(
+        by_alias=True, include=quad_copter.__design_vars__
+    )
+    formulae = estimate_mass_formulae(testbench_data_path)
+
+    mass_properties = {}
+    for key, value in formulae.items():
+        mass_estimates_key = key.replace("aircraft.", "")
+        try:
+            mass_properties[mass_estimates_key] = value.evalf(subs=aircraft_parameters)
+        except AttributeError:
+            mass_properties[mass_estimates_key] = value
+
+    return mass_properties

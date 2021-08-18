@@ -1,6 +1,6 @@
 from typing import ClassVar, Dict, List, Tuple, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 from symbench_athens_client.models.components import (
     ESC,
@@ -31,7 +31,13 @@ from symbench_athens_client.utils import dict_to_design_vars
 
 class SeedDesign(BaseModel):
 
-    __design_vars__: ClassVar[str] = {}
+    __design_vars__: ClassVar[str] = {
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r",
+    }
 
     name: str = Field(
         "", alias="name", description="Name of the seed design in the graph database"
@@ -39,6 +45,26 @@ class SeedDesign(BaseModel):
 
     swap_list: Dict[str, List[str]] = Field(
         {}, description="list of swap components for this design", alias="swap_list"
+    )
+
+    q_position: Union[float, Tuple[float, float]] = Field(
+        default=1.0, alias="Q_Position", description="The Q-Position"
+    )
+
+    q_velocity: Union[float, Tuple[float, float]] = Field(
+        default=1.0, description="The Q-Velocity", alias="Q_Velocity"
+    )
+
+    q_angular_velocity: Union[float, Tuple[float, float]] = Field(
+        default=1.0, description="The Q-Angular Velocity", alias="Q_Angular_Velocity"
+    )
+
+    q_angles: Union[float, Tuple[float, float]] = Field(
+        1.0, description="The Q-Angles", alias="Q_Angles"
+    )
+
+    r: Union[float, Tuple[float, float]] = Field(
+        1.0, description="The R-Parameter", alias="R"
     )
 
     def to_jenkins_parameters(self):
@@ -109,6 +135,11 @@ class QuadCopter(SeedDesign):
         "support_length",
         "batt_mount_x_offset",
         "batt_mount_z_offset",
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r",
     }
 
     def __init__(
@@ -184,7 +215,7 @@ class QuadCopter(SeedDesign):
     )
 
     propeller_1: Propeller = Field(
-        Propellers.apc_propellers_6x4EP, description="Propeller 1", alias="Prop_1"
+        Propellers.apc_propellers_6x4E, description="Propeller 1", alias="Prop_1"
     )
 
     propeller_2: Propeller = Field(
@@ -192,7 +223,7 @@ class QuadCopter(SeedDesign):
     )
 
     propeller_3: Propeller = Field(
-        Propellers.apc_propellers_6x4EP, description="Propeller 2", alias="Prop_3"
+        Propellers.apc_propellers_6x4E, description="Propeller 2", alias="Prop_3"
     )
 
     flange_0: Flange = Field(
@@ -251,6 +282,216 @@ class QuadCopter(SeedDesign):
             ), "The first element should be less than the second one; while using ranges"
         return value
 
+    def to_fd_input(
+        self,
+        test_bench_path,
+        propellers_data_path=None,
+        filename=None,
+        analysis_type=3,
+        flight_path=1,
+        requested_vertical_speed=10.0,
+        requested_lateral_speed=1,
+    ):
+        """Get SWRi's flight dynamics model's input files for this design
+
+        Parameters
+        ----------
+        test_bench_path: str, pathlib.Path
+            The location of the testbench data to use by uav_analysis.testbench_data.TestBenchData
+        propellers_data_path: str, pathlib.Path
+            The base directory for propellers data
+        filename: str, pathlib.Path
+            The Path of the input file, should have an .inp extension
+        analysis_type: int, default=3
+            The analysis type for this input file (3=flight path analysis, 2=Trim Steady, 1=Initial Conditions)
+        flight_path: int, default=1
+            The flight path for analysis_type of 3, (1=fly straight line, 2=Unused, 3= fly circle, 4 = rise and hover, 5 = racing oval
+        requested_vertical_speed: float, default=10.0
+            The requested vertical speed for the FD software
+        requested_lateral_speed: int, default=1
+            The requested lateral speed for the FD software
+
+        Returns
+        -------
+        dict or None
+            if filename is None, this method will return a dictionary containing all the parameters
+            otherwise the file will be saved as filename
+        """
+        masses = self._get_mass_properties(test_bench_path)
+        propeller_1 = self.propeller_0.to_fd_inp(propellers_data_path)
+        propeller_1["for"] = 0
+        propeller_1.update(self.motor_0.to_fd_inp())
+        propeller_1.update(masses["propeller_0"])
+
+        propeller_2 = self.propeller_1.to_fd_inp(propellers_data_path)
+        propeller_2.update(self.motor_1.to_fd_inp())
+        propeller_2.update(masses["propeller_1"])
+        propeller_2["for"] = 1
+
+        propeller_3 = self.propeller_2.to_fd_inp(propellers_data_path)
+        propeller_3.update(self.motor_2.to_fd_inp())
+        propeller_3.update(masses["propeller_2"])
+        propeller_3["for"] = 2
+
+        propeller_4 = self.propeller_3.to_fd_inp(propellers_data_path)
+        propeller_4.update(self.motor_3.to_fd_inp())
+        propeller_4.update(masses["propeller_3"])
+        propeller_4["for"] = 3
+
+        self._assign_normals(propeller_1)
+        self._assign_normals(propeller_2)
+        self._assign_normals(propeller_3)
+        self._assign_normals(propeller_4)
+        self._assign_controls_and_battery(
+            propeller_1, propeller_2, propeller_3, propeller_4
+        )
+
+        aircraft_data = {
+            "cname": f"'UAV_{self.name}' ! M name of the aircraft",
+            "ctype": f"'SymCPS UAV Design'  ! Type of the Aircraft",
+            "num_wings": "0  ! M number of wings in aircraft",
+            "uc_initial": [
+                "0.4d0, 0.5d0, 0.6d0, 0.7d0 ! inputs for controls",
+                "0.5d0, 0.5d0, 0.5d0, 0.5d0",
+            ],
+            "time": "0.d0        ! initial time (default = 0.)",
+            "dt": "1.d-03        ! s  fixed time step",
+            "dt_output": "1.0d0  ! s  time between output lines",
+            "time_end": "1000.d0       ! s  end time ",
+            "Unwind": "0.d0      !  North wind speed in world frame",
+            "Vewind": "0.d0      !  East wind speed in  world frame",
+            "Wdwind": "0.d0      ! Down wind speed in world frame",
+            "debug": "0          ! verbose printouts from fderiv",
+            "num_propellers": 4,
+            "num_batteries": 1,
+            "i_analysis_type": analysis_type,
+            "x_initial": "0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 1.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0",
+        }
+
+        aircraft_data.update(masses["aircraft"])
+
+        fd_params = {
+            "aircraft": aircraft_data,
+            "propellers": [propeller_1, propeller_2, propeller_3, propeller_4],
+            "battery": self.battery_0.to_fd_inp(),
+            "controls": {
+                "i_flight_path": flight_path,
+                "requested_lateral_speed": int(requested_lateral_speed),
+                "requested_vertical_speed": requested_vertical_speed,
+                "iaileron": 5,
+                "iflap": 6,
+                "Q_position": self.q_position,
+                "Q_velocity": self.q_velocity,
+                "Q_angular_velocity": self.q_angular_velocity,
+                "Q_angles": self.q_angles,
+                "R": self.r,
+            },
+        }
+
+        if filename is not None:
+            with open(filename, "w") as fd_inp:
+                fd_inp.write(self._to_fd_inp(fd_params))
+        else:
+            return fd_params
+
+    def _get_mass_properties(self, testbench_path):
+        """Get estimated mass properties for the quadcopter(works only for single parameters for now)"""
+        from symbench_athens_client.utils import get_mass_estimates_for_quadcopter
+
+        for var in self.__design_vars__:
+            if isinstance(getattr(self, var), Tuple):
+                raise ValueError(
+                    "Cannot estimate mass properties for a range. "
+                    "Please set discrete values for the design variables."
+                )
+
+        property_estimates = get_mass_estimates_for_quadcopter(testbench_path, self)
+        property_estimates["x_fuse"] = property_estimates["x_cm"]
+        property_estimates["y_fuse"] = property_estimates["y_cm"]
+        property_estimates["z_fuse"] = property_estimates["z_cm"]
+        return {
+            "propeller_0": {
+                "x": property_estimates.pop("Prop_0_x"),
+                "y": property_estimates.pop("Prop_0_y"),
+                "z": property_estimates.pop("Prop_0_z"),
+            },
+            "propeller_1": {
+                "x": property_estimates.pop("Prop_1_x"),
+                "y": property_estimates.pop("Prop_1_y"),
+                "z": property_estimates.pop("Prop_1_z"),
+            },
+            "propeller_2": {
+                "x": property_estimates.pop("Prop_2_x"),
+                "y": property_estimates.pop("Prop_2_y"),
+                "z": property_estimates.pop("Prop_2_z"),
+            },
+            "propeller_3": {
+                "x": property_estimates.pop("Prop_3_x"),
+                "y": property_estimates.pop("Prop_3_y"),
+                "z": property_estimates.pop("Prop_3_z"),
+            },
+            "aircraft": property_estimates,
+        }
+
+    @staticmethod
+    def _assign_normals(propeller_dict):
+        propeller_dict.update({"nx": 0.0, "ny": 0.0, "nz": -1.0})
+
+    @staticmethod
+    def _assign_controls_and_battery(*propeller_dicts):
+        for i, inp_dict in enumerate(propeller_dicts):
+            inp_dict["icontrol"] = i + 1
+            inp_dict["ibattery"] = 1
+
+    @staticmethod
+    def _to_fd_inp(input_dict):
+        """Write the flight dynamics input file (Clean refactorable implementation)"""
+        inp_lines = ["&aircraft_data"]
+        duplicate_entries = []
+        for key, value in input_dict["aircraft"].items():
+            if isinstance(value, list):
+                for j in range(1, len(value)):
+                    duplicate_entries.append(f"   aircraft%{key}     = {value[j]}")
+                inp_lines.append(f"   aircraft%{key}     = {value[0]}")
+            else:
+                inp_lines.append(f"   aircraft%{key}     = {value}")
+
+        for entry in duplicate_entries:
+            inp_lines.append(entry)
+
+        inp_lines.append("\n")
+
+        for propeller_dict in input_dict["propellers"]:
+            for_components = propeller_dict.pop("for")
+            comment_line = f"!   Propeller({for_components+1}) uses components named Prop_{for_components}, Motor_{for_components}, ESC_{for_components}"
+            inp_lines.append(comment_line)
+            for key, value in propeller_dict.items():
+                inp_lines.append(
+                    f"   propeller({for_components+1})%{key}   = {str(value)}"
+                )
+
+            inp_lines.append("\n")
+
+        inp_lines.append("!\t Battery(1) is component named: Battery_0")
+        for key, value in input_dict["battery"].items():
+            inp_lines.append(f"   battery(1)%{key}    = {value}")
+
+        inp_lines.append("\n")
+
+        inp_lines.append("!\t Controls")
+        for key, value in input_dict["controls"].items():
+            inp_lines.append(f"   control%{key} = {value}")
+        inp_lines.append("/\n\n")
+        return "\n".join(inp_lines)
+
+    def validate_propellers_directions(self):
+        assert (
+            self.propeller_0.direction + self.propeller_1.direction == 0
+        ), "Propeller 0 and 1 should have opposite directions"
+        assert (
+            self.propeller_2.direction + self.propeller_3.direction == 0
+        ), "Propeller 2 and 3 should have opposite directions"
+
 
 class QuadSpiderCopter(SeedDesign):
     """The QuadSpiderCopter seed design."""
@@ -263,6 +504,11 @@ class QuadSpiderCopter(SeedDesign):
         "batt_mount_x_offset",
         "batt_mount_z_offset",
         "bend_angle",
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r",
     }
 
     def __init__(
@@ -360,11 +606,11 @@ class QuadSpiderCopter(SeedDesign):
     )
 
     propeller_1: Propeller = Field(
-        Propellers.apc_propellers_10x7E, description="Propeller 1", alias="Prop_1"
+        Propellers.apc_propellers_10x7EP, description="Propeller 1", alias="Prop_1"
     )
 
     propeller_2: Propeller = Field(
-        Propellers.apc_propellers_10x7E, description="Propeller 2", alias="Prop_2"
+        Propellers.apc_propellers_10x7EP, description="Propeller 2", alias="Prop_2"
     )
 
     propeller_3: Propeller = Field(
@@ -485,6 +731,14 @@ class QuadSpiderCopter(SeedDesign):
         Hubs["0394od_para_hub_2"], description="Bend 3-B", alias="Bend_3b"
     )
 
+    def validate_propellers_directions(self):
+        assert (
+            self.propeller_0.direction + self.propeller_1.direction == 0
+        ), "Propeller 0 and 1 should have opposite directions"
+        assert (
+            self.propeller_2.direction + self.propeller_3.direction == 0
+        ), "Propeller 2 and 3 should have opposite directions"
+
     @validator(*__design_vars__, pre=True, always=True)
     def validate_design_vars_tuple(cls, value):
         if isinstance(value, Tuple):
@@ -502,6 +756,11 @@ class HCopter(SeedDesign):
         "support_length",
         "batt_mount_x_offset",
         "batt_mount_z_offset",
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r",
     }
 
     def __init__(
@@ -573,7 +832,7 @@ class HCopter(SeedDesign):
     )
 
     propeller_0: Propeller = Field(
-        Propellers.apc_propellers_4_75x4_75EP, description="Propeller 0", alias="Prop_0"
+        Propellers.apc_propellers_4_75x4_75E, description="Propeller 0", alias="Prop_0"
     )
 
     propeller_1: Propeller = Field(
@@ -585,7 +844,7 @@ class HCopter(SeedDesign):
     )
 
     propeller_3: Propeller = Field(
-        Propellers.apc_propellers_4_75x4_75EP, description="Propeller 2", alias="Prop_3"
+        Propellers.apc_propellers_4_75x4_75E, description="Propeller 2", alias="Prop_3"
     )
 
     flange_0: Flange = Field(
@@ -654,11 +913,28 @@ class HCopter(SeedDesign):
             ), "The first element should be less than the second one; while using ranges"
         return value
 
+    def validate_propellers_directions(self):
+        assert (
+            self.propeller_0.direction + self.propeller_1.direction == 0
+        ), "Propeller 0 and 1 should have opposite directions"
+        assert (
+            self.propeller_2.direction + self.propeller_3.direction == 0
+        ), "Propeller 2 and 3 should have opposite directions"
+
 
 class HPlane(SeedDesign):
     """The H-Plane Seed Design"""
 
-    __design_vars__ = {"tube_length", "batt_mount_x_offset", "batt_mount_z_offset"}
+    __design_vars__ = {
+        "tube_length",
+        "batt_mount_x_offset",
+        "batt_mount_z_offset",
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r",
+    }
 
     def __init__(
         self, tube_length=320.0, batt_mount_x_offset=0.0, batt_mount_z_offset=0.0
@@ -904,13 +1180,13 @@ class HPlane(SeedDesign):
     rear_prop_l: Propeller = Field(
         Propellers.apc_propellers_4_75x4_75EP,
         description="The rear-left propeller",
-        alias="Front_Prop_L",
+        alias="Rear_Prop_L",
     )
 
     rear_prop_r: Propeller = Field(
         Propellers.apc_propellers_4_75x4_75E,
         description="The rear-right propeller",
-        alias="Front_Prop_R",
+        alias="Rear_Prop_R",
     )
 
     front_motor_l: Motor = Field(

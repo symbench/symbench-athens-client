@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 from typing import Any, Dict, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, root_validator, validator
@@ -116,6 +117,15 @@ class Battery(Component):
 
     length: float = Field(..., description="Length of the Battery", alias="LENGTH")
 
+    def to_fd_inp(self):
+        return {
+            "num_cells": int(self.number_of_cells[0]),
+            "voltage": self.voltage,
+            "capacity": self.capacity,
+            "C_Continuous": self.cont_discharge_rate,
+            "C_Peak": self.peak_discharge_rate,
+        }
+
     @root_validator(pre=True)
     def validate_fields(cls, values):
         if "Chemistry Type" in values:
@@ -161,6 +171,24 @@ class Propeller(Component):
     pitch: float = Field(..., description="The pitch of the propeller", alias="PITCH")
 
     weight: float = Field(..., description="Weight of the propeller", alias="WEIGHT")
+
+    def to_fd_inp(self, data_path):
+        return {
+            "cname": f"'{self.name}'",
+            "ctype": "'MR'",
+            "prop_fname": f"'{str(data_path)}{os.sep}{self.performance_file}'"
+            if data_path
+            else f"'{self.performance_file}'",
+            "Ir": (self.weight * self.diameter ** 2 / 12.0),
+            "x": None,
+            "y": None,
+            "z": None,
+            "nx": None,
+            "ny": None,
+            "nz": None,
+            "radius": self.diameter / 2,
+            "spin": int(self.direction),
+        }
 
     @root_validator(pre=True)
     def validate_propeller_attributes(cls, values):
@@ -292,6 +320,19 @@ class Motor(Component):
     )
 
     esc_rate: Optional[float] = Field(..., description="ESC_RATE", alias="ESC_RATE")
+
+    def to_fd_inp(self):
+        return {
+            "motor_fname": f"'../../Motors/{self.name}'",
+            "KV": self.kv,
+            "KT": self.kt,
+            "I_max": self.max_current,
+            "I_idle": self.io_idle_current_at_10V,
+            "maxpower": self.max_power,
+            "Rw": self.internal_resistance / 1000.0,
+            "icontrol": None,
+            "ibattery": None,
+        }
 
     @validator("prop_size_rec", pre=True, always=True)
     def validate_prop_pitch(cls, value):
@@ -893,14 +934,14 @@ def _build_parametric_components(cls, names):
     )
 
 
-ALL_FLANGES = ["0394_para_flange", "0281_para_flange"]
+ALL_FLANGES = ["0394_para_flange"]
 ALL_TUBES = ["0281OD_para_tube", "0394OD_para_tube"]
 ALL_HUBS = [
-    "0394od_para_hub_5",
-    "0394od_para_hub_6",
+    "0394od_para_hub_2",
     "0394od_para_hub_3",
     "0394od_para_hub_4",
-    "0394od_para_hub_2",
+    "0394od_para_hub_5",
+    "0394od_para_hub_6"
 ]
 ALL_ORIENTS = ["Orient"]
 ALL_CFPS = ["para_cf_fplate"]

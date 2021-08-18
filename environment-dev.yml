@@ -11,3 +11,4 @@ dependencies:
     - isort
     - gremlinpython
     - tomark
+    - --editable=git+https://github.com/symbench/uav-analysis.git#egg=uav-analysis

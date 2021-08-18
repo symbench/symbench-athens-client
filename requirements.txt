@@ -1,3 +1,4 @@
 api4jenkins
 pydantic
 gremlinpython
+--editable=git+https://github.com/symbench/uav-analysis.git#egg=uav-analysis
