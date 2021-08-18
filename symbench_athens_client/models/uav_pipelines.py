@@ -198,8 +198,12 @@ class FlightPathsAll(FlightPathFlight):
             params[f"Q_Position_{i}"] = q_position
             params[f"Q_Angular_Velocity_{i}"] = q_angular_velocity
             params[f"R_{i}"] = r
-            params[f"Requested_Vertical_Speed_{i}"] = self.requested_vertical_speed
-            params[f"Requested_Lateral_Speed_{i}"] = self.requested_lateral_speed
+            params[f"Requested_Vertical_Speed_{i}"] = (
+                self.requested_vertical_speed if i == 4 else 0
+            )
+            params[f"Requested_Lateral_Speed_{i}"] = (
+                self.requested_lateral_speed if i != 4 else 0
+            )
 
         return {
             "graphGUID": self.design.name,
