@@ -140,11 +140,6 @@ class FlightPathFlight(FlightDynamicsV1):
     __design_vars__: ClassVar[set] = {
         "requested_lateral_speed",
         "requested_vertical_speed",
-        "q_position",
-        "q_velocity",
-        "q_angular_velocity",
-        "q_angles",
-        "r",
     }
     __fixed_design_vars__: ClassVar[dict] = {
         "analysis_type": "Analysis_Type",
@@ -169,26 +164,6 @@ class FlightPathFlight(FlightDynamicsV1):
         default=1.0,
         alias="Requested_Vertical_Speed",
         description="The requested vertical speed",
-    )
-
-    q_position: Union[float, Tuple[float, float]] = Field(
-        default=1.0, alias="Q_Position", description="The Q-Position"
-    )
-
-    q_velocity: Union[float, Tuple[float, float]] = Field(
-        default=1.0, description="The Q-Velocity", alias="Q_Velocity"
-    )
-
-    q_angular_velocity: Union[float, Tuple[float, float]] = Field(
-        default=1.0, description="The Q-Angular Velocity", alias="Q_Angular_velocity"
-    )
-
-    q_angles: Union[float, Tuple[float, float]] = Field(
-        1.0, description="The Q-Angles", alias="Q_Angles"
-    )
-
-    r: Union[float, Tuple[float, float]] = Field(
-        1.0, description="The R-Parameter", alias="R"
     )
 
     @validator(*__design_vars__, pre=True, always=True)

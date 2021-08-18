@@ -31,7 +31,13 @@ from symbench_athens_client.utils import dict_to_design_vars
 
 class SeedDesign(BaseModel):
 
-    __design_vars__: ClassVar[str] = {}
+    __design_vars__: ClassVar[str] = {
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r",
+    }
 
     name: str = Field(
         "", alias="name", description="Name of the seed design in the graph database"
@@ -39,6 +45,26 @@ class SeedDesign(BaseModel):
 
     swap_list: Dict[str, List[str]] = Field(
         {}, description="list of swap components for this design", alias="swap_list"
+    )
+
+    q_position: Union[float, Tuple[float, float]] = Field(
+        default=1.0, alias="Q_Position", description="The Q-Position"
+    )
+
+    q_velocity: Union[float, Tuple[float, float]] = Field(
+        default=1.0, description="The Q-Velocity", alias="Q_Velocity"
+    )
+
+    q_angular_velocity: Union[float, Tuple[float, float]] = Field(
+        default=1.0, description="The Q-Angular Velocity", alias="Q_Angular_velocity"
+    )
+
+    q_angles: Union[float, Tuple[float, float]] = Field(
+        1.0, description="The Q-Angles", alias="Q_Angles"
+    )
+
+    r: Union[float, Tuple[float, float]] = Field(
+        1.0, description="The R-Parameter", alias="R"
     )
 
     def to_jenkins_parameters(self):
@@ -109,6 +135,11 @@ class QuadCopter(SeedDesign):
         "support_length",
         "batt_mount_x_offset",
         "batt_mount_z_offset",
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r",
     }
 
     def __init__(
@@ -260,11 +291,6 @@ class QuadCopter(SeedDesign):
         flight_path=1,
         requested_vertical_speed=10.0,
         requested_lateral_speed=1,
-        q_position=1.0,
-        q_velocity=1.0,
-        q_angular_velocity=1.0,
-        q_angles=1.0,
-        r=1.0,
     ):
         """Get SWRi's flight dynamics model's input files for this design
 
@@ -284,16 +310,6 @@ class QuadCopter(SeedDesign):
             The requested vertical speed for the FD software
         requested_lateral_speed: int, default=1
             The requested lateral speed for the FD software
-        q_position: float, default=1.0
-            The Q-Position for the LQR controller
-        q_velocity: float, default=1.0
-            The Q-Velocity for the LQR controller
-        q_angular_velocity: float, default=1.0
-            The Q-Angular velocity for the LQR controller
-        q_angles: float, default=1.0
-            The Q-Angles velocity for the LQR controller
-        r: float, default=1.0
-            The R-parameter for the LQR controller
 
         Returns
         -------
@@ -364,11 +380,11 @@ class QuadCopter(SeedDesign):
                 "requested_vertical_speed": requested_vertical_speed,
                 "iaileron": 5,
                 "iflap": 6,
-                "Q_position": q_position,
-                "Q_velocity": q_velocity,
-                "Q_angular_velocity": q_angular_velocity,
-                "Q_angles": q_angles,
-                "R": r,
+                "Q_position": self.q_position,
+                "Q_velocity": self.q_velocity,
+                "Q_angular_velocity": self.q_angular_velocity,
+                "Q_angles": self.q_angles,
+                "R": self.r,
             },
         }
 
@@ -382,11 +398,13 @@ class QuadCopter(SeedDesign):
         """Get estimated mass properties for the quadcopter(works only for single parameters for now)"""
         from symbench_athens_client.utils import get_mass_estimates_for_quadcopter
 
-        if isinstance(self.arm_length, Tuple) or isinstance(self.support_length, Tuple):
-            raise ValueError(
-                "Cannot estimate mass properties for a range."
-                "Please set discrete values for the design variables"
-            )
+        for var in self.__design_vars__:
+            if isinstance(getattr(self, var), Tuple):
+                raise ValueError(
+                    "Cannot estimate mass properties for a range. "
+                    "Please set discrete values for the design variables."
+                )
+
         property_estimates = get_mass_estimates_for_quadcopter(testbench_path, self)
         property_estimates["x_fuse"] = property_estimates["x_cm"]
         property_estimates["y_fuse"] = property_estimates["y_cm"]
@@ -486,6 +504,11 @@ class QuadSpiderCopter(SeedDesign):
         "batt_mount_x_offset",
         "batt_mount_z_offset",
         "bend_angle",
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r",
     }
 
     def __init__(
@@ -733,6 +756,11 @@ class HCopter(SeedDesign):
         "support_length",
         "batt_mount_x_offset",
         "batt_mount_z_offset",
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r",
     }
 
     def __init__(
@@ -897,7 +925,16 @@ class HCopter(SeedDesign):
 class HPlane(SeedDesign):
     """The H-Plane Seed Design"""
 
-    __design_vars__ = {"tube_length", "batt_mount_x_offset", "batt_mount_z_offset"}
+    __design_vars__ = {
+        "tube_length",
+        "batt_mount_x_offset",
+        "batt_mount_z_offset",
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r",
+    }
 
     def __init__(
         self, tube_length=320.0, batt_mount_x_offset=0.0, batt_mount_z_offset=0.0
