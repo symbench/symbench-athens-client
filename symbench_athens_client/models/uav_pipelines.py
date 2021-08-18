@@ -184,6 +184,30 @@ class FlightPathsAll(FlightPathFlight):
     def pet_name(self):
         return "/D_Testing/PET/FlightDyn_V1_AllPaths"
 
+    def to_jenkins_parameters(self):
+        design_params = self.design.parameters()
+        q_angles = design_params.pop("Q_Angles")
+        q_velocity = design_params.pop("Q_Velocity")
+        q_position = design_params.pop("Q_Position")
+        q_angular_velocity = design_params.pop("Q_Angular_Velocity")
+        r = design_params.pop("R")
+        params = design_params
+        for i in [1, 3, 4, 5]:
+            params[f"Q_Angles_{i}"] = q_angles
+            params[f"Q_Velocity_{i}"] = q_velocity
+            params[f"Q_Position_{i}"] = q_position
+            params[f"Q_Angular_Velocity_{i}"] = q_angular_velocity
+            params[f"R_{i}"] = r
+            params[f"Requested_Vertical_Speed_{i}"] = self.requested_vertical_speed
+            params[f"Requested_Lateral_Speed_{i}"] = self.requested_lateral_speed
+
+        return {
+            "graphGUID": self.design.name,
+            "PETName": self.pet_name,
+            "NumSamples": self.num_samples,
+            "DesignVars": dict_to_design_vars(params),
+        }
+
 
 class StraightLineFlight(FlightPathFlight):
     """The Straight line flight, subclasses `FlightPathFlight`, `analysis_type=3`, `flight_path=1`."""

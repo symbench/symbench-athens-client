@@ -400,11 +400,6 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             The KeyWord Arguments to the StraightLineFlight's constructor listed below:
                 - 'requested_lateral_speed',
                 - 'requested_vertical_speed'
-                - 'q_position',
-                - 'q_velocity',
-                - 'q_angluar_velocity',
-                - 'q_angles',
-                - 'r'
 
         Notes
         -----
@@ -464,11 +459,6 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             The KeyWord Arguments to the CircularFlight's constructor listed below:
                 - 'requested_lateral_speed',
                 - 'requested_vertical_speed'
-                - 'q_position',
-                - 'q_velocity',
-                - 'q_angluar_velocity',
-                - 'q_angles',
-                - 'r'
 
         Notes
         -----
@@ -530,11 +520,6 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             The KeyWord Arguments to the RiseAndHoverFlight's constructor listed below:
                 - 'requested_lateral_speed', (This is always set to zero)
                 - 'requested_vertical_speed'
-                - 'q_position',
-                - 'q_velocity',
-                - 'q_angluar_velocity',
-                - 'q_angles',
-                - 'r'
 
         Notes
         -----
@@ -594,11 +579,6 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             The KeyWord Arguments to the RacingOvalFlight's constructor listed below:
                 - 'requested_lateral_speed',
                 - 'requested_vertical_speed'
-                - 'q_position',
-                - 'q_velocity',
-                - 'q_angluar_velocity',
-                - 'q_angles',
-                - 'r'
 
         Notes
         -----
@@ -658,11 +638,6 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             The KeyWord Arguments to the FlightPathsAll's constructor listed below:
                 - 'requested_lateral_speed',
                 - 'requested_vertical_speed'
-                - 'q_position',
-                - 'q_velocity',
-                - 'q_angluar_velocity',
-                - 'q_angles',
-                - 'r'
 
         Notes
         -----

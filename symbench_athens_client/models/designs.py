@@ -56,7 +56,7 @@ class SeedDesign(BaseModel):
     )
 
     q_angular_velocity: Union[float, Tuple[float, float]] = Field(
-        default=1.0, description="The Q-Angular Velocity", alias="Q_Angular_velocity"
+        default=1.0, description="The Q-Angular Velocity", alias="Q_Angular_Velocity"
     )
 
     q_angles: Union[float, Tuple[float, float]] = Field(
