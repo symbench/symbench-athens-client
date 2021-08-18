@@ -251,9 +251,6 @@ class QuadCopter(SeedDesign):
             ), "The first element should be less than the second one; while using ranges"
         return value
 
-    def calculate_creo_parameters(self):
-        pass
-
     def to_fd_input(
         self,
         test_bench_path,
@@ -297,6 +294,12 @@ class QuadCopter(SeedDesign):
             The Q-Angles velocity for the LQR controller
         r: float, default=1.0
             The R-parameter for the LQR controller
+
+        Returns
+        -------
+        dict or None
+            if filename is None, this method will return a dictionary containing all the parameters
+            otherwise the file will be saved as filename
         """
         masses = self._get_mass_properties(test_bench_path)
         propeller_1 = self.propeller_0.to_fd_inp(propellers_data_path)
