@@ -445,7 +445,7 @@ class QuadCopter(SeedDesign):
 
         for propeller_dict in input_dict["propellers"]:
             for_components = propeller_dict.pop("for")
-            comment_line = f"!   Propeller{for_components+1} uses components named Prop_{for_components}, Motor_{for_components}, ESC_{for_components}"
+            comment_line = f"!   Propeller({for_components+1}) uses components named Prop_{for_components}, Motor_{for_components}, ESC_{for_components}"
             inp_lines.append(comment_line)
             for key, value in propeller_dict.items():
                 inp_lines.append(
@@ -454,7 +454,7 @@ class QuadCopter(SeedDesign):
 
             inp_lines.append("\n")
 
-        inp_lines.append("!\t Battery 1 is component named: Battery_0")
+        inp_lines.append("!\t Battery(1) is component named: Battery_0")
         for key, value in input_dict["battery"].items():
             inp_lines.append(f"   battery(1)%{key}    = {value}")
 
