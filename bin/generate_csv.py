@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 """Generate CSV files (one per component type) from the database"""
 from symbench_athens_client.models.components import (
-    get_all_components_of_class,
-    ComponentsBuilder,
     Battery,
+    ComponentsBuilder,
     Motor,
     Propeller,
     Wing,
+    get_all_components_of_class,
 )
-
 
 if __name__ == "__main__":
 

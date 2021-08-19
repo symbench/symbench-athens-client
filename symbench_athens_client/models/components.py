@@ -940,7 +940,7 @@ ALL_HUBS = [
     "0394od_para_hub_3",
     "0394od_para_hub_4",
     "0394od_para_hub_5",
-    "0394od_para_hub_6"
+    "0394od_para_hub_6",
 ]
 ALL_ORIENTS = ["Orient"]
 ALL_CFPS = ["para_cf_fplate"]
