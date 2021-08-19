@@ -1,7 +1,8 @@
 import math
 import os
 import subprocess
-from csv import DictWriter
+from csv import DictReader, DictWriter
+from glob import glob
 from pathlib import Path
 from shutil import move
 from uuid import uuid4
@@ -66,16 +67,56 @@ def _update_total_score(metrics):
 
 
 def _write_output_csv(output_dir, metrics):
+    # Note that this should be a pathlib.Path instance,
+    # but since this is an internal use function which might be
+    # refactored anyways. Its always fine to do it this way
     output_csv = output_dir / "output.csv"
-    should_write_header = False
-    if not output_csv.exists():
-        should_write_header = True
+    should_write_header = True
+
+    # This logic is not working
+    if output_csv.exists():
+        should_write_header = False
+        with output_csv.open("r") as csv_file:
+            csv_reader = DictReader(csv_file)
+            for field in metrics:
+                if field not in csv_reader.fieldnames:
+                    should_write_header = True
+                    break
 
     with open(output_csv, "a") as csv_file:
         csv_writer = DictWriter(csv_file, fieldnames=list(metrics.keys()))
         if should_write_header:
             csv_writer.writeheader()
-        csv_writer.writerow(metrics)
+            csv_writer.writerow(metrics)
+
+
+def _cleanup_score_files():
+    out_files = glob("*.out")
+    for file in out_files:
+        os.unlink(file)
+
+
+def _get_input_metrics(input_file):
+    fields = {
+        "aircraft%Ixx": "Ixx",
+        "aircraft%Iyy": "iyy",
+        "aircraft%Izz": "Izz",
+        "aircraft%mass": "MassEstimate",
+    }
+    input_metrics = dict()
+
+    with open(input_file) as fd_input_file:
+        lines = fd_input_file.readlines()
+        for line in lines:
+            splitted_line = line.strip().split("=")
+            if splitted_line[0].strip() in fields:
+                input_metrics[fields[splitted_line[0].strip()]] = float(
+                    splitted_line[1].strip()
+                )
+
+    input_metrics["Interferences"] = 0
+
+    return input_metrics
 
 
 def execute_fd_all_paths(
@@ -124,31 +165,49 @@ def execute_fd_all_paths(
 
     executor = FDMExecutor(fdm_path=fdm_path)
 
-    metrics = {"GUID": run_guid}
-    for i in [1, 3, 4, 5]:
-        fd_input_path = f"FlightDynamicsPath{i}.inp"
-        fd_output_path = f"FlightDynamicsPath{i}.out"
-        design.to_fd_input(
-            test_bench_path=str(tb_data_location),
-            requested_vertical_speed=0 if i != 4 else requested_vertical_speed,
-            requested_lateral_speed=0 if i == 0 else int(requested_lateral_speed),
-            flight_path=i,
-            propellers_data_path=str(propellers_data_location),
-            filename=fd_input_path,
-        )
+    metrics = {"GUID": run_guid, "AnalysisError": None}
+    try:
+        for i in [1, 3, 4, 5]:
 
-        flight_metrics, path_metrics = executor.execute(
-            str(fd_input_path), str(fd_output_path)
-        )
+            fd_input_path = f"FlightDynamicsPath{i}.inp"
+            fd_output_path = f"FlightDynamicsPath{i}.out"
+            design.to_fd_input(
+                test_bench_path=str(tb_data_location),
+                requested_vertical_speed=0 if i != 4 else requested_vertical_speed,
+                requested_lateral_speed=0 if i == 0 else int(requested_lateral_speed),
+                flight_path=i,
+                propellers_data_path=str(propellers_data_location),
+                filename=fd_input_path,
+            )
 
-        metrics.update(flight_metrics.to_csv_dict())
-        metrics.update(path_metrics.to_csv_dict())
+            flight_metrics, path_metrics = executor.execute(
+                str(fd_input_path), str(fd_output_path)
+            )
+            # Get the input metrics
+            input_metrics = _get_input_metrics(fd_input_path)
+            metrics.update(input_metrics)
 
-        move(fd_input_path, fd_files_base_path)
-        move(fd_output_path, fd_files_base_path)
+            # Get the FlightPath metrics
+            metrics.update(flight_metrics.to_csv_dict())
+            metrics.update(path_metrics.to_csv_dict())
 
-    metrics.update(design.parameters())
-    _update_total_score(metrics)
+            # Move input and output files to necessary locations
+            move(fd_input_path, fd_files_base_path)
+            move(fd_output_path, fd_files_base_path)
+
+            # Remove metrics.out, score.out namemap.out
+            _cleanup_score_files()
+
+            # Update with design.parameters()
+            metrics.update(design.parameters())
+
+        # Update the total score
+        _update_total_score(metrics)
+        metrics["AnalysisError"] = False
+
+    except Exception as e:
+        metrics["AnalysisError"] = True
+        raise e
 
     _write_output_csv(output_dir=output_dir, metrics=metrics)
 
