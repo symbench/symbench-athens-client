@@ -9,6 +9,11 @@ The quadcopter seed design
 
 | name | Name in Graph | default |
 |-----|-----|-----|
+| q_position | Q_Position | 1.0 |
+| q_velocity | Q_Velocity | 1.0 |
+| q_angular_velocity | Q_Angular_Velocity | 1.0 |
+| q_angles | Q_Angles | 1.0 |
+| r | R | 1.0 |
 | arm_length | Length_0 | 220.0 |
 | support_length | Length_1 | 95.0 |
 | batt_mount_x_offset | Length_8 | 0.0 |
@@ -47,7 +52,7 @@ The quadcopter seed design
 ### Jenkins Design Variables and Defaults:
 | DesignVars |
 |-----|
-| Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 |
+| Q_Position=1.0,1.0 Q_Velocity=1.0,1.0 Q_Angular_Velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0 Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 |
 
 
 
@@ -62,6 +67,11 @@ The QuadSpiderCopter seed design.
 
 | name | Name in Graph | default |
 |-----|-----|-----|
+| q_position | Q_Position | 1.0 |
+| q_velocity | Q_Velocity | 1.0 |
+| q_angular_velocity | Q_Angular_Velocity | 1.0 |
+| q_angles | Q_Angles | 1.0 |
+| r | R | 1.0 |
 | arm_length | Length_0 | 220.0 |
 | support_length | Length_1 | 155.0 |
 | arm_a_length | Length_2 | 80.0 |
@@ -119,7 +129,7 @@ The QuadSpiderCopter seed design.
 ### Jenkins Design Variables and Defaults:
 | DesignVars |
 |-----|
-| Length_0=220.0,220.0 Length_1=155.0,155.0 Length_2=80.0,80.0 Length_3=80.0,80.0 Length_8=0.0,0.0 Length_9=0.0,0.0 Param_0=120.0,120.0 |
+| Q_Position=1.0,1.0 Q_Velocity=1.0,1.0 Q_Angular_Velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0 Length_0=220.0,220.0 Length_1=155.0,155.0 Length_2=80.0,80.0 Length_3=80.0,80.0 Length_8=0.0,0.0 Length_9=0.0,0.0 Param_0=120.0,120.0 |
 
 
 
@@ -134,6 +144,11 @@ The H-Copter Seed Design
 
 | name | Name in Graph | default |
 |-----|-----|-----|
+| q_position | Q_Position | 1.0 |
+| q_velocity | Q_Velocity | 1.0 |
+| q_angular_velocity | Q_Angular_Velocity | 1.0 |
+| q_angles | Q_Angles | 1.0 |
+| r | R | 1.0 |
 | arm_length | Length_0 | 500.0 |
 | support_length | Length_1 | 95.0 |
 | batt_mount_x_offset | Length_8 | 0.0 |
@@ -172,7 +187,7 @@ The H-Copter Seed Design
 ### Jenkins Design Variables and Defaults:
 | DesignVars |
 |-----|
-| Length_0=500.0,500.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 |
+| Q_Position=1.0,1.0 Q_Velocity=1.0,1.0 Q_Angular_Velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0 Length_0=500.0,500.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 |
 
 
 
@@ -187,6 +202,11 @@ The H-Plane Seed Design
 
 | name | Name in Graph | default |
 |-----|-----|-----|
+| q_position | Q_Position | 1.0 |
+| q_velocity | Q_Velocity | 1.0 |
+| q_angular_velocity | Q_Angular_Velocity | 1.0 |
+| q_angles | Q_Angles | 1.0 |
+| r | R | 1.0 |
 | tube_length | Length_1 | 320.0 |
 | batt_mount_x_offset | Length_8 | 0.0 |
 | batt_mount_z_offset | Length_9 | 0.0 |
@@ -248,7 +268,7 @@ The H-Plane Seed Design
 ### Jenkins Design Variables and Defaults:
 | DesignVars |
 |-----|
-| Length_1=320.0,320.0 Length_8=0.0,0.0 Length_9=0.0,0.0 |
+| Q_Position=1.0,1.0 Q_Velocity=1.0,1.0 Q_Angular_Velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0 Length_1=320.0,320.0 Length_8=0.0,0.0 Length_9=0.0,0.0 |
 
 
 
