@@ -1,6 +1,6 @@
 from typing import ClassVar, Dict, List, Tuple, Union
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, validator
 
 from symbench_athens_client.models.components import (
     ESC,

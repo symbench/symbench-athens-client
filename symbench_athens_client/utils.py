@@ -92,33 +92,3 @@ def get_mass_estimates_for_quadcopter(testbench_data_path, quad_copter):
             mass_properties[mass_estimates_key] = value
 
     return mass_properties
-
-
-def requires_package(name):
-    def check_package_exists(func):
-        try:
-            import importlib
-
-            importlib.import_module(name)
-        except (ModuleNotFoundError, ImportError) as e:
-            raise ModuleNotFoundError(
-                f"Running {func.__name__} requires the {name} package. "
-                f"Please install the {name} package to use this function"
-            )
-        return func
-
-    return check_package_exists
-
-
-@requires_package(name="smt")
-def lhs_sampling(input_array, num_samples=50, **kwargs):
-    """Perform a latin hyper-cube sampling of the space provided by the numpy array"""
-    from smt.sampling_methods.lhs import LHS
-
-    sampling = LHS(
-        xlimits=input_array,
-        criterion=kwargs.get("criterion", "c"),
-        random_state=kwargs.get("random_state"),
-    )
-    samples = sampling(num_samples)
-    return samples
