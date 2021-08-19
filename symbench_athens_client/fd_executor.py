@@ -1,7 +1,8 @@
 import math
 import os
 import subprocess
-from csv import DictReader, DictWriter
+import zipfile
+from csv import DictWriter
 from glob import glob
 from pathlib import Path
 from shutil import move
@@ -73,27 +74,39 @@ def _write_output_csv(output_dir, metrics):
     output_csv = output_dir / "output.csv"
     should_write_header = True
 
-    # This logic is not working
     if output_csv.exists():
         should_write_header = False
-        with output_csv.open("r") as csv_file:
-            csv_reader = DictReader(csv_file)
-            for field in metrics:
-                if field not in csv_reader.fieldnames:
-                    should_write_header = True
-                    break
 
     with open(output_csv, "a") as csv_file:
-        csv_writer = DictWriter(csv_file, fieldnames=list(metrics.keys()))
+        csv_writer = DictWriter(
+            csv_file, fieldnames=list(metrics.keys()), lineterminator="\n"
+        )
         if should_write_header:
             csv_writer.writeheader()
-            csv_writer.writerow(metrics)
+        csv_writer.writerow(metrics)
 
 
 def _cleanup_score_files():
     out_files = glob("*.out")
     for file in out_files:
         os.unlink(file)
+
+
+def _copy_testbench_files(testbench_path, output_dir):
+    files_of_interest = {
+        "componentMap.json",
+        "connectionMap.json",
+    }
+    if not isinstance(testbench_path, Path):
+        testbench_path = Path(testbench_path).resolve()
+    assert testbench_path.exists(), "The provided path doesn't exist"
+    assert testbench_path.suffix == ".zip", "The testbench is not a zip file"
+
+    with testbench_path.open("rb") as testbench_zip:
+        with zipfile.ZipFile(testbench_zip) as zip_file:
+            for file in zip_file.namelist():
+                if file in files_of_interest:
+                    zip_file.extract(file, output_dir)
 
 
 def _get_input_metrics(input_file):
@@ -163,14 +176,20 @@ def execute_fd_all_paths(
     fd_files_base_path = output_dir / run_guid
     os.makedirs(fd_files_base_path, exist_ok=True)
 
+    # Copy relavent testbench files
+    _copy_testbench_files(tb_data_location, output_dir)
+
+    # Keep a .generated mark
+    (output_dir / ".generated").touch()
+
     executor = FDMExecutor(fdm_path=fdm_path)
 
     metrics = {"GUID": run_guid, "AnalysisError": None}
     try:
         for i in [1, 3, 4, 5]:
 
-            fd_input_path = f"FlightDynamicsPath{i}.inp"
-            fd_output_path = f"FlightDynamicsPath{i}.out"
+            fd_input_path = f"FlightDyn_Path{i}.inp"
+            fd_output_path = f"FlightDynReport_Path{i}.out"
             design.to_fd_input(
                 test_bench_path=str(tb_data_location),
                 requested_vertical_speed=0 if i != 4 else requested_vertical_speed,
