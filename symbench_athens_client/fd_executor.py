@@ -173,7 +173,11 @@ def execute_fd_all_paths(
     if not output_dir.exists():
         os.makedirs(output_dir)
     run_guid = str(uuid4())
-    fd_files_base_path = output_dir / run_guid
+    artifacts_dir = output_dir / "artifacts"
+    if not artifacts_dir.exists():
+        os.makedirs(artifacts_dir)
+
+    fd_files_base_path = artifacts_dir / run_guid
     os.makedirs(fd_files_base_path, exist_ok=True)
 
     # Copy relavent testbench files
@@ -187,9 +191,9 @@ def execute_fd_all_paths(
     metrics = {"GUID": run_guid, "AnalysisError": None}
     try:
         for i in [1, 3, 4, 5]:
-
             fd_input_path = f"FlightDyn_Path{i}.inp"
             fd_output_path = f"FlightDynReport_Path{i}.out"
+
             design.to_fd_input(
                 test_bench_path=str(tb_data_location),
                 requested_vertical_speed=0 if i != 4 else requested_vertical_speed,
