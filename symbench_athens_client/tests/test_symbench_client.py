@@ -5,6 +5,7 @@ import pytest
 from symbench_athens_client.__main__ import SymbenchAthensClient
 
 
+@pytest.mark.skip
 class TestSymbenchClient:
     @pytest.fixture(scope="session")
     def symbench_client(self):
