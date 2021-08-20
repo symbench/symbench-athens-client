@@ -29,7 +29,7 @@ RUN conda update conda -yq && \
   conda config --set always_yes yes --set changeps1 no && \
   . /opt/conda/etc/profile.d/conda.sh && \
   conda install -c conda-forge mamba && \
-  mamba env create nomkl --file environment-dev.yml && \
+  mamba env create nomkl --file environment-docker.yml && \
   source activate symbench-athens-client-dev && \
   python setup.py install && \
   echo "source activate symbench-athens-client-dev" >> \
