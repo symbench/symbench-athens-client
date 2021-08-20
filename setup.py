@@ -1,13 +1,12 @@
 import os
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 with open(os.path.join(".", "requirements.txt")) as f:
     install_deps = [
         line.strip() if not line.startswith("--editable") else ""
         for line in f.readlines()
     ]
-    install_deps.append("uav_analysis")
 
 setup(
     name="symbench_athens_client",
@@ -17,7 +16,7 @@ setup(
     author_email="umesh.timalsina@vanderbilt.edu",
     install_requires=install_deps,
     license="Apache-2.0",
-    packages=["symbench_athens_client"],
+    packages=find_packages(),
     zip_safe=True,
     include_package_data=True,
 )
