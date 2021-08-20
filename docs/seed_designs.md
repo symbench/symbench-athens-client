@@ -269,6 +269,3 @@ The H-Plane Seed Design
 | DesignVars |
 |-----|
 | Q_Position=1.0,1.0 Q_Velocity=1.0,1.0 Q_Angular_Velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0 Length_1=320.0,320.0 Length_8=0.0,0.0 Length_9=0.0,0.0 |
-
-
-

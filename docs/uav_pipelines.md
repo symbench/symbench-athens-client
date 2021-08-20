@@ -216,6 +216,3 @@ Run all the FlightPathFlights' Analysis (1, 3, 4 and 5)
 | graphGUID | PETName | NumSamples | DesignVars |
 |-----|-----|-----|-----|
 | QuadCopter | /D_Testing/PET/FlightDyn_V1_AllPaths | 1 | "Length_0=220.0,220.0 Length_1=95.0,95.0 Length_8=0.0,0.0 Length_9=0.0,0.0 Q_Angles_1=1.0,1.0 Q_Velocity_1=1.0,1.0 Q_Position_1=1.0,1.0 Q_Angular_Velocity_1=1.0,1.0 R_1=1.0,1.0 Requested_Vertical_Speed_1=0,0 Requested_Lateral_Speed_1=10.0,10.0 Q_Angles_3=1.0,1.0 Q_Velocity_3=1.0,1.0 Q_Position_3=1.0,1.0 Q_Angular_Velocity_3=1.0,1.0 R_3=1.0,1.0 Requested_Vertical_Speed_3=0,0 Requested_Lateral_Speed_3=10.0,10.0 Q_Angles_4=1.0,1.0 Q_Velocity_4=1.0,1.0 Q_Position_4=1.0,1.0 Q_Angular_Velocity_4=1.0,1.0 R_4=1.0,1.0 Requested_Vertical_Speed_4=1.0,1.0 Requested_Lateral_Speed_4=0,0 Q_Angles_5=1.0,1.0 Q_Velocity_5=1.0,1.0 Q_Position_5=1.0,1.0 Q_Angular_Velocity_5=1.0,1.0 R_5=1.0,1.0 Requested_Vertical_Speed_5=0,0 Requested_Lateral_Speed_5=10.0,10.0" |
-
-
-
