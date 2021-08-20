@@ -1,6 +1,91 @@
 from pydantic import BaseModel, Field
 
 
+class FDMInputMetric(BaseModel):
+    flight_path: int = Field(..., description="The Flight path", alias="Flight_Path")
+
+    i_xx: float = Field(..., description="Ixx value", alias="Ixx")
+
+    i_yy: float = Field(..., description="Iyy value", alias="iyy")
+
+    i_zz: float = Field(..., description="Izz value", alias="Izz")
+
+    mass_estimate: float = Field(
+        ..., description="The mass estimate", alias="MassEstimate"
+    )
+
+    interferences: int = Field(0, description="Intereferences", alias="Interferences")
+
+    requested_vertical_speed: float = Field(
+        ...,
+        description="The requested vertical speed",
+        alias="Requested_Vertical_Speed",
+    )
+
+    requested_lateral_speed: int = Field(
+        ..., description="The requested lateral speed", alias="Requested_Lateral_Speed"
+    )
+
+    q_velocity: float = Field(..., description="The Q-Velocity", alias="Q_Velocity")
+
+    q_angles: float = Field(..., description="The Q-Angles parameter", alias="Q_Angles")
+
+    q_angular_velocity: float = Field(
+        ..., description="The Q-Angular velocity parameter", alias="Q_Angular_Velocity"
+    )
+
+    q_position: float = Field(
+        ..., description="The Q-Position parameter", alias="Q_Position"
+    )
+
+    r: float = Field(..., description="The R- parameter", alias="R")
+
+    def to_csv_dict(self):
+        self_dict = self.dict(by_alias=True, exclude={"flight_path"})
+        csv_dict = {}
+        for key, value in self_dict.items():
+            if key not in {"Ixx", "iyy", "Izz", "MassEstimate", "Interferences"}:
+                csv_dict[f"{key}_{self.flight_path}"] = value
+            else:
+                csv_dict[key] = value
+        return csv_dict
+
+    @classmethod
+    def from_fd_input(cls, input_file):
+        fields = {
+            "aircraft%Ixx": "Ixx",
+            "aircraft%Iyy": "iyy",
+            "aircraft%Izz": "Izz",
+            "aircraft%mass": "MassEstimate",
+            "control%i_flight_path": "Flight_Path",
+            "control%requested_lateral_speed": "Requested_Lateral_Speed",
+            "control%requested_vertical_speed": "Requested_Vertical_Speed",
+            "control%Q_position": "Q_Position",
+            "control%Q_velocity": "Q_Velocity",
+            "control%Q_angular_velocity": "Q_Angular_Velocity",
+            "control%Q_angles": "Q_Angles",
+            "control%R": "R",
+        }
+        input_metrics = dict()
+
+        with open(input_file) as fd_input_file:
+            lines = fd_input_file.readlines()
+            for line in lines:
+                splitted_line = line.strip().split("=")
+                if splitted_line[0].strip() in fields:
+                    input_metrics[fields[splitted_line[0].strip()]] = float(
+                        splitted_line[1].strip()
+                    )
+
+        input_metrics["Interferences"] = 0
+
+        return cls(**input_metrics)
+
+    class Config:
+        allow_mutation = False
+        allow_population_by_field_name = True
+
+
 class FDMFlightMetric(BaseModel):
     max_hover_time: float = Field(
         ..., description="The maximum hover time", alias="Hover_Time"
