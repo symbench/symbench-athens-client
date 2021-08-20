@@ -1,4 +1,4 @@
-from symbench_athens_client.experiment import FlightDynamicsExperiment
+from symbench_athens_client.fdm_experiment import FlightDynamicsExperiment
 from symbench_athens_client.models.fixed_bemp_designs import (
     TurnigyGraphene5000MAHQuadCopter,
 )
