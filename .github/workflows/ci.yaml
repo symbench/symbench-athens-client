@@ -52,6 +52,7 @@ jobs:
 
   docker:
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - name: Set up Docker Buildx
@@ -68,5 +69,6 @@ jobs:
         with:
           push: true
           tags: symbench/symbench-athens-client:latest
-          build_args: GITLAB_TOKEN=${{ secrets.GITLAB_TOKEN }}
+          build-args: |
+            GITLAB_TOKEN=${{ secrets.GITLAB_TOKEN }}
           file: docker/Dockerfile
