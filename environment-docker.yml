@@ -1,0 +1,22 @@
+name: symbench-athens-client-dev
+channels:
+  - conda-forge
+dependencies:
+  - pip
+  - python=3.8
+  - pip:
+    - api4jenkins
+    - pytest
+    - black
+    - pre-commit
+    - isort
+    - gremlinpython
+    - tomark
+    - jupyterlab
+    - pandas
+    - matplotlib
+    - seaborn
+    - plotly
+    - smt
+    - numpy
+    - --editable=git+https://github.com/symbench/uav-analysis.git#egg=uav-analysis

@@ -75,7 +75,6 @@ class TestFlightModes:
         )
 
     def test_rise_and_hover_flight_parameters(self, rise_and_hover_flight):
-        print(rise_and_hover_flight.to_jenkins_parameters()["DesignVars"])
 
         assert (
             "Q_Angular_Velocity=1.0,1.0 Q_Angles=1.0,1.0 R=1.0,1.0"
