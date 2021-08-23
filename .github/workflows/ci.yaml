@@ -46,7 +46,7 @@ jobs:
         show-channel-urls: true
 
     - name: Install uav_analysis
-      shell: bash
+      shell:  bash -l {0}
       run: |
         git clone https://github.com/symbench/uav-analysis.git
         cd uav-analysis
