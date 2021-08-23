@@ -43,7 +43,7 @@ RUN conda update conda -yq && \
 WORKDIR /symbench-athens-client
 
 RUN source activate symbench-athens-client-dev && \
-    git clone git clone https://github.com/symbench/uav-analysis.git && \
+    git clone https://github.com/symbench/uav-analysis.git && \
     cd uav-analysis && python -m pip install -e .
 
 RUN python bin/install_fdm.py ${GITLAB_TOKEN}
