@@ -19,4 +19,4 @@ dependencies:
     - plotly
     - smt
     - numpy
-    - --editable=git+https://github.com/symbench/uav-analysis.git#egg=uav-analysis
+    - pydantic

@@ -27,6 +27,12 @@ jobs:
         uname -a
         df -h
         ulimit -a
+
+    - name: Remove uav_analysis from the dependencies
+      shell: bash
+      run: |
+         sed -i -E 's/- --editable.*$/''/' environment-dev.yml
+
     - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
@@ -39,12 +45,20 @@ jobs:
         auto-activate-base: false
         show-channel-urls: true
 
-    - name: Install package
+    - name: Install uav_analysis
+      shell:  bash -l {0}
+      run: |
+        git clone https://github.com/symbench/uav-analysis.git
+        cd uav-analysis
+        python -m pip install -e .
 
+
+    - name: Install package
       shell: bash -l {0}
       run: |
         python -m pip install -e .
         conda list
+
     - name: Run tests
       shell: bash -l {0}
       run: |

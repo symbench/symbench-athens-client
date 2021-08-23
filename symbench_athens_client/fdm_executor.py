@@ -13,6 +13,7 @@ from symbench_athens_client.models.designs import QuadCopter
 from symbench_athens_client.models.fd_metrics import (
     FDMFlightMetric,
     FDMFlightPathMetric,
+    FDMInputMetric,
 )
 from symbench_athens_client.utils import get_logger
 
@@ -49,9 +50,11 @@ class FDMExecutor:
                         f"The FDM executable failed. The stderr is:\n{fdm_process.stderr}"
                     )
 
-                return FDMFlightMetric.from_fd_metrics(
-                    "metrics.out"
-                ), FDMFlightPathMetric.from_fd_metrics("metrics.out")
+                return (
+                    FDMInputMetric.from_fd_input(input_file),
+                    FDMFlightMetric.from_fd_metrics("metrics.out"),
+                    FDMFlightPathMetric.from_fd_metrics("metrics.out"),
+                )
 
             except subprocess.TimeoutExpired:
                 raise FDMFailedException("The FDM Process timed-out. Exiting.")
@@ -107,29 +110,6 @@ def _copy_testbench_files(testbench_path, output_dir):
             for file in zip_file.namelist():
                 if file in files_of_interest:
                     zip_file.extract(file, output_dir)
-
-
-def _get_input_metrics(input_file):
-    fields = {
-        "aircraft%Ixx": "Ixx",
-        "aircraft%Iyy": "iyy",
-        "aircraft%Izz": "Izz",
-        "aircraft%mass": "MassEstimate",
-    }
-    input_metrics = dict()
-
-    with open(input_file) as fd_input_file:
-        lines = fd_input_file.readlines()
-        for line in lines:
-            splitted_line = line.strip().split("=")
-            if splitted_line[0].strip() in fields:
-                input_metrics[fields[splitted_line[0].strip()]] = float(
-                    splitted_line[1].strip()
-                )
-
-    input_metrics["Interferences"] = 0
-
-    return input_metrics
 
 
 def execute_fd_all_paths(
@@ -203,12 +183,12 @@ def execute_fd_all_paths(
                 filename=fd_input_path,
             )
 
-            flight_metrics, path_metrics = executor.execute(
+            input_metrics, flight_metrics, path_metrics = executor.execute(
                 str(fd_input_path), str(fd_output_path)
             )
-            # Get the input metrics
-            input_metrics = _get_input_metrics(fd_input_path)
-            metrics.update(input_metrics)
+
+            # Input Metrics
+            metrics.update(input_metrics.to_csv_dict())
 
             # Get the FlightPath metrics
             metrics.update(flight_metrics.to_csv_dict())
@@ -220,9 +200,6 @@ def execute_fd_all_paths(
 
             # Remove metrics.out, score.out namemap.out
             _cleanup_score_files()
-
-            # Update with design.parameters()
-            metrics.update(design.parameters())
 
         # Update the total score
         _update_total_score(metrics)
