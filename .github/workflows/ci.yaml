@@ -49,8 +49,8 @@ jobs:
       shell: bash
       run: |
         git clone https://github.com/symbench/uav-analysis.git
-        cd uav_analysis
-        pip install -e .
+        cd uav-analysis
+        python -m pip install -e .
 
 
     - name: Install package
