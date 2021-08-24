@@ -1,2 +1,2 @@
 ##Note: These components are missing classes in the database:
-para_cf_fplate,0394od_para_hub_2,0394OD_para_tube,0394od_para_hub_3,Orient,0394od_para_hub_4,0394_para_flange,0281OD_para_tube,0394od_para_hub_6,0394od_para_hub_5
+0394od_para_hub_3,0394_para_flange,0394od_para_hub_6,Orient,para_cf_fplate,0394OD_para_tube,0394od_para_hub_2,0281OD_para_tube,0394od_para_hub_4,0394od_para_hub_5

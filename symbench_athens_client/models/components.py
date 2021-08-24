@@ -260,7 +260,7 @@ class Motor(Component):
         ..., description="Internal Resistance of the motor", alias="INTERNAL_RESISTANCE"
     )
 
-    control_channel: Optional[str] = Field(
+    control_channel: int = Field(
         ..., description="The control channel", alias="CONTROL_CHANNEL"
     )
 
@@ -393,7 +393,7 @@ class ESC(Component):
         ..., description="Bec output voltage", alias="BEC_OUTPUT_VOLTAGE"
     )
 
-    control_channel: Optional[str] = Field(
+    control_channel: int = Field(
         ..., description="Control Channel", alias="CONTROL_CHANNEL"
     )
 
@@ -403,13 +403,11 @@ class ESC(Component):
 
     thickness: float = Field(..., description="THICKNESS", alias="THICKNESS")
 
-    offset: Optional[float] = Field(..., description="Offset", alias="Offset")
+    offset: float = Field(..., description="Offset", alias="Offset")
 
-    mount_angle: Optional[float] = Field(
-        ..., description="The mount angle", alias="Mount_Angle"
-    )
+    mount_angle: float = Field(..., description="The mount angle", alias="Mount_Angle")
 
-    tube_od: Optional[float] = Field(..., description="The tube OD", alias="TUBE_OD")
+    tube_od: float = Field(..., description="The tube OD", alias="TUBE_OD")
 
     width: float = Field(..., description="The width of ESC", alias="WIDTH")
 
@@ -456,15 +454,15 @@ class Instrument_Battery(Battery):
 class Wing(Component):
     """The Wing Component"""
 
-    span: Optional[float] = Field(..., description="SPAN property", alias="SPAN")
+    span: float = Field(..., description="SPAN property", alias="SPAN")
 
     aileron_bias: Optional[float] = Field(..., description="BIAS", alias="AILERON_BIAS")
 
     aoa_cl_max: float = Field(..., description="AoA_CL_Max", alias="AoA_CL_Max")
 
-    offset: Optional[float] = Field(..., description="OFFSET", alias="OFFSET")
+    offset: float = Field(..., description="OFFSET", alias="OFFSET")
 
-    control_channel_flaps: Optional[float] = Field(
+    control_channel_flaps: int = Field(
         ..., description="CONTROL_CHANNEL_FLAPS", alias="CONTROL_CHANNEL_FLAPS"
     )
 
@@ -476,17 +474,13 @@ class Wing(Component):
 
     last_two: float = Field(..., description="LAST_TWO", alias="LASTTWO")
 
-    chord: Optional[str] = Field(..., description="CHORD", alias="CHORD")
+    chord: float = Field(..., description="CHORD", alias="CHORD")
 
-    tube_offset: Optional[str] = Field(
-        ..., description="Tube Offset", alias="TUBE_OFFSET"
-    )
+    tube_offset: float = Field(..., description="Tube Offset", alias="TUBE_OFFSET")
 
     cl_ld_max: float = Field(..., description="CL_LD_Max", alias="CL_LD_Max")
 
-    servo_width: Optional[float] = Field(
-        ..., description="Servo Width", alias="SERVO_WIDTH"
-    )
+    servo_width: float = Field(..., description="Servo Width", alias="SERVO_WIDTH")
 
     aoa_l0: Optional[float] = Field(..., description="AOA_L0", alias="AoA_L0")
 
@@ -494,11 +488,11 @@ class Wing(Component):
         ..., description="dCl_dAoA_Slope", alias="dCl_dAoA_Slope"
     )
 
-    control_channel_ailerons: Optional[str] = Field(
+    control_channel_ailerons: int = Field(
         ..., description="CONTROL_CHANNEL_AILERONS", alias="CONTROL_CHANNEL_AILERONS"
     )
 
-    diameter: Optional[float] = Field(..., description="DIAMETER", alias="DIAMETER")
+    diameter: float = Field(..., description="DIAMETER", alias="DIAMETER")
 
     ld_max: float = Field(..., description="LD_Max", alias="LD_Max")
 
@@ -512,7 +506,7 @@ class Wing(Component):
 
     cm0: float = Field(..., description="CM0", alias="CM0")
 
-    flap_bias: Optional[float] = Field(..., description="Flap Bias", alias="FLAP_BIAS")
+    flap_bias: float = Field(..., description="Flap Bias", alias="FLAP_BIAS")
 
     @root_validator(pre=True)
     def validate_fields(cls, values):
@@ -814,32 +808,86 @@ class Autopilot(Component):
         return inject_none_for_missing_fields(cls, values)
 
 
-class ParametricComponent(Component):
-    """A parametric component from the graph database"""
+class Flange(Component):
+    od: float = Field(..., description="Outer Diameter", alias="OD")
 
-    parameters: Dict[str, Any] = Field(
-        ..., description="The Parameters of these components"
+    box: float = Field(..., description="Box", alias="BOX")
+
+    clock_angle: float = Field(..., description="The Clock Angle", alias="CLOCK_ANGLE")
+
+    sidemount_offset: float = Field(
+        ..., description="The Side Mount Offset", alias="SIDEMOUNT_OFFSET"
     )
 
 
-class Flange(ParametricComponent):
-    pass
+class Tube(Component):
+    length: float = Field(..., description="Length of the tube", alias="Length")
+
+    od: float = Field(..., description="The outer diameter", alias="OD")
+
+    id: float = Field(..., description="The inner diameter", alias="ID")
+
+    rot_2: Optional[float] = Field(
+        default=None, description="The ROT2 parameter", alias="ROT2"
+    )
 
 
-class Tube(ParametricComponent):
-    pass
+class Hub(Component):
+    num_of_horizontal_connections: int = Field(
+        ..., description="The number of horizontal connections", alias="NUMHORZCONN"
+    )
+
+    angle_of_horizontal_connections: float = Field(
+        ..., description="The angle of horizontal connection", alias="ANGHORZCONN:"
+    )
 
 
-class Hub(ParametricComponent):
-    pass
+class Orient(Component):
+    z_angle: float = Field(..., description="The Z-Angle", alias="Z_ANGLE")
 
 
-class Orient(ParametricComponent):
-    pass
+class CarbonFiberPlate(Component):
+    width: float = Field(..., description="The width of the CFP", alias="WIDTH")
 
+    thickness: float = Field(
+        ..., description="The Thickness of the plate", alias="THICKNESS"
+    )
 
-class CarbonFiberPlate(ParametricComponent):
-    pass
+    density: float = Field(..., description="The density of the plate", alias="DENSITY")
+
+    length: float = Field(..., description="The Length of the plate", alias="LENGTH")
+
+    x8_offset: float = Field(..., description="X8_OFFSET", alias="X8_OFFSET")
+
+    z6_offset: float = Field(..., description="Z6_OFFSET", alias="Z6_OFFSET")
+
+    z8_offset: float = Field(..., description="Z8_OFFSET", alias="Z8_OFFSET")
+
+    x6_offset: float = Field(..., description="X6_OFFSET", alias="X6_OFFSET")
+
+    z7_offset: float = Field(..., description="The Z7_OFFSET", alias="Z7_OFFSET")
+
+    z3_offset: float = Field(..., description="The Z3_OFFSET", alias="Z3_OFFSET")
+
+    x5_offset: float = Field(..., description="X5_OFFSET", alias="X5_OFFSET")
+
+    x2_offset: float = Field(..., description="X2_OFFSET", alias="X2_OFFSET")
+
+    x4_offset: float = Field(..., description="X4_OFFSET", alias="X4_OFFSET")
+
+    z1_offset: float = Field(..., description="Z1_OFFSET", alias="Z1_OFFSET")
+
+    x1_offset: float = Field(..., description="X1_OFFSET", alias="X1_OFFSET")
+
+    x3_offset: float = Field(..., description="X3_OFFSET", alias="X3_OFFSET")
+
+    z4_offset: float = Field(..., description="Z4_OFFSET", alias="Z4_OFFSET")
+
+    x7_offset: float = Field(..., description="X7_OFFSET", alias="X7_OFFSET")
+
+    z2_offset: float = Field(..., description="Z2_OFFSET", alias="Z2_OFFSET")
+
+    z5_offset: float = Field(..., description="Z5_OFFSET", alias="Z5_OFFSET")
 
 
 class ComponentsBuilder:
@@ -847,7 +895,7 @@ class ComponentsBuilder:
 
     def __init__(self, creator, components):
         self.creator = creator
-        self.components = self._initialize_components(creator, components)
+        self.components = self._initialize_components(components)
 
     @property
     def all(self):
@@ -893,15 +941,41 @@ class ComponentsBuilder:
             for component in self.components.values():
                 dict_writer.writerow(component.dict(by_alias=True))
 
-    @staticmethod
-    def _initialize_components(creator, components):
+    def _initialize_components(self, components):
         component_instances = {}
 
         for component_dict in components:
-            component_instance = creator.parse_obj(component_dict)
+            object_dict = self._fix_parametric_properties(component_dict)
+            component_instance = self.creator.parse_obj(object_dict)
             component_instances[component_instance.name] = component_instance
 
         return component_instances
+
+    def _fix_parametric_properties(self, component_dict):
+        parametric_properties = {}
+        all_properties = {}
+        for key, value in component_dict.items():
+            if key.startswith("para"):
+                splitted = key.split("_")
+                parameter_name = "_".join(splitted[1:-1])
+                if parameter_name not in parametric_properties:
+                    parametric_properties[parameter_name] = {}
+                if splitted[-1] == "[]AssignedValue":
+                    parametric_properties[parameter_name]["value"] = value
+                if splitted[-1] == "[]Minimum":
+                    parametric_properties[parameter_name]["min"] = value
+                if splitted[-1] == "[]Maximum":
+                    parametric_properties[parameter_name]["max"] = value
+            else:
+                all_properties[key] = value
+
+        assigned_values = dict(
+            map(lambda v: (v[0], v[1]["value"]), parametric_properties.items())
+        )
+
+        all_properties.update(assigned_values)
+
+        return all_properties
 
     def __repr__(self):
         return f"<{self.creator.__name__} Library, Count: {self.__len__()}>"
@@ -927,10 +1001,20 @@ def _build_parametric_components(cls, names):
     return ComponentsBuilder(
         creator=cls,
         components=(
-            {"Name": comp_name, "parameters": all_comps[comp_name]}
+            {"Name": comp_name, **all_comps[comp_name], "Classification": cls.__name__}
             for comp_name in names
         ),
     )
+
+
+def _build_tubes(names):
+    for tube_name in names:
+        if tube_name == "0281OD_para_tube":
+            all_comps[tube_name]["para_Length_[]AssignedValue"] = all_comps[
+                tube_name
+            ].pop("LENGTH")
+
+    return _build_parametric_components(Tube, names)
 
 
 ALL_FLANGES = ["0394_para_flange"]
@@ -956,9 +1040,9 @@ Servos = _build_components(Servo)
 Receivers = _build_components(Receiver)
 Sensors = _build_components(Sensor)
 Autopilots = _build_components(Autopilot)
-# Begin Parametric Components
+# # Begin Parametric Components
 Orients = _build_parametric_components(Orient, ALL_ORIENTS)
 Flanges = _build_parametric_components(Flange, ALL_FLANGES)
-Tubes = _build_parametric_components(Tube, ALL_TUBES)
+Tubes = _build_tubes(ALL_TUBES)
 Hubs = _build_parametric_components(Hub, ALL_HUBS)
 CFPs = _build_parametric_components(CarbonFiberPlate, ALL_CFPS)

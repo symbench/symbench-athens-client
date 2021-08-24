@@ -80,7 +80,7 @@ class TestComponents:
 
     def test_motor_properties(self):
         t_motor_at2827kv900 = Motors.t_motor_AT2826KV900
-        assert t_motor_at2827kv900.control_channel == None
+        assert t_motor_at2827kv900.control_channel == 1
         assert t_motor_at2827kv900.max_current == 57.0
         assert t_motor_at2827kv900.poles == "12N14P"
         assert t_motor_at2827kv900.adapter_length == (30.0, 36.0)
@@ -112,12 +112,14 @@ class TestComponents:
 
     def test_wing_properties(self):
         test_wing = Wings.right_NACA_2418
-        assert test_wing.tube_offset is None
-        assert test_wing.aileron_bias is None
-        assert test_wing.servo_width is None
-        assert test_wing.control_channel_ailerons is None
-        assert test_wing.diameter is None
-        assert test_wing.flap_bias is None
+        assert test_wing.tube_offset == 50
+        assert test_wing.aileron_bias == 0.5
+        assert test_wing.servo_width == 32.8
+        assert test_wing.control_channel_ailerons == 7
+        assert test_wing.diameter == 10.16
+        assert test_wing.flap_bias == 0.5
+        assert test_wing.control_channel_flaps == 6
+        assert test_wing.chord == 304.8
 
     def test_servo_properties(self):
         test_servo = Servos.Hitec_HS_625MG
@@ -133,9 +135,9 @@ class TestComponents:
 
     def test_esc_properties(self):
         test_esc = ESCs.t_motor_FLAME_70A
-        assert test_esc.tube_od is None
+        assert test_esc.tube_od == 10.0076
         assert test_esc.cont_amps == 70.0
-        assert test_esc.control_channel is None
+        assert test_esc.control_channel == 1
 
     def test_repr(self):
         assert repr(Batteries["TurnigyGraphene1600mAh4S75C"])
