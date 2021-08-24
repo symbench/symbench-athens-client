@@ -177,7 +177,7 @@ def execute_fd_all_paths(
             design.to_fd_input(
                 test_bench_path=str(tb_data_location),
                 requested_vertical_speed=0 if i != 4 else requested_vertical_speed,
-                requested_lateral_speed=0 if i == 0 else int(requested_lateral_speed),
+                requested_lateral_speed=0 if i == 4 else int(requested_lateral_speed),
                 flight_path=i,
                 propellers_data_path=str(propellers_data_location),
                 filename=fd_input_path,
