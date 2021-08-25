@@ -988,7 +988,7 @@ class HPlane(SeedDesign):
     )
 
     right_wing: Wing = Field(
-        Wings["left_NACA_0006"], description="Left Wing", alias="Left_Wing"
+        Wings["right_NACA_0006"], description="Right Wing", alias="Right_Wing"
     )
 
     central_hub: Hub = Field(

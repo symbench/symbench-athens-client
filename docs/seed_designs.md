@@ -215,7 +215,7 @@ The H-Plane Seed Design
 | servo_l | Servo_L | Hitec_D485HW |
 | servo_r | Servo_R | Hitec_D485HW |
 | left_wing | Left_Wing | left_NACA_0006 |
-| right_wing | Left_Wing | left_NACA_0006 |
+| right_wing | Right_Wing | right_NACA_0006 |
 | central_hub | Central_Hub | 0394od_para_hub_4 |
 | rear_hub_l | Rear_Hub_L | 0394od_para_hub_3 |
 | rear_hub_r | Rear_Hub_R | 0394od_para_hub_3 |

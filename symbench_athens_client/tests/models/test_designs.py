@@ -8,6 +8,7 @@ from symbench_athens_client.models.components import (
     Hubs,
     Propellers,
     Tubes,
+    Wings,
 )
 from symbench_athens_client.models.designs import (
     HCopter,
@@ -121,3 +122,7 @@ class TestDesigns:
 
         design = QuadCopter()
         assert design.swap_list == {}
+
+    def test_hplane_wings(self, h_plane):
+        assert h_plane.left_wing == Wings["left_NACA_0006"]
+        assert h_plane.right_wing == Wings["right_NACA_0006"]
