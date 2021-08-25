@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+"""In a Linux machine, install the Flight Dynamics software from SWRI."""
+
 import os
 import shutil
 import subprocess

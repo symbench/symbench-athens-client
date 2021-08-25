@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+"""Generate documentation for selective classes of the package."""
+
 from tomark import Tomark
 
 from symbench_athens_client.models.designs import (

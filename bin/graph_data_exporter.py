@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+"""Export components data from the graph database."""
+
 import os
 
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
