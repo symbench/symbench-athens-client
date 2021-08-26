@@ -59,7 +59,7 @@ def estimate_mass_formulae(tb_data_loc):
     return quad_copter_fixed_bemp2(tb_data)
 
 
-def get_mass_estimates_for_quadcopter(testbench_data_path, quad_copter):
+def get_mass_estimates_for_quadcopter(testbench_path_or_formulae, quad_copter):
     """Given a quadcopter seed design, calculate the mass properties using creo surrogate estimator.
 
     Parameters
@@ -83,7 +83,11 @@ def get_mass_estimates_for_quadcopter(testbench_data_path, quad_copter):
     aircraft_parameters = quad_copter.dict(
         by_alias=True, include=quad_copter.__design_vars__
     )
-    formulae = estimate_mass_formulae(testbench_data_path)
+
+    if isinstance(testbench_path_or_formulae, (str, Path)):
+        formulae = estimate_mass_formulae(testbench_path_or_formulae)
+    else:
+        formulae = testbench_path_or_formulae
 
     mass_properties = {}
     for key, value in formulae.items():

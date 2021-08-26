@@ -8,3 +8,7 @@ class ParametersMismatchError(Exception):
 
 class FDMFailedException(Exception):
     """Exception to be raised when the FDM process failed."""
+
+
+class MissingExperimentError(Exception):
+    """Exception to be raised when an experiment is missing."""

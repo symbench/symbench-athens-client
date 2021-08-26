@@ -40,7 +40,9 @@ class FDMExecutor:
             The output file path for the flight dynamics software
         """
         fdm_cmd = f"{self.fdm_path} < {input_file} > {output_file}"
-        self.logger.info(f"Opening the FDM execution process as {fdm_cmd}")
+        self.logger.info(
+            f"Opening the FDM execution process as {fdm_cmd}, PID: {os.getpid()}"
+        )
         with subprocess.Popen(fdm_cmd, shell=True) as fdm_process:
             try:
                 fdm_process.wait(300)
@@ -51,8 +53,8 @@ class FDMExecutor:
 
                 return (
                     FDMInputMetric.from_fd_input(input_file),
-                    FDMFlightMetric.from_fd_metrics("metrics.out"),
-                    FDMFlightPathMetric.from_fd_metrics("metrics.out"),
+                    FDMFlightMetric.from_fd_metrics("./metrics.out"),
+                    FDMFlightPathMetric.from_fd_metrics("./metrics.out"),
                 )
 
             except subprocess.TimeoutExpired:
@@ -159,7 +161,7 @@ def execute_fd_all_paths(
             fd_output_path = f"FlightDynReport_Path{i}.out"
 
             design.to_fd_input(
-                test_bench_path=str(tb_data_location),
+                testbench_path_or_formulae=str(tb_data_location),
                 requested_vertical_speed=0 if i != 4 else requested_vertical_speed,
                 requested_lateral_speed=0 if i == 4 else int(requested_lateral_speed),
                 flight_path=i,

@@ -288,7 +288,7 @@ class QuadCopter(SeedDesign):
 
     def to_fd_input(
         self,
-        test_bench_path,
+        testbench_path_or_formulae,
         propellers_data_path=None,
         filename=None,
         analysis_type=3,
@@ -300,8 +300,8 @@ class QuadCopter(SeedDesign):
 
         Parameters
         ----------
-        test_bench_path: str, pathlib.Path
-            The location of the testbench data to use by uav_analysis.testbench_data.TestBenchData
+        testbench_path_or_formulae: str, pathlib.Path, dict
+            The location of the testbench data to use by uav_analysis.testbench_data.TestBenchData or a dictionary of formulas
         propellers_data_path: str, pathlib.Path
             The base directory for propellers data
         filename: str, pathlib.Path
@@ -321,7 +321,7 @@ class QuadCopter(SeedDesign):
             if filename is None, this method will return a dictionary containing all the parameters
             otherwise the file will be saved as filename
         """
-        masses = self._get_mass_properties(test_bench_path)
+        masses = self._get_mass_properties(testbench_path_or_formulae)
         propeller_1 = self.propeller_0.to_fd_inp(propellers_data_path)
         propeller_1["for"] = 0
         propeller_1.update(self.motor_0.to_fd_inp())
@@ -398,7 +398,7 @@ class QuadCopter(SeedDesign):
         else:
             return fd_params
 
-    def _get_mass_properties(self, testbench_path):
+    def _get_mass_properties(self, testbench_path_or_formulae):
         """Get estimated mass properties for the quadcopter(works only for single parameters for now)"""
         from symbench_athens_client.utils import get_mass_estimates_for_quadcopter
 
@@ -409,7 +409,9 @@ class QuadCopter(SeedDesign):
                     "Please set discrete values for the design variables."
                 )
 
-        property_estimates = get_mass_estimates_for_quadcopter(testbench_path, self)
+        property_estimates = get_mass_estimates_for_quadcopter(
+            testbench_path_or_formulae, self
+        )
         property_estimates["x_fuse"] = property_estimates["x_cm"]
         property_estimates["y_fuse"] = property_estimates["y_cm"]
         property_estimates["z_fuse"] = property_estimates["z_cm"]

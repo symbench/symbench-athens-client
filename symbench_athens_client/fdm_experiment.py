@@ -13,7 +13,11 @@ from symbench_athens_client.fdm_executor import (
     update_total_score,
     write_output_csv,
 )
-from symbench_athens_client.utils import extract_from_zip, get_logger
+from symbench_athens_client.utils import (
+    estimate_mass_formulae,
+    extract_from_zip,
+    get_logger,
+)
 
 
 class FlightDynamicsExperiment:
@@ -65,9 +69,10 @@ class FlightDynamicsExperiment:
         valid_requirements,
         fdm_path=None,
     ):
+        self.testbench_path, self.propellers_data = self._validate_files(
+            testbench_path, propellers_data
+        )  # ToDo: More robust Validation here
         self.design = design
-        self.testbench_path = Path(testbench_path).resolve()
-        self.propellers_data = Path(propellers_data).resolve()
         self.valid_parameters = valid_parameters
         self.valid_requirements = valid_requirements
         self.logger = get_logger(self.__class__.__name__)
@@ -76,11 +81,12 @@ class FlightDynamicsExperiment:
         self.results_dir = Path(
             f"results/{self.design.__class__.__name__}/{self.session_id}"
         ).resolve()
-        self._validate_files()
+        self.formulae = estimate_mass_formulae(str(self.testbench_path))
 
     def _create_results_dir(self):
         if not self.results_dir.exists():
-            os.makedirs(self.results_dir)
+            os.makedirs(self.results_dir, exist_ok=True)
+
         extract_from_zip(
             self.testbench_path,
             self.results_dir,
@@ -91,19 +97,12 @@ class FlightDynamicsExperiment:
         )
         (self.results_dir / ".generated").touch()
 
+        artifacts_dir = self.results_dir / "artifacts"
+        if not artifacts_dir.exists():
+            os.makedirs(artifacts_dir)
+
     def start(self):
         self._create_results_dir()
-
-    def _validate_files(self):
-        assert self.testbench_path.exists(), "The testbench data path doesn't exist"
-        assert (
-            self.propellers_data.resolve().exists()
-        ), "The propellers data path doesn't exist"
-        tb = TestbenchData()
-        try:
-            tb.load(str(self.testbench_path))
-        except:
-            raise TypeError("The testbench data provided is not valid")
 
     def run_for(
         self,
@@ -128,12 +127,8 @@ class FlightDynamicsExperiment:
         )
 
         run_guid = str(uuid4())
-        artifacts_dir = self.results_dir / "artifacts"
 
-        if not artifacts_dir.exists():
-            os.makedirs(artifacts_dir)
-
-        fd_files_base_path = artifacts_dir / run_guid
+        fd_files_base_path = self.results_dir / "artifacts" / run_guid
         os.makedirs(fd_files_base_path, exist_ok=True)
 
         metrics = {"GUID": run_guid, "AnalysisError": None}
@@ -148,7 +143,7 @@ class FlightDynamicsExperiment:
                 fd_output_path = f"FlightDynReport_Path{i}.out"
 
                 self.design.to_fd_input(
-                    test_bench_path=str(self.testbench_path),
+                    testbench_path_or_formulae=self.formulae,
                     requested_vertical_speed=0
                     if i != 4
                     else requirements.get("requested_vertical_speed", -2),
@@ -168,6 +163,10 @@ class FlightDynamicsExperiment:
 
                 # Input Metrics
                 metrics.update(input_metrics.to_csv_dict())
+                other_metrics = self.design.parameters()
+                for key in other_metrics:
+                    if key.startswith("Length"):
+                        metrics[key] = other_metrics[key]
 
                 # Get the FlightPath metrics
                 metrics.update(flight_metrics.to_csv_dict())
@@ -176,6 +175,7 @@ class FlightDynamicsExperiment:
                 # Move input and output files to necessary locations
                 move(fd_input_path, fd_files_base_path)
                 move(fd_output_path, fd_files_base_path)
+                move("./metrics.out", fd_files_base_path / f"metrics_Path{i}.out")
 
                 # Remove metrics.out, score.out namemap.out
                 cleanup_score_files()
@@ -212,3 +212,19 @@ class FlightDynamicsExperiment:
             )
 
         return var or {}
+
+    @staticmethod
+    def _validate_files(testbench_path, propellers_data):
+        testbench_path = Path(testbench_path).resolve()
+        propellers_data = Path(propellers_data).resolve()
+        assert testbench_path.exists(), "The testbench data path doesn't exist"
+        assert (
+            propellers_data.resolve().exists()
+        ), "The propellers data path doesn't exist"
+        tb = TestbenchData()
+        try:
+            tb.load(str(testbench_path))
+        except:
+            raise TypeError("The testbench data provided is not valid")
+
+        return testbench_path, propellers_data
