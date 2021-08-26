@@ -105,7 +105,7 @@ def extract_from_zip(zip_path, output_dir, files):
         zip_path = Path(zip_path).resolve()
 
     assert zip_path.exists(), "The provided path doesn't exist"
-    assert zipfile.is_zipfile(zip_path), "The testbench is not a zip file"
+    assert zipfile.is_zipfile(zip_path), "The provided file is not a zip file"
 
     with zip_path.open("rb") as zip_path_bin:
         with zipfile.ZipFile(zip_path_bin) as zip_file:
