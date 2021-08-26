@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 from uav_analysis.testbench_data import TestbenchData
@@ -31,6 +32,13 @@ class FlightDynamicsExperiment:
     propellers_data: str, pathlib.Path
         The location of the propellers data
 
+    Attributes
+    ----------
+    session_id: str
+        ISO Formatted time stamp
+    results_dir: str, pathlib.Path
+        The results directory
+
     Notes
     -----
     Every run gets a guid (returned in the output dictionary). The results for each
@@ -54,6 +62,8 @@ class FlightDynamicsExperiment:
         self.valid_requirements = valid_requirements
         self.logger = get_logger(self.__class__.__name__)
         self._validate_files()
+        self.session_id = f"e-{datetime.now().isoformat()}".replace(":", "-")
+        self.results_dir = f"results/{self.design.__class__.__name__}/{self.session_id}"
 
     def _validate_files(self):
         assert (
@@ -87,8 +97,13 @@ class FlightDynamicsExperiment:
             design=self.design,
             tb_data_location=self.testbench_path,
             propellers_data_location=self.propellers_data,
+            output_dir=self.results_dir,
             **requirements,
         )
+
+    def start_new_session(self):
+        self.session_id = f"e-{datetime.now().isoformat()}".replace(":", "-")
+        self.results_dir = f"results/{self.design.__class__.__name__}/{self.session_id}"
 
     @staticmethod
     def _validate_dict(var, name):
