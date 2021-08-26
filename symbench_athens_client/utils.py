@@ -1,4 +1,5 @@
 import logging
+import os
 import zipfile
 from functools import lru_cache
 from pathlib import Path
@@ -112,3 +113,8 @@ def extract_from_zip(zip_path, output_dir, files):
             for file in zip_file.namelist():
                 if file in files:
                     zip_file.extract(file, output_dir)
+
+
+def relative_path(src, destination):
+    """Given a source and destination path, find the relative path"""
+    return os.path.relpath(destination, src)

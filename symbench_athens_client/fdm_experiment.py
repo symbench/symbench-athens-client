@@ -17,6 +17,7 @@ from symbench_athens_client.utils import (
     estimate_mass_formulae,
     extract_from_zip,
     get_logger,
+    relative_path,
 )
 
 
@@ -135,8 +136,7 @@ class FlightDynamicsExperiment:
         try:
             current_dir = os.getcwd()
             if change_dir:
-                temp_dir = mkdtemp()
-                os.chdir(temp_dir)
+                os.chdir(fd_files_base_path)
 
             for i in [1, 3, 4, 5]:
                 fd_input_path = f"FlightDyn_Path{i}.inp"
@@ -151,9 +151,10 @@ class FlightDynamicsExperiment:
                     if i == 4
                     else int(requirements.get("requested_lateral_speed", 10)),
                     flight_path=i,
-                    propellers_data_path=(str(self.propellers_data) + os.sep).replace(
-                        "\\", "/"
-                    ),
+                    propellers_data_path=relative_path(
+                        os.getcwd(), self.propellers_data
+                    )
+                    + os.sep,
                     filename=fd_input_path,
                 )
 
@@ -173,8 +174,10 @@ class FlightDynamicsExperiment:
                 metrics.update(path_metrics.to_csv_dict())
 
                 # Move input and output files to necessary locations
-                move(fd_input_path, fd_files_base_path)
-                move(fd_output_path, fd_files_base_path)
+                if not change_dir:
+                    move(fd_input_path, fd_files_base_path)
+                    move(fd_output_path, fd_files_base_path)
+
                 move("./metrics.out", fd_files_base_path / f"metrics_Path{i}.out")
 
                 # Remove metrics.out, score.out namemap.out
@@ -186,7 +189,6 @@ class FlightDynamicsExperiment:
 
             if change_dir:
                 os.chdir(current_dir)
-                rmtree(temp_dir)
 
         except Exception as e:
             metrics["AnalysisError"] = True

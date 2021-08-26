@@ -93,9 +93,11 @@ def write_output_csv(output_dir, metrics):
 def cleanup_score_files():
     out_files = glob("*.out")
     for file in out_files:
-        os.unlink(file)
+        if file in {"path.out", "path2.out", "namelist.out", "score.out"}:
+            os.unlink(file)
 
 
+## ToDo: Deprecate This??
 def execute_fd_all_paths(
     design,
     tb_data_location,
