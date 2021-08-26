@@ -1,7 +1,6 @@
 import math
 import os
 import subprocess
-import zipfile
 from csv import DictWriter
 from glob import glob
 from pathlib import Path
@@ -15,7 +14,7 @@ from symbench_athens_client.models.fd_metrics import (
     FDMFlightPathMetric,
     FDMInputMetric,
 )
-from symbench_athens_client.utils import get_logger
+from symbench_athens_client.utils import extract_from_zip, get_logger
 
 
 class FDMExecutor:
@@ -60,7 +59,7 @@ class FDMExecutor:
                 raise FDMFailedException("The FDM Process timed-out. Exiting.")
 
 
-def _update_total_score(metrics):
+def update_total_score(metrics):
     scores = [
         metrics["Path_score_Path1"],
         metrics["Path_score_Path3"],
@@ -70,7 +69,7 @@ def _update_total_score(metrics):
     metrics["TotalPathScore"] = sum(scores) if not math.isclose(scores[2], 0.0) else 0.0
 
 
-def _write_output_csv(output_dir, metrics):
+def write_output_csv(output_dir, metrics):
     # Note that this should be a pathlib.Path instance,
     # but since this is an internal use function which might be
     # refactored anyways. Its always fine to do it this way
@@ -89,27 +88,10 @@ def _write_output_csv(output_dir, metrics):
         csv_writer.writerow(metrics)
 
 
-def _cleanup_score_files():
+def cleanup_score_files():
     out_files = glob("*.out")
     for file in out_files:
         os.unlink(file)
-
-
-def _copy_testbench_files(testbench_path, output_dir):
-    files_of_interest = {
-        "componentMap.json",
-        "connectionMap.json",
-    }
-    if not isinstance(testbench_path, Path):
-        testbench_path = Path(testbench_path).resolve()
-    assert testbench_path.exists(), "The provided path doesn't exist"
-    assert testbench_path.suffix == ".zip", "The testbench is not a zip file"
-
-    with testbench_path.open("rb") as testbench_zip:
-        with zipfile.ZipFile(testbench_zip) as zip_file:
-            for file in zip_file.namelist():
-                if file in files_of_interest:
-                    zip_file.extract(file, output_dir)
 
 
 def execute_fd_all_paths(
@@ -161,7 +143,9 @@ def execute_fd_all_paths(
     os.makedirs(fd_files_base_path, exist_ok=True)
 
     # Copy relavent testbench files
-    _copy_testbench_files(tb_data_location, output_dir)
+    extract_from_zip(
+        tb_data_location, output_dir, {"componentMap.json", "connectionMap.json"}
+    )
 
     # Keep a .generated mark
     (output_dir / ".generated").touch()
@@ -199,16 +183,16 @@ def execute_fd_all_paths(
             move(fd_output_path, fd_files_base_path)
 
             # Remove metrics.out, score.out namemap.out
-            _cleanup_score_files()
+            cleanup_score_files()
 
         # Update the total score
-        _update_total_score(metrics)
+        update_total_score(metrics)
         metrics["AnalysisError"] = False
 
     except Exception as e:
         metrics["AnalysisError"] = True
         raise e
 
-    _write_output_csv(output_dir=output_dir, metrics=metrics)
+    write_output_csv(output_dir=output_dir, metrics=metrics)
 
     return metrics
