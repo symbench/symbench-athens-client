@@ -53,11 +53,22 @@ def dict_to_design_vars(inp_dict, repeat_values=True):
 
 
 @lru_cache(maxsize=128)
-def estimate_mass_formulae(tb_data_loc):
+def estimate_mass_formulae(tb_data_loc, estimator=quad_copter_fixed_bemp2):
     """Estimate mass properties of a design based on a fixed BEMP config testbench"""
+    if estimator is None:
+        estimator = quad_copter_fixed_bemp2
+    tb_data_loc = list(tb_data_loc)
+
     tb_data = TestbenchData()
-    tb_data.load(tb_data_loc)
-    return quad_copter_fixed_bemp2(tb_data)
+    if not isinstance(tb_data_loc, (list, set, tuple)):
+        tb_data_loc = [tb_data_loc]
+
+    tb_data_loc = [str(Path(data_loc).resolve()) for data_loc in tb_data_loc]
+
+    for data_path in tb_data_loc:
+        tb_data.load(data_path)
+
+    return estimator(tb_data)
 
 
 def get_mass_estimates_for_quadcopter(testbench_path_or_formulae, quad_copter):
@@ -83,6 +94,19 @@ def get_mass_estimates_for_quadcopter(testbench_path_or_formulae, quad_copter):
 
     aircraft_parameters = quad_copter.dict(
         by_alias=True, include=quad_copter.__design_vars__
+    )
+
+    # ToDo: Better Way to Handle this
+    aircraft_parameters.update(
+        {
+            "Battery_0_Weight": quad_copter.battery_0.weight,
+            "Battery_0_Length": quad_copter.battery_0.length,
+            "Battery_0_Width": quad_copter.battery_0.width,
+            "Battery_0_Thickness": quad_copter.battery_0.thickness,
+            "Prop_0_Weight": quad_copter.propeller_0.weight,
+            "Prop_0_Diameter": quad_copter.propeller_0.diameter,
+            "Prop_0_Thickness": quad_copter.propeller_0.thickness,
+        }
     )
 
     if isinstance(testbench_path_or_formulae, (str, Path)):

@@ -5,6 +5,7 @@ from shutil import move, rmtree
 from tempfile import mkdtemp
 from uuid import uuid4
 
+from uav_analysis.mass_properties import quad_copter_batt_prop_motor
 from uav_analysis.testbench_data import TestbenchData
 
 from symbench_athens_client.fdm_executor import (
@@ -13,6 +14,8 @@ from symbench_athens_client.fdm_executor import (
     update_total_score,
     write_output_csv,
 )
+from symbench_athens_client.models.components import Batteries, Propellers
+from symbench_athens_client.models.designs import QuadCopter
 from symbench_athens_client.utils import (
     estimate_mass_formulae,
     extract_from_zip,
@@ -69,6 +72,7 @@ class FlightDynamicsExperiment:
         valid_parameters,
         valid_requirements,
         fdm_path=None,
+        estimator=None,
     ):
         self.testbench_path, self.propellers_data = self._validate_files(
             testbench_path, propellers_data
@@ -82,7 +86,10 @@ class FlightDynamicsExperiment:
         self.results_dir = Path(
             f"results/{self.design.__class__.__name__}/{self.session_id}"
         ).resolve()
-        self.formulae = estimate_mass_formulae(str(self.testbench_path))
+        self.formulae = estimate_mass_formulae(
+            frozenset(self.testbench_path),
+            estimator=estimator or quad_copter_fixed_bemp2,
+        )
 
     def _create_results_dir(self):
         if not self.results_dir.exists():
@@ -217,16 +224,87 @@ class FlightDynamicsExperiment:
 
     @staticmethod
     def _validate_files(testbench_path, propellers_data):
-        testbench_path = Path(testbench_path).resolve()
+        if isinstance(testbench_path, (list, set, tuple)):
+            assert all(
+                Path(d).resolve().exists() for d in testbench_path
+            ), "Testbench data paths are not valid"
+        else:
+            testbench_path = Path(testbench_path).resolve()
+            testbench_path = [testbench_path]
+            assert testbench_path.exists(), "The testbench data path doesn't exist"
+
         propellers_data = Path(propellers_data).resolve()
-        assert testbench_path.exists(), "The testbench data path doesn't exist"
         assert (
             propellers_data.resolve().exists()
         ), "The propellers data path doesn't exist"
         tb = TestbenchData()
         try:
-            tb.load(str(testbench_path))
+            for d in testbench_path:
+                tb.load(str(d))
         except:
             raise TypeError("The testbench data provided is not valid")
-
         return testbench_path, propellers_data
+
+
+class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
+    def __init__(
+        self,
+        testbench_path,
+        propellers_data,
+        fdm_path=None,
+    ):
+        design = QuadCopter()
+        print(testbench_path)
+        valid_parameters = design.__design_vars__
+        valid_requirements = {"requested_vertical_speed", "requested_lateral_speed"}
+        super().__init__(
+            design,
+            testbench_path,
+            propellers_data,
+            valid_parameters,
+            valid_requirements,
+            fdm_path=None,
+            estimator=quad_copter_batt_prop_motor,
+        )
+
+    def run_for(
+        self,
+        battery=None,
+        propeller=None,
+        parameters=None,
+        requirements=None,
+        change_dir=False,
+        write_to_output_csv=False,
+    ):
+
+        assert battery in self.available_batteries, "Propeller name is not valid"
+        assert propeller in self.available_propellers, "Propeller name is not valid"
+
+        self._assign_battery(self.design, battery)
+        self._assign_propellers(self.design, propeller)
+
+        return super().run_for(
+            parameters=parameters,
+            requirements=requirements,
+            change_dir=change_dir,
+            write_to_output_csv=write_to_output_csv,
+        )
+
+    @property
+    def available_batteries(self):
+        return Batteries.all
+
+    @property
+    def available_propellers(self):
+        return Propellers.all
+
+    @staticmethod
+    def _assign_battery(design, battery_name):
+        design.battery_0 = Batteries[battery_name]
+
+    @staticmethod
+    def _assign_propellers(design, propeller_name):
+        design.propeller_0 = Batteries[propeller_name]
+        design.propeller_1 = Batteries[propeller_name]
+        design.propeller_2 = Batteries[propeller_name]
+        design.propeller_3 = Batteries[propeller_name]
