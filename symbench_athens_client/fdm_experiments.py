@@ -50,11 +50,3 @@ def get_experiments_by_name(name):
         return QuadCopterVariableBatteryPropExperiment(**experiments[name])
     else:
         return FlightDynamicsExperiment(**experiments[name])
-
-
-if __name__ == "__main__":
-    get_testbench_zips("./testbenches/QuadCopterVariablePropellerBattery")
-    get_experiments_by_name("QuadCopterVariableBatteryPropExperiment")
-    print("*** Already Cached ***")
-    expr = get_experiments_by_name("QuadCopterVariableBatteryPropExperiment")
-    expr.run_for()

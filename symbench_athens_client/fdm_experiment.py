@@ -172,7 +172,7 @@ class FlightDynamicsExperiment:
 
         fd_files_base_path = self.results_dir / "artifacts" / run_guid
         os.makedirs(fd_files_base_path, exist_ok=True)
-        print(self.design.swap_list)
+
         if self.design.swap_list != dict():
             self._customize_components(fd_files_base_path)
 
