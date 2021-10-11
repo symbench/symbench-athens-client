@@ -105,7 +105,7 @@ def get_mass_estimates_for_quadcopter(testbench_path_or_formulae, quad_copter):
             "Battery_0_Thickness": quad_copter.battery_0.thickness,
             "Prop_0_Weight": quad_copter.propeller_0.weight,
             "Prop_0_Diameter": quad_copter.propeller_0.diameter,
-            "Prop_0_Thickness": quad_copter.propeller_0.thickness,
+            "Prop_0_Thickness": quad_copter.propeller_0.hub_thickness,
         }
     )
 

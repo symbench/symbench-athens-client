@@ -1,4 +1,5 @@
 import glob
+import random
 
 from symbench_athens_client.exceptions import MissingExperimentError
 from symbench_athens_client.fdm_experiment import (
@@ -22,21 +23,21 @@ def get_experiments_by_name(name):
     experiments = {
         "ExperimentOnTurnigyGraphene5000MAHQuadCopter": dict(
             design=TurnigyGraphene5000MAHQuadCopter(),
-            testbench_path="./testbenches/TurnigyGraphene5000MAHQuadCopter.zip",
+            testbenches="./testbenches/TurnigyGraphene5000MAHQuadCopter.zip",
             propellers_data="./propellers/",
             valid_parameters=TurnigyGraphene5000MAHQuadCopter.__design_vars__,
             valid_requirements={"requested_vertical_speed", "requested_lateral_speed"},
         ),
         "ExperimentOnTurnigyGraphene6000MAHQuadCopter": dict(
             design=TurnigyGraphene6000MAHQuadCopter(),
-            testbench_path="./testbenches/TurnigyGraphene6000MAHQuadCopter.zip",
+            testbenches="./testbenches/TurnigyGraphene6000MAHQuadCopter.zip",
             propellers_data="./propellers/",
             valid_parameters=TurnigyGraphene6000MAHQuadCopter.__design_vars__,
             valid_requirements={"requested_vertical_speed", "requested_lateral_speed"},
         ),
         "QuadCopterVariableBatteryPropExperiment": dict(
-            testbench_path=get_testbench_zips(
-                "./testbenches/QuadCopterVaraiblePropellerBattery/"
+            testbenches=get_testbench_zips(
+                "./testbenches/QuadCopterVariablePropellerBattery/"
             ),
             propellers_data="./propellers",
         ),
@@ -52,5 +53,8 @@ def get_experiments_by_name(name):
 
 
 if __name__ == "__main__":
-    get_testbench_zips("./testbenches/QuadCopterVaraiblePropellerBattery")
+    get_testbench_zips("./testbenches/QuadCopterVariablePropellerBattery")
     get_experiments_by_name("QuadCopterVariableBatteryPropExperiment")
+    print("*** Already Cached ***")
+    expr = get_experiments_by_name("QuadCopterVariableBatteryPropExperiment")
+    expr.run_for()
