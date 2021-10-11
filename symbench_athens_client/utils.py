@@ -53,11 +53,11 @@ def dict_to_design_vars(inp_dict, repeat_values=True):
 
 
 @lru_cache(maxsize=128)
-def estimate_mass_formulae(tb_data_loc, estimator=quad_copter_fixed_bemp2):
+def estimate_mass_formulae(tb_data_locs, estimator=quad_copter_fixed_bemp2):
     """Estimate mass properties of a design based on a fixed BEMP config testbench"""
     if estimator is None:
         estimator = quad_copter_fixed_bemp2
-    tb_data_loc = list(tb_data_loc)
+    tb_data_loc = list(tb_data_locs)
 
     tb_data = TestbenchData()
     if not isinstance(tb_data_loc, (list, set, tuple)):
@@ -76,7 +76,7 @@ def get_mass_estimates_for_quadcopter(testbench_path_or_formulae, quad_copter):
 
     Parameters
     ----------
-    testbench_data_path: str, pathlib.Path
+    testbench_path_or_formulae: str, pathlib.Path
         The zip file location for the uav_analusis.testbench_data.TestBenchData
     quad_copter: instance of symbench_athens_client.models.design.QuadCopter
         The instance of the QuadCopter seed design to estimate properties for=

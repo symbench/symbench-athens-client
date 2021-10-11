@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 from pathlib import Path
@@ -104,20 +105,43 @@ class FlightDynamicsExperiment:
         if not self.results_dir.exists():
             os.makedirs(self.results_dir, exist_ok=True)
 
-        if len(self.testbenches) == 1:
-            extract_from_zip(
-                self.testbenches[0],
-                self.results_dir,
-                {
-                    "componentMap.json",
-                    "connectionMap.json",
-                },
-            )
         (self.results_dir / ".generated").touch()
+        self._add_component_and_connection_map()
 
         artifacts_dir = self.results_dir / "artifacts"
+
         if not artifacts_dir.exists():
             os.makedirs(artifacts_dir)
+
+    def _add_component_and_connection_map(self, out_dir=None):
+        extract_from_zip(
+            self.testbenches[0],
+            self.results_dir,
+            {
+                "componentMap.json",
+                "connectionMap.json",
+            },
+        )
+
+        self._customize_components(out_dir)
+
+    def _customize_components(self, out_dir):
+        with (self.results_dir / "componentMap.json").open("r") as components_file:
+            components = json.load(components_file)
+            design_components = self.design.components(by_alias=True)
+            for component in components:
+                if component["FROM_COMP"] in design_components:
+                    component["LIB_COMPONENT"] = design_components[
+                        component["FROM_COMP"]
+                    ]
+
+        if out_dir is None:
+            out_dir = self.results_dir
+
+        with (out_dir / "componentMap.json").open("w") as components_file:
+            json.dump(components, components_file)
+
+        self.design.swap_list = {}
 
     def start(self):
         self._create_results_dir()
@@ -148,6 +172,9 @@ class FlightDynamicsExperiment:
 
         fd_files_base_path = self.results_dir / "artifacts" / run_guid
         os.makedirs(fd_files_base_path, exist_ok=True)
+        print(self.design.swap_list)
+        if self.design.swap_list != dict():
+            self._customize_components(fd_files_base_path)
 
         metrics = {"GUID": run_guid, "AnalysisError": None}
         try:
@@ -276,6 +303,34 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
             estimator=quad_copter_batt_prop,
         )
 
+    @property
+    def battery(self):
+        return self.design.battery_0
+
+    @battery.setter
+    def battery(self, batt):
+        if not isinstance(batt, Battery):
+            raise TypeError(f"Provided {batt} is not a Battery component")
+        self._assign_battery(self.design, batt)
+
+    @property
+    def propeller(self):
+        return self.design.propeller_0
+
+    @propeller.setter
+    def propeller(self, prop):
+        if not isinstance(prop, Battery):
+            raise TypeError(f"Provided {prop} is not a Propeller component")
+        self._assign_propellers(self.design, prop)
+
+    @property
+    def available_batteries(self):
+        return Batteries.all
+
+    @property
+    def available_propellers(self):
+        return Propellers.all
+
     def run_for(
         self,
         battery=None,
@@ -293,15 +348,17 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
             assert propeller in self.available_propellers, "Propeller name is not valid"
             propeller = Propellers[propeller]
 
-        assert isinstance(
-            battery, Battery
-        ), f"Provided {battery} is not a Battery component"
-        assert isinstance(
-            propeller, Propeller
-        ), f"Provided {propeller} is not a Propeller component"
+        if battery is not None:
+            assert isinstance(
+                battery, Battery
+            ), f"Provided {battery} is not a Battery component"
+            self._assign_battery(self.design, battery)
 
-        self._assign_battery(self.design, battery)
-        self._assign_propellers(self.design, propeller)
+        if propeller is not None:
+            assert isinstance(
+                propeller, Propeller
+            ), f"Provided {propeller} is not a Propeller component"
+            self._assign_propellers(self.design, propeller)
 
         return super().run_for(
             parameters=parameters,
@@ -309,14 +366,6 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
             change_dir=change_dir,
             write_to_output_csv=write_to_output_csv,
         )
-
-    @property
-    def available_batteries(self):
-        return Batteries.all
-
-    @property
-    def available_propellers(self):
-        return Propellers.all
 
     @staticmethod
     def _assign_battery(design, battery):
