@@ -171,6 +171,9 @@ class FDMFlightMetric(BaseModel):
             lines = metrics_fp.readlines()
             for line in lines:
                 line_splited = line.strip().split()
+                if line.strip().startswith("No trim conditions were found"):
+                    flight_metrics_dict = {entry: 0.0 for entry in fields.values()}
+                    break
                 if line_splited and line_splited[0] in fields:
                     flight_metrics_dict[
                         fields[line_splited[0]]
