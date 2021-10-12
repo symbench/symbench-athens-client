@@ -70,9 +70,9 @@ jobs:
         pytest -v --color=yes symbench_athens_client/tests/ -m "slow"
       continue-on-error: true
       env:
-        MINIO_ACCESS_KEY: ${{ MINIO_ACCESS_KEY }}
-        MINIO_SECRET_KEY: ${{ MINIO_SECRET_KEY }}
-        MINIO_ENDPOINT: ${{ MINIO_ENDPOINT }}
+        MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+        MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+        MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
 
   docker:
     runs-on: ubuntu-latest
