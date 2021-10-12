@@ -59,10 +59,20 @@ jobs:
         python -m pip install -e .
         conda list
 
-    - name: Run tests
+    - name: Run tests [Minimal]
       shell: bash -l {0}
       run: |
-        pytest -v --color=yes symbench_athens_client/tests/
+        pytest -v --color=yes symbench_athens_client/tests/ -m "not slow"
+
+    - name: Run tests [Slower]
+      shell: bash -l {0}
+      run: |
+        pytest -v --color=yes symbench_athens_client/tests/ -m "slow"
+      continue-on-error: true
+      env:
+        MINIO_ACCESS_KEY: ${{ MINIO_ACCESS_KEY }}
+        MINIO_SECRET_KEY: ${{ MINIO_SECRET_KEY }}
+        MINIO_ENDPOINT: ${{ MINIO_ENDPOINT }}
 
   docker:
     runs-on: ubuntu-latest

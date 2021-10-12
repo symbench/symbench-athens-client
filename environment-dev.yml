@@ -12,4 +12,5 @@ dependencies:
     - gremlinpython
     - tomark
     - pydantic
+    - minio
     - --editable=git+https://github.com/symbench/uav-analysis.git#egg=uav-analysis

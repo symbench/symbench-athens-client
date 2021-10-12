@@ -113,7 +113,7 @@ class FlightDynamicsExperiment:
         if not artifacts_dir.exists():
             os.makedirs(artifacts_dir)
 
-    def _add_component_and_connection_map(self, out_dir=None):
+    def _add_component_and_connection_map(self):
         extract_from_zip(
             self.testbenches[0],
             self.results_dir,
@@ -123,9 +123,9 @@ class FlightDynamicsExperiment:
             },
         )
 
-        self._customize_components(out_dir)
+        self._customize_components()
 
-    def _customize_components(self, out_dir):
+    def _customize_components(self, out_dir=None):
         with (self.results_dir / "componentMap.json").open("r") as components_file:
             components = json.load(components_file)
             design_components = self.design.components(by_alias=True)
@@ -280,6 +280,7 @@ class FlightDynamicsExperiment:
                 tb.load(str(d))
         except:
             raise TypeError("The testbench data provided is not valid")
+
         return testbenches, propellers_data
 
 
@@ -314,14 +315,20 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
         self._assign_battery(self.design, batt)
 
     @property
-    def propeller(self):
-        return self.design.propeller_0
+    def propellers(self):
+        return [
+            self.design.propeller_0,
+            self.design.propeller_1,
+            self.design.propeller_2,
+            self.design.propeller_3,
+        ]
 
-    @propeller.setter
-    def propeller(self, prop):
-        if not isinstance(prop, Battery):
-            raise TypeError(f"Provided {prop} is not a Propeller component")
-        self._assign_propellers(self.design, prop)
+    @propellers.setter
+    def propellers(self, props):
+        assert iter(props) and not isinstance(
+            props, str
+        ), "Please provide iterable instances of propellers"
+        self._assign_propellers(self.design, props)
 
     @property
     def available_batteries(self):
@@ -334,7 +341,7 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
     def run_for(
         self,
         battery=None,
-        propeller=None,
+        propellers=None,
         parameters=None,
         requirements=None,
         change_dir=False,
@@ -344,21 +351,30 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
             assert battery in self.available_batteries, "Battery name is not valid"
             battery = Batteries[battery]
 
-        if isinstance(propeller, str):
-            assert propeller in self.available_propellers, "Propeller name is not valid"
-            propeller = Propellers[propeller]
+        propeller_instances = []
+        if propellers is not None:
+            assert iter(propellers) and not isinstance(
+                propellers, str
+            ), "Please provide iterable instances of propellers or their names"
+            assert (
+                len(list(propellers)) == 4
+            ), "Please provide at most 4 values for propellers"
+
+            for propeller in propellers:
+                if isinstance(propeller, str):
+                    assert (
+                        propeller in self.available_propellers
+                    ), "Propeller name is not valid"
+                    prop = Propellers[propellers]
+                    propeller_instances.append(prop)
+                else:
+                    propeller_instances.append(propeller)
 
         if battery is not None:
-            assert isinstance(
-                battery, Battery
-            ), f"Provided {battery} is not a Battery component"
             self._assign_battery(self.design, battery)
 
-        if propeller is not None:
-            assert isinstance(
-                propeller, Propeller
-            ), f"Provided {propeller} is not a Propeller component"
-            self._assign_propellers(self.design, propeller)
+        if propellers is not None:
+            self._assign_propellers(self.design, propeller_instances)
 
         return super().run_for(
             parameters=parameters,
@@ -369,11 +385,18 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
 
     @staticmethod
     def _assign_battery(design, battery):
+        assert isinstance(
+            battery, Battery
+        ), f"Provided {battery} is not a Battery component"
         design.battery_0 = battery
 
     @staticmethod
-    def _assign_propellers(design, propeller):
-        design.propeller_0 = propeller
-        design.propeller_1 = propeller
-        design.propeller_2 = propeller
-        design.propeller_3 = propeller
+    def _assign_propellers(design, propellers):
+        assert all(
+            isinstance(prop, Propeller) for prop in propellers
+        ), f"Provided {propellers} is not a Propeller component"
+        design.propeller_0 = propellers[0]
+        design.propeller_1 = propellers[1]
+        design.propeller_2 = propellers[2]
+        design.propeller_3 = propellers[3]
+        design.validate_propellers_directions()
