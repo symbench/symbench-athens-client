@@ -51,6 +51,7 @@ jobs:
         git clone https://github.com/symbench/uav-analysis.git
         cd uav-analysis
         python -m pip install -e .
+        python -m pip install sympy==1.5
 
 
     - name: Install package
