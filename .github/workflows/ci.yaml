@@ -63,7 +63,7 @@ jobs:
         python bin/install_fdm.py ${GITLAB_TOKEN}
       env:
         GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
-      if: ${{ matrix.os }} == 'ubuntu-latest'
+      if: runner.os == 'Linux'
 
     - name: Install package
       shell: bash -l {0}
@@ -85,7 +85,7 @@ jobs:
         MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
         MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
         MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
-      if: ${{ matrix.os }} == 'ubuntu-latest'
+      if: runner.os == 'Linux'
 
   docker:
     runs-on: ubuntu-latest
