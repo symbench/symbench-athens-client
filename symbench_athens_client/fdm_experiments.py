@@ -1,6 +1,8 @@
 from symbench_athens_client.exceptions import MissingExperimentError
 from symbench_athens_client.fdm_experiment import FlightDynamicsExperiment
 from symbench_athens_client.models.fixed_bemp_designs import (
+    QuadCopter_5,
+    QuadCopter_5Light,
     TurnigyGraphene5000MAHQuadCopter,
     TurnigyGraphene6000MAHQuadCopter,
 )
@@ -23,6 +25,20 @@ def get_experiments_by_name(name):
             testbench_path="./testbenches/TurnigyGraphene6000MAHQuadCopter.zip",
             propellers_data="./propellers/",
             valid_parameters=TurnigyGraphene6000MAHQuadCopter.__design_vars__,
+            valid_requirements={"requested_vertical_speed", "requested_lateral_speed"},
+        ),
+        "ExperimentOnQuadCopter_5": dict(
+            design=QuadCopter_5(),
+            testbench_path="./testbenches/QuadCopter_5.zip",
+            propellers_data="./propellers/",
+            valid_parameters=QuadCopter_5.__design_vars__,
+            valid_requirements={"requested_vertical_speed", "requested_lateral_speed"},
+        ),
+        "ExperimentOnQuadCopter_5Light": dict(
+            design=QuadCopter_5Light(),
+            testbench_path="./testbenches/QuadCopter_5Light.zip",
+            propellers_data="./propellers/",
+            valid_parameters=QuadCopter_5Light.__design_vars__,
             valid_requirements={"requested_vertical_speed", "requested_lateral_speed"},
         ),
     }
