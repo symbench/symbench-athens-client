@@ -71,7 +71,7 @@ class FDMInstaller:
                 raise MakeFailed("Make Failed due to time out")
             if make_process.returncode != 0:
                 raise MakeFailed("Unknown error occured while installing FDM")
-            os.system("mv bin/new_fdm /usr/bin/new_fdm")
+            os.system("sudo mv bin/new_fdm /usr/bin/new_fdm")
 
     def health_check(self):
         pass  # ToDo: Manually verified for now, can incorporate health check later
