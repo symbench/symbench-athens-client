@@ -51,7 +51,18 @@ jobs:
         git clone https://github.com/symbench/uav-analysis.git
         cd uav-analysis
         python -m pip install -e .
+        python -m pip install sympy==1.5
 
+    - name: Install FDM Tool
+      shell: bash -l {0}
+      run: |
+        sudo apt-get update
+        sudo apt-get install build-essential
+        sudo apt-get install gfortran
+        python bin/install_fdm.py ${GITLAB_TOKEN}
+      env:
+        GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+      if: runner.os == 'Linux'
 
     - name: Install package
       shell: bash -l {0}
@@ -59,10 +70,21 @@ jobs:
         python -m pip install -e .
         conda list
 
-    - name: Run tests
+    - name: Run tests [Minimal]
       shell: bash -l {0}
       run: |
-        pytest -v --color=yes symbench_athens_client/tests/
+        pytest -v --color=yes symbench_athens_client/tests/ -m "not slow"
+
+    - name: Run tests [Slower]
+      shell: bash -l {0}
+      run: |
+        pytest -v --color=yes symbench_athens_client/tests/ -m "slow"
+      continue-on-error: true
+      env:
+        MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+        MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+        MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
+      if: runner.os == 'Linux'
 
   docker:
     runs-on: ubuntu-latest
