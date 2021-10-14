@@ -25,3 +25,18 @@ class TestUtils:
             assign_propellers_quadcopter(
                 design, propeller=Propellers.apc_propellers_17x10N
             )
+
+    def test_assign_propellers_type_error(self):
+        design = QuadCopter()
+        with pytest.raises(TypeError):
+            assign_propellers_quadcopter(design, 1)
+
+    def test_assign_propellers_string_name(self):
+        design = QuadCopter()
+        assign_propellers_quadcopter(design, "apc_propellers_6x4E")
+        assert (
+            design.propeller_0.name == design.propeller_2.name == "apc_propellers_6x4EP"
+        )
+        assert (
+            design.propeller_1.name == design.propeller_3.name == "apc_propellers_6x4E"
+        )
