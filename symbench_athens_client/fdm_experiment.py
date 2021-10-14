@@ -8,18 +8,14 @@ from uuid import uuid4
 from uav_analysis.mass_properties import quad_copter_batt_prop, quad_copter_fixed_bemp2
 from uav_analysis.testbench_data import TestbenchData
 
+from symbench_athens_client.exceptions import PropellerAssignmentError
 from symbench_athens_client.fdm_executor import (
     FDMExecutor,
     cleanup_score_files,
     update_total_score,
     write_output_csv,
 )
-from symbench_athens_client.models.components import (
-    Batteries,
-    Battery,
-    Propeller,
-    Propellers,
-)
+from symbench_athens_client.models.components import Batteries, Battery, Propellers
 from symbench_athens_client.models.designs import QuadCopter
 from symbench_athens_client.utils import (
     assign_propellers_quadcopter,
@@ -100,6 +96,7 @@ class FlightDynamicsExperiment:
             frozenset(self.testbenches),
             estimator=estimator or quad_copter_fixed_bemp2,
         )
+        self.start_new_session()
 
     def _create_results_dir(self):
         if not self.results_dir.exists():
@@ -285,6 +282,18 @@ class FlightDynamicsExperiment:
 
 
 class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
+    """Subclasses FlightDynamicsExperiment for propellers/batteries swapping ability.
+
+    Parameters
+    ----------
+    testbenches: str, list of str or paths
+        The testbenches path for this experiment
+    propellers_data: str, pathlib.Path
+        The propellers data path
+    fdm_path: str, pathlib.Path
+        The location of the fdm executable, if None, its assumed to be in PATH
+    """
+
     def __init__(
         self,
         testbenches,
@@ -303,6 +312,8 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
             fdm_path=fdm_path,
             estimator=quad_copter_batt_prop,
         )
+        self._run_tester = self.design.copy(deep=True)
+        self._available_propellers = None
 
     @property
     def battery(self):
@@ -310,8 +321,8 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
 
     @battery.setter
     def battery(self, batt):
-        if not isinstance(batt, Battery):
-            raise TypeError(f"Provided {batt} is not a Battery component")
+        if isinstance(batt, str):
+            batt = Batteries[batt]
         self._assign_battery(self.design, batt)
 
     @property
@@ -328,7 +339,11 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
 
     @property
     def available_propellers(self):
-        return Propellers.all
+        if self._available_propellers is None:
+            self._available_propellers = list(
+                filter(lambda p: self.can_run_for(p), Propellers.all)
+            )
+        return self._available_propellers
 
     def run_for(
         self,
@@ -355,6 +370,14 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
             change_dir=change_dir,
             write_to_output_csv=write_to_output_csv,
         )
+
+    def can_run_for(self, propeller):
+        """Given a propeller, find if the design will fly based on components available."""
+        try:
+            assign_propellers_quadcopter(self._run_tester, propeller)
+            return True
+        except PropellerAssignmentError:
+            return False
 
     @staticmethod
     def _assign_battery(design, battery):

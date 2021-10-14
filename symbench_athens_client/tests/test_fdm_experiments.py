@@ -127,3 +127,9 @@ class TestFDMExperiments:
         )
 
         assert results["TotalPathScore"] == 1565.0
+
+    def test_fd_execution_can_run_for(self):
+        expr = get_experiments_by_name("QuadCopterVariableBatteryPropExperiment")
+        assert expr.can_run_for("apc_propellers_16x4EP")
+        assert expr.can_run_for("apc_propellers_16x4E")
+        assert not expr.can_run_for("apc_propellers_17x10N")
