@@ -12,3 +12,7 @@ class FDMFailedException(Exception):
 
 class MissingExperimentError(Exception):
     """Exception to be raised when an experiment is missing."""
+
+
+class PropellerAssignmentError(Exception):
+    """Exception to be raised when there's an error in assigning propellers."""
