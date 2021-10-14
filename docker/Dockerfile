@@ -44,7 +44,7 @@ WORKDIR /symbench-athens-client
 
 RUN source activate symbench-athens-client-dev && \
     git clone https://github.com/symbench/uav-analysis.git && \
-    cd uav-analysis && python -m pip install -e .
+    cd uav-analysis && python -m pip install -e . && python -m pip install sympy==1.5
 
 RUN python bin/install_fdm.py ${GITLAB_TOKEN}
 
