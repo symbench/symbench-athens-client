@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:4.8.2-alpine AS builder
+FROM continuumio/miniconda3:4.10.3-alpine AS builder
 
 ARG GITLAB_TOKEN
 
@@ -18,10 +18,7 @@ ADD . /symbench-athens-client
 RUN apk --update add git less openssh && \
     rm -rf /var/lib/apt/lists/* && \
     rm /var/cache/apk/* && \
-    apk add alpine-sdk && \
-    apk add gfortran && \
-    apk add automake=1.16.1-r0 && \
-    apk add autoconf
+    apk add gfortran g++ automake make libtool autoconf sudo
 
 WORKDIR /symbench-athens-client
 
@@ -32,13 +29,16 @@ RUN conda update conda -yq && \
   mamba env create nomkl --file environment-docker.yml && \
   source activate symbench-athens-client-dev && \
   python setup.py install && \
+  addgroup -S anaconda && \
+  adduser -D -u 10151 anaconda -G anaconda && \
   echo "source activate symbench-athens-client-dev" >> \
   /home/anaconda/.profile && \
-  conda clean -afy && \
   mkdir /home/anaconda/data && \
+  conda clean -afy && \
   chown -R anaconda:anaconda /symbench-athens-client && \
   chown -R anaconda:anaconda /opt && \
-  chown -R anaconda:anaconda /home/anaconda
+  chown -R anaconda:anaconda /home/anaconda && \
+  chown -R anaconda:anaconda /home/anaconda/data
 
 WORKDIR /symbench-athens-client
 
