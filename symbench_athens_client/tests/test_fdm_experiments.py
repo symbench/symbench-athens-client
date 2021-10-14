@@ -36,7 +36,7 @@ class TestFDMExperiments:
         shutil.rmtree(Path(__file__).parent / ".." / ".." / "propellers")
         shutil.rmtree(Path(__file__).parent / ".." / ".." / "testbenches")
 
-    def test_fd_execution_turingy_graphene_6000mah(self):
+    def test_turingy_graphene_6000mah(self):
         expr = get_experiments_by_name("ExperimentOnTurnigyGraphene6000MAHQuadCopter")
         expr.start_new_session()
         results = expr.run_for(
@@ -52,6 +52,44 @@ class TestFDMExperiments:
             },
         )
         assert results["TotalPathScore"] == 1565.0
+
+    def test_on_quadcopter_5(self):
+        expr = get_experiments_by_name("ExperimentOnQuadCopter_5")
+        expr.start_new_session()
+
+        results = expr.run_for(
+            parameters={
+                "arm_length": 324,
+                "support_length": 2.11,
+                "batt_mount_z_offset": 43.6842105263158,
+                "r": 360.0,
+            },
+            requirements={
+                "requested_vertical_speed": -2,
+                "requested_lateral_speed": 50,
+            },
+        )
+
+        assert results["TotalPathScore"] == 1582
+
+    def test_on_quadcopter_5_light(self):
+        expr = get_experiments_by_name("ExperimentOnQuadCopter_5Light")
+        expr.start_new_session()
+
+        results = expr.run_for(
+            parameters={
+                "arm_length": 325,
+                "support_length": 1,
+                "batt_mount_z_offset": 1,
+                "r": 360.0,
+            },
+            requirements={
+                "requested_vertical_speed": -2,
+                "requested_lateral_speed": 50,
+            },
+        )
+
+        assert results["TotalPathScore"] == 1582
 
     def test_fd_execution_variable_battery_quad(self):
         expr = get_experiments_by_name("QuadCopterVariableBatteryPropExperiment")

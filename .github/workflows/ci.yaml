@@ -59,6 +59,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install build-essential
         sudo apt-get install gfortran
+        chmod +x ./bin/install_latest_automake.sh
+        ./bin/install_latest_automake.sh
         python bin/install_fdm.py ${GITLAB_TOKEN}
       env:
         GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
