@@ -2,8 +2,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from shutil import move, rmtree
-from tempfile import mkdtemp
+from shutil import move
 from uuid import uuid4
 
 from uav_analysis.mass_properties import quad_copter_batt_prop, quad_copter_fixed_bemp2
@@ -23,6 +22,7 @@ from symbench_athens_client.models.components import (
 )
 from symbench_athens_client.models.designs import QuadCopter
 from symbench_athens_client.utils import (
+    assign_propellers_quadcopter,
     estimate_mass_formulae,
     extract_from_zip,
     get_logger,
@@ -315,20 +315,12 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
         self._assign_battery(self.design, batt)
 
     @property
-    def propellers(self):
-        return [
-            self.design.propeller_0,
-            self.design.propeller_1,
-            self.design.propeller_2,
-            self.design.propeller_3,
-        ]
+    def propeller(self):
+        return self.design.propeller_0
 
-    @propellers.setter
-    def propellers(self, props):
-        assert iter(props) and not isinstance(
-            props, str
-        ), "Please provide iterable instances of propellers"
-        self._assign_propellers(self.design, props)
+    @propeller.setter
+    def propeller(self, prop):
+        assign_propellers_quadcopter(self.design, prop)
 
     @property
     def available_batteries(self):
@@ -341,7 +333,7 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
     def run_for(
         self,
         battery=None,
-        propellers=None,
+        propeller=None,
         parameters=None,
         requirements=None,
         change_dir=False,
@@ -351,30 +343,11 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
             assert battery in self.available_batteries, "Battery name is not valid"
             battery = Batteries[battery]
 
-        propeller_instances = []
-        if propellers is not None:
-            assert iter(propellers) and not isinstance(
-                propellers, str
-            ), "Please provide iterable instances of propellers or their names"
-            assert (
-                len(list(propellers)) == 4
-            ), "Please provide at most 4 values for propellers"
-
-            for propeller in propellers:
-                if isinstance(propeller, str):
-                    assert (
-                        propeller in self.available_propellers
-                    ), "Propeller name is not valid"
-                    prop = Propellers[propellers]
-                    propeller_instances.append(prop)
-                else:
-                    propeller_instances.append(propeller)
-
         if battery is not None:
             self._assign_battery(self.design, battery)
 
-        if propellers is not None:
-            self._assign_propellers(self.design, propeller_instances)
+        if propeller is not None:
+            assign_propellers_quadcopter(self.design, propeller)
 
         return super().run_for(
             parameters=parameters,
@@ -389,14 +362,3 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
             battery, Battery
         ), f"Provided {battery} is not a Battery component"
         design.battery_0 = battery
-
-    @staticmethod
-    def _assign_propellers(design, propellers):
-        assert all(
-            isinstance(prop, Propeller) for prop in propellers
-        ), f"Provided {propellers} is not a Propeller component"
-        design.propeller_0 = propellers[0]
-        design.propeller_1 = propellers[1]
-        design.propeller_2 = propellers[2]
-        design.propeller_3 = propellers[3]
-        design.validate_propellers_directions()

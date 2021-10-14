@@ -101,12 +101,18 @@ class TestFDMExperiments:
 
         expr.battery = Batteries["TurnigyGraphene6000mAh6S75C"]
 
-        expr.propellers = [
-            Propellers["apc_propellers_16x4EP"],
-            Propellers["apc_propellers_16x4E"],
-            Propellers["apc_propellers_16x4EP"],
-            Propellers["apc_propellers_16x4E"],
-        ]
+        expr.propeller = Propellers["apc_propellers_16x4EP"]
+        assert (
+            expr.design.propeller_0
+            == Propellers["apc_propellers_16x4EP"]
+            == expr.design.propeller_2
+        )
+        assert (
+            expr.design.propeller_1
+            == Propellers["apc_propellers_16x4E"]
+            == expr.design.propeller_3
+        )
+
         results = expr.run_for(
             parameters={
                 "arm_length": 400,
