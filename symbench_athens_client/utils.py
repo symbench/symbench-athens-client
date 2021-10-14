@@ -8,6 +8,8 @@ from typing import Iterable
 from uav_analysis.mass_properties import quad_copter_fixed_bemp2
 from uav_analysis.testbench_data import TestbenchData
 
+from symbench_athens_client.exceptions import PropellerAssignmentError
+
 
 def get_logger(name, level=logging.DEBUG):
     """Get a logger instance."""
@@ -118,3 +120,55 @@ def extract_from_zip(zip_path, output_dir, files):
 def relative_path(src, destination):
     """Given a source and destination path, find the relative path"""
     return os.path.relpath(destination, src)
+
+
+def assign_propellers_quadcopter(quad_design, propeller):
+    """Given a quadcopter, properly assign propellers to it such that it can rise and hover"""
+    from symbench_athens_client.models.components import Propeller, Propellers
+    from symbench_athens_client.models.designs import QuadCopter
+
+    if not isinstance(quad_design, QuadCopter):
+        raise TypeError("Currently, this function only supports QuadCopter design")
+
+    if not isinstance(propeller, (Propeller, str)):
+        raise TypeError(
+            f"Expected {propeller} to be a Propeller instance or a string of the propeller name. "
+            f"Got {type(propeller).__class__.__name__} instead"
+        )
+
+    if isinstance(propeller, str):
+        propeller = Propellers[propeller]
+
+    propellers = list(
+        filter(lambda p: p.performance_file == propeller.performance_file, Propellers)
+    )
+    prop_0, prop_1, prop_2, prop_3 = (None,) * 4
+
+    if propeller.direction == -1:
+        prop_0 = propeller
+        prop_2 = propeller
+        for prop in propellers:
+            if prop.direction == -1 * propeller.direction:
+                prop_1 = prop
+                prop_3 = prop
+    else:
+        prop_1 = propeller
+        prop_3 = propeller
+        for prop in propellers:
+            if prop.direction == -1 * propeller.direction:
+                prop_0 = prop
+                prop_2 = prop
+
+    if not all(isinstance(p, Propeller) for p in [prop_0, prop_1, prop_2, prop_3]):
+        raise PropellerAssignmentError(
+            "Error in assigning Propeller to the quadcopter design. "
+            "Exact same propeller with opposite spin than provided propeller "
+            "doesn't not exist in the database."
+        )
+
+    quad_design.propeller_0 = prop_0
+    quad_design.propeller_1 = prop_1
+    quad_design.propeller_2 = prop_2
+    quad_design.propeller_3 = prop_3
+
+    quad_design.validate_propellers_directions()
