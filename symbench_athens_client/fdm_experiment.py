@@ -15,7 +15,12 @@ from symbench_athens_client.fdm_executor import (
     update_total_score,
     write_output_csv,
 )
-from symbench_athens_client.models.components import Batteries, Battery, Propellers
+from symbench_athens_client.models.components import (
+    Batteries,
+    Battery,
+    Motors,
+    Propellers,
+)
 from symbench_athens_client.models.designs import QuadCopter
 from symbench_athens_client.utils import (
     assign_propellers_quadcopter,
@@ -363,6 +368,11 @@ class QuadCopterVariableBatteryPropExperiment(FlightDynamicsExperiment):
 
         if propeller is not None:
             assign_propellers_quadcopter(self.design, propeller)
+
+        self.design.motor_0 = Motors.t_motor_MN5208KV340
+        self.design.motor_1 = Motors.t_motor_MN5208KV340
+        self.design.motor_2 = Motors.t_motor_MN5208KV340
+        self.design.motor_3 = Motors.t_motor_MN5208KV340
 
         return super().run_for(
             parameters=parameters,
