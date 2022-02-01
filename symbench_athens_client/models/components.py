@@ -178,7 +178,7 @@ class Propeller(Component):
             "prop_fname": f"'{str(data_path)}{self.performance_file}'"
             if data_path
             else f"'{self.performance_file}'",
-            "Ir": (self.weight * self.diameter ** 2 / 12.0),
+            "Ir": (self.weight * self.diameter**2 / 12.0),
             "x": None,
             "y": None,
             "z": None,
