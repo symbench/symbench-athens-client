@@ -141,3 +141,21 @@ class TestComponents:
 
     def test_repr(self):
         assert repr(Batteries["TurnigyGraphene1600mAh4S75C"])
+
+    def test_prt_files(self):
+        assert Batteries[0].prt_file == "para_battery.prt"
+        assert Propellers[0].prt_file == "para_prop.prt"
+        assert Receivers[0].prt_file == "para_receiver.prt"
+        assert Sensors[0].prt_file == "para_sensor.prt"
+        assert Motors[0].prt_file == "para_motor.prt"
+        assert GPSes[0].prt_file == "para_gps.prt"
+        assert ESCs[0].prt_file == "para_esc.prt"
+        assert "para_wing_" in Wings[0].prt_file
+        assert Instrument_Batteries[0].prt_file is None
+        assert Autopilots[0].prt_file is None
+
+        assert Orients[0].prt_file is None
+        assert Flanges[0].prt_file is None
+        assert Tubes[0].prt_file is None
+        assert Hubs[0].prt_file is None
+        assert CFPs[0].prt_file is None

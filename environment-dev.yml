@@ -13,4 +13,5 @@ dependencies:
     - tomark
     - pydantic
     - minio
+    - creopyson
     - --editable=git+https://github.com/symbench/uav-analysis.git#egg=uav-analysis

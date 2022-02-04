@@ -1,6 +1,6 @@
 import csv
 import json
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import ClassVar, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, root_validator, validator
 
@@ -26,6 +26,10 @@ class Component(BaseModel):
         description="The component type for this battery. Redundant but useful info",
         alias="Classification",
     )
+
+    @property
+    def prt_file(self) -> Optional[str]:
+        return None
 
     def __repr__(self):
         return f"<{self.__class__.__name__}, Category: {self.classification}, Name: {self.name}>"
@@ -80,7 +84,7 @@ class Battery(Component):
         ..., description="Number of cells", alias="NUMBER_OF_CELLS"
     )
 
-    thickness: str = Field(..., description="Thickness", alias="THICKNESS")
+    thickness: float = Field(..., description="Thickness", alias="THICKNESS")
 
     cont_discharge_rate: float = Field(
         ..., description="Continuous Discharge Rate", alias="CONT_DISCHARGE_RATE"
@@ -115,6 +119,10 @@ class Battery(Component):
     )
 
     length: float = Field(..., description="Length of the Battery", alias="LENGTH")
+
+    @property
+    def prt_file(self) -> Optional[str]:
+        return "para_battery.prt"
 
     def to_fd_inp(self):
         return {
@@ -170,6 +178,10 @@ class Propeller(Component):
     pitch: float = Field(..., description="The pitch of the propeller", alias="PITCH")
 
     weight: float = Field(..., description="Weight of the propeller", alias="WEIGHT")
+
+    @property
+    def prt_file(self) -> Optional[str]:
+        return "para_prop.prt"
 
     def to_fd_inp(self, data_path):
         return {
@@ -320,6 +332,10 @@ class Motor(Component):
 
     esc_rate: Optional[float] = Field(..., description="ESC_RATE", alias="ESC_RATE")
 
+    @property
+    def prt_file(self):
+        return "para_motor.prt"
+
     def to_fd_inp(self):
         return {
             "motor_fname": f"'../../Motors/{self.name}'",
@@ -419,6 +435,10 @@ class ESC(Component):
         alias="PEAK_AMPS",
     )
 
+    @property
+    def prt_file(self):
+        return "para_esc.prt"
+
     @validator("bec", pre=True, always=True)
     def validate_bec(cls, value):
         if isinstance(value, str) and "," in value:
@@ -449,6 +469,10 @@ class ESC(Component):
 
 class Instrument_Battery(Battery):
     """The Instrument Battery Component"""
+
+    @property
+    def prt_file(self) -> Optional[str]:
+        return None
 
 
 class Wing(Component):
@@ -508,6 +532,14 @@ class Wing(Component):
 
     flap_bias: float = Field(..., description="Flap Bias", alias="FLAP_BIAS")
 
+    @property
+    def prt_file(self):
+        return (
+            "para_wing_left.prt"
+            if self.name.startswith("left")
+            else "para_wing_right.prt"
+        )
+
     @root_validator(pre=True)
     def validate_fields(cls, values):
         for field in [
@@ -564,6 +596,10 @@ class GPS(Component):
     diameter: float = Field(..., description="Diameter", alias="DIAMETER")
 
     height: float = Field(..., description="Height", alias="HEIGHT")
+
+    @property
+    def prt_file(self):
+        return "para_gps.prt"
 
     @root_validator(pre=True)
     def validate_gps_fields(cls, values):
@@ -633,6 +669,10 @@ class Servo(Component):
 
     servo_class: str = Field(..., description="Servo Class", alias="Servo_Class")
 
+    @property
+    def prt_file(self):
+        return "para_servo.prt"
+
 
 class Receiver(Component):
     max_voltage: float = Field(..., description="Maximum Voltage", alias="MAX_VOLTAGE")
@@ -656,6 +696,10 @@ class Receiver(Component):
     max_no_channels: float = Field(
         ..., description="Maximum Number of Channels", alias="Max_Number_of_Channels"
     )
+
+    @property
+    def prt_file(self):
+        return "para_receiver.prt"
 
 
 class Sensor(Component):
@@ -708,6 +752,10 @@ class Sensor(Component):
     min_temp: Optional[float] = Field(
         ..., description="Min Temperature", alias="MIN_TEMP"
     )
+
+    @property
+    def prt_file(self):
+        return "para_sensor.prt"
 
     @root_validator(pre=True)
     def validate_fields(cls, values):
@@ -794,6 +842,10 @@ class Autopilot(Component):
     io_ram: Optional[float] = Field(..., description="IO_RAM", alias="IO_RAM")
 
     io_speed: Optional[float] = Field(..., description="IO_SPEED", alias="IO_SPEED")
+
+    @property
+    def prt_file(self):
+        return None  # ToDo: is the the same as FlightController
 
     @validator("input_voltage", pre=True, always=True)
     def validate_input_voltage(cls, value):
