@@ -1,3 +1,4 @@
+import itertools
 import os
 import shutil
 import sys
@@ -6,9 +7,19 @@ from pathlib import Path
 import pytest
 
 from symbench_athens_client.creoson import CreosonMassPropertiesDriver
-from symbench_athens_client.models.components import Batteries
+from symbench_athens_client.models.components import (
+    Batteries,
+    Battery,
+    Motor,
+    Motors,
+    Propeller,
+    Propellers,
+    Wing,
+    Wings,
+)
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(
     os.environ.get("GITHUB_ACTIONS") or sys.platform.startswith("linux"),
     reason="No Creo in github actions/linux",
@@ -29,13 +40,13 @@ class TestCreosonMassPropertiesDriver:
         assert creoson_driver
 
     def test_get_set_params(self, creoson_driver):
-        for battery_name in Batteries.all:
-            battery = Batteries[battery_name]
-            creoson_driver.set_parameters(battery)
-            params = creoson_driver.get_parameters(battery)
-            battery_dict = battery.dict(by_alias=True)
+        maps = {Wing: Wings, Battery: Batteries, Propeller: Propellers, Motor: Motors}
+        for component in itertools.chain(Batteries, Motors, Wings, Propellers):
+            creoson_driver.set_parameters(component)
+            params = creoson_driver.get_parameters(component)
+            component_dict = component.dict(by_alias=True)
             for param in params:
-                if param["name"] in battery_dict:
+                if param["name"] in component_dict:
                     value = param["value"]
                     type_ = param["type"]
 
@@ -45,7 +56,5 @@ class TestCreosonMassPropertiesDriver:
                         value = int(value)
                     elif type_ == "BOOL":
                         value = bool(value)
-                    print(
-                        value, type_, type(battery_dict[param["name"]]), param["name"]
-                    )
-                    assert value == battery_dict[param["name"]]
+
+                    assert value == component_dict[param["name"]]
