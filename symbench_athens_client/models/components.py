@@ -80,7 +80,7 @@ class Battery(Component):
         ..., description="Number of cells", alias="NUMBER_OF_CELLS"
     )
 
-    thickness: str = Field(..., description="Thickness", alias="THICKNESS")
+    thickness: float = Field(..., description="Thickness", alias="THICKNESS")
 
     cont_discharge_rate: float = Field(
         ..., description="Continuous Discharge Rate", alias="CONT_DISCHARGE_RATE"
