@@ -1,9 +1,5 @@
 """Helper Module for automating CREO mass properties in python"""
-import glob
-import os
 import time
-from functools import cmp_to_key
-from pathlib import Path
 
 import creopyson
 
@@ -24,6 +20,9 @@ class CreosonMassPropertiesDriver:
         If true start creo in desktop rather than java runtime,
         useful for debugging. This is only relevent when this
         class is used for starting creo from creoson.
+    creo_version: int, default=8
+        This is required when using creo version 7 or above for
+        compatibility
 
     Attributes
     ----------
@@ -48,6 +47,7 @@ class CreosonMassPropertiesDriver:
         creoson_ip="localhost",
         creoson_port=9056,
         use_desktop=False,
+        creo_version=5,
     ):
         self.creoson_client = creopyson.Client(ip_adress=creoson_ip, port=creoson_port)
 
@@ -58,6 +58,8 @@ class CreosonMassPropertiesDriver:
             f"SessionID: {self.creoson_client.sessionId}"
         )
         self.start_creo(nitro_proe_remote_loc, use_desktop=use_desktop)
+        if creo_version >= 7:
+            self.creoson_client.creo_set_creo_version(creo_version)
 
     def start_creo(self, starter_bat, use_desktop):
         if starter_bat and not self.creoson_client.is_creo_running():
@@ -119,6 +121,7 @@ class CreosonMassPropertiesDriver:
                 file_=file,
                 type_=param["type"],
                 no_create=True,
+                designate=True,
             )
         self.logger.info(f"Successfully set parameters for {component.name}")
 
@@ -134,6 +137,8 @@ class CreosonMassPropertiesDriver:
         file = self._load_component(component)
         self.set_parameters(component)
 
+        # Regenerate and add new mass properties
+        self.creoson_client.file_regenerate(file_=file)
         mass_props = self.creoson_client.file_massprops(file)
         self.logger.info(
             f"Successfully calculated mass properties for {component.name}"
