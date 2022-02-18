@@ -1,0 +1,484 @@
+﻿RELATION                           PARAMETER                 NEW VALUE
+--------                           ---------                 --- -----
+
+/*** Relations for PARA_CF_PLATE:
+
+
+Initial Relations
+-----------------
+
+d0=LENGTH                          D0                        1.500000e+02       
+d1=WIDTH                           D1                        1.500000e+02       
+d2=THICKNESS                       D2                        3.175000e+00       
+MP_DENSITY=DENSITY                 MP_DENSITY                1.245596e-07       
+$d14=Z1_OFFSET                     $D14                      6.000000e+01       
+$d16=X1_OFFSET                     $D16                      6.000000e+01       
+$d17=Z2_OFFSET                     $D17                      4.500000e+01       
+$d18=Z3_OFFSET                     $D18                      3.000000e+01       
+$d19=Z4_OFFSET                     $D19                      1.500000e+01       
+$d32=Z5_OFFSET                     $D32                      -1.500000e+01      
+$d22=Z6_OFFSET                     $D22                      -3.000000e+01      
+$d23=Z7_OFFSET                     $D23                      -4.500000e+01      
+$d24=Z8_OFFSET                     $D24                      -6.000000e+01      
+$d25=X2_OFFSET                     $D25                      4.500000e+01       
+$d26=X3_OFFSET                     $D26                      3.000000e+01       
+$d27=X4_OFFSET                     $D27                      1.500000e+01       
+$d28=X5_OFFSET                     $D28                      -1.500000e+01      
+$d29=X6_OFFSET                     $D29                      -3.000000e+01      
+$d30=X7_OFFSET                     $D30                      -4.500000e+01      
+$d31=X8_OFFSET                     $D31                      -6.000000e+01      
+
+Local Parameters
+----------------
+
+Symbolic constant               Current value        Properties                  
+------------------------------- -------------------- --------------------------- 
+DESCRIPTION                                          TYPE: String               
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: YES            
+                                                     DESCRIPTION:               
+
+MODELED_BY                                           TYPE: String               
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: YES            
+                                                     DESCRIPTION:               
+
+LENGTH                          1.500000e+02         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+WIDTH                           1.500000e+02         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+THICKNESS                       3.175000e+00         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+DENSITY                         1.245596e-07         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: kg/mm^3              
+
+X1_OFFSET                       6.000000e+01         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+X2_OFFSET                       4.500000e+01         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+X3_OFFSET                       3.000000e+01         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+X4_OFFSET                       1.500000e+01         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+X5_OFFSET                       -1.500000e+01        TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+X6_OFFSET                       -3.000000e+01        TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+X7_OFFSET                       -4.500000e+01        TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+X8_OFFSET                       -6.000000e+01        TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+Z1_OFFSET                       6.000000e+01         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+Z2_OFFSET                       4.500000e+01         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+Z3_OFFSET                       3.000000e+01         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+Z4_OFFSET                       1.500000e+01         TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+Z5_OFFSET                       -1.500000e+01        TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+Z6_OFFSET                       -3.000000e+01        TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+Z7_OFFSET                       -4.500000e+01        TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+Z8_OFFSET                       -6.000000e+01        TYPE: Real Number          
+                                                     SOURCE: User-Defined       
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+Alternative Mass Property Parameters
+------------------------------------
+
+Symbolic constant               Current value        Properties                  
+------------------------------- -------------------- --------------------------- 
+PRO_MP_SOURCE                   GEOMETRY             TYPE: String               
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+MP_DENSITY                      1.245596e-07         TYPE: Real Number          
+                                                     SOURCE: Relation           
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: kg/mm^3              
+
+PRO_MP_ALT_MASS                                      TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_VOLUME                                    TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_AREA                                      TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_COGX                                      TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_COGY                                      TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_COGZ                                      TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_IXX                                       TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_IYY                                       TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_IZZ                                       TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_IXZ                                       TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_IYZ                                       TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_IXY                                       TYPE: Unknown              
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_CSYS                 DEFAULT              TYPE: String               
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_ALT_INERTIA_ORIGIN       PRO_MP_ALT_CSYS      TYPE: String               
+                                                     SOURCE: Alternate Mass Prop
+                                                     erties                     
+                                                     ACCESS: Full               
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+Reported Mass Property Parameters
+---------------------------------
+
+Symbolic constant               Current value        Properties                  
+------------------------------- -------------------- --------------------------- 
+PRO_MP_MASS                     8.898224e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: kg                   
+
+PRO_MP_VOLUME                   7.143750e+04         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm^3                 
+
+PRO_MP_DENSITY                  1.245596e-07         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: kg/mm^3              
+
+PRO_MP_AREA                     4.690500e+04         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm^2                 
+
+PRO_MP_COGX                     0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+PRO_MP_COGY                     1.587500e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+PRO_MP_COGZ                     0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm                   
+
+PRO_MP_IXX                      1.671407e+04         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm^2 kg              
+
+PRO_MP_IYY                      3.336834e+04         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm^2 kg              
+
+PRO_MP_IZZ                      1.671407e+04         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm^2 kg              
+
+PRO_MP_IXZ                      0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm^2 kg              
+
+PRO_MP_IYZ                      0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm^2 kg              
+
+PRO_MP_IXY                      0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+                                                     UNIT: mm^2 kg              
+
+PRO_MP_CSYS                     _PARA_CF_PLATE       TYPE: String               
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_11                   1.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_12                   0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_13                   0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_21                   0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_22                   1.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_23                   0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_31                   0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_32                   0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_33                   1.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_41                   0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_42                   0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_TRF_43                   0.000000e+00         TYPE: Real Number          
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+
+PRO_MP_INERTIA_ORIGIN           PRO_MP_CSYS          TYPE: String               
+                                                     SOURCE: Mass Properties    
+                                                     ACCESS: Locked             
+                                                     DESIGNATED: NO             
+                                                     DESCRIPTION:               
+

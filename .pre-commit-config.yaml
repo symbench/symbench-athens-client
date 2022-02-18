@@ -6,9 +6,9 @@ repos:
     rev: 'v4.1.0'
     hooks:
       - id: trailing-whitespace
-        exclude: ^data/
+        exclude: data
       - id: end-of-file-fixer
-        exclude: ^data/
+        exclude: data
 
   - repo: https://github.com/psf/black
     rev: 22.1.0
