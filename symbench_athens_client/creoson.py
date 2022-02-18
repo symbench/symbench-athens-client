@@ -20,7 +20,7 @@ class CreosonMassPropertiesDriver:
         If true start creo in desktop rather than java runtime,
         useful for debugging. This is only relevent when this
         class is used for starting creo from creoson.
-    creo_version: int, default=8
+    creo_version: int, default=5
         This is required when using creo version 7 or above for
         compatibility
 
@@ -62,6 +62,15 @@ class CreosonMassPropertiesDriver:
             self.creoson_client.creo_set_creo_version(creo_version)
 
     def start_creo(self, starter_bat, use_desktop):
+        """Start creo using the creoson server.
+
+        starter_bat: str
+            The location of `nitro_proe_remote.bat` file
+        use_desktop: bool, default=True
+            If true start creo in desktop rather than java runtime,
+            useful for debugging. This is only relevent when this
+            class is used for starting creo from creoson.
+        """
         if starter_bat and not self.creoson_client.is_creo_running():
             try:
                 self.creoson_client.start_creo(starter_bat, use_desktop=use_desktop)
@@ -73,16 +82,16 @@ class CreosonMassPropertiesDriver:
                 time.sleep(5)
 
     def kill_creo(self):
+        """Force kill CREO."""
         if self.creoson_client.is_creo_running():
             self.creoson_client.kill_creo()
 
     def is_creo_running(self):
+        """Check if CREO is running."""
         return self.creoson_client.is_creo_running()
 
-    def batch_process(self, components):
-        pass
-
     def _load_component(self, component):
+        """Load a component's CAD from UAV/UAM corpus to CREO."""
         self.logger.debug(
             f"About to load component {component.name}'s .prt file  to CREO"
         )
@@ -100,7 +109,14 @@ class CreosonMassPropertiesDriver:
         self.logger.info(f"Successfully loaded {file} for {component.name}")
         return file
 
-    def set_parameters(self, component):
+    def set_creo_parameters(self, component):
+        """Set parameters for the component in CREO.
+
+        Notes
+        -----
+            This will regenerate the component's drawing in CREO i.e.
+            set its dimensions and change its mass properties.
+        """
         file = self._load_component(component)
         parameter_list = self.creoson_client.parameter_list(name="", file_=file)
         component_params = component.dict(by_alias=True)
@@ -121,21 +137,22 @@ class CreosonMassPropertiesDriver:
                 file_=file,
                 type_=param["type"],
                 no_create=True,
-                designate=True,
             )
         self.logger.info(f"Successfully set parameters for {component.name}")
 
-    def get_parameters(self, component):
+    def get_creo_parameters(self, component):
+        """Get CREO parameters for the component"""
         assert isinstance(component, Component)
         file = self._load_component(component)
         return self.creoson_client.parameter_list(name="", file_=file)
 
     def mass_properties(self, component):
+        """Get the mass properties for the component as reported by CREO"""
         assert isinstance(component, Component)
         self.logger.info(f"Calculating mass properties for {component.name}")
 
         file = self._load_component(component)
-        self.set_parameters(component)
+        self.set_creo_parameters(component)
 
         # Regenerate and add new mass properties
         self.creoson_client.file_regenerate(file_=file)

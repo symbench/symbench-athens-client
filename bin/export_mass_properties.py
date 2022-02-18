@@ -12,14 +12,27 @@ from symbench_athens_client.models.components import (
 
 
 class MassPropertiesExporter:
-    """Export mass-properties for all components"""
+    """Export mass-properties for all components using CREOSON/creopyson.
+
+    Attributes
+    ----------
+    outdir: str
+        The location to save generated CSVs in
+    ip: str, default=localhost
+        The ip address of the CREOSON server
+
+    See Also
+    --------
+    symbench_athens_client.creoson.CreosonMassPropertiesDriver
+        Symbench Athens Client's driver for CREO
+    """
 
     def __init__(self, outdir, ip="localhost", port=9056):
         self.driver = CreosonMassPropertiesDriver(creoson_ip=ip, creoson_port=port)
         self.outdir = outdir
 
     def run(self):
-        """Run the exporter for components"""
+        """Run the exporter for components' mass properties and save csv file of extracted properties."""
         motors = self._extract_components(Motors)
         batteries = self._extract_components(Batteries)
         propellers = self._extract_components(Propellers)
@@ -37,6 +50,7 @@ class MassPropertiesExporter:
                 writer.writerows(components)
 
     def _extract_components(self, components):
+        """Extract mass properties for components."""
         components_properties = []
 
         for component in components:
@@ -49,12 +63,13 @@ class MassPropertiesExporter:
         return components_properties
 
     def _get_creo_parameters(self, component):
-        params = self.driver.get_parameters(component)
+        """Get CREO parameters for a component."""
+        params = self.driver.get_creo_parameters(component)
         return {f"CREO_{param['name']}": param["value"] for param in params}
 
     @staticmethod
     def _mass_props_to_csv_dict(mass_props):
-        """Return a csv style dict style dict"""
+        """Return a csv style dict from creopyson mass-properties dict."""
         return {
             "surface_area": mass_props["surface_area"],
             "density": mass_props["density"],

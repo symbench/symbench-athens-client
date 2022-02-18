@@ -42,8 +42,8 @@ class TestCreosonMassPropertiesDriver:
     def test_get_set_params(self, creoson_driver):
         maps = {Wing: Wings, Battery: Batteries, Propeller: Propellers, Motor: Motors}
         for component in itertools.chain(Batteries, Motors, Wings, Propellers):
-            creoson_driver.set_parameters(component)
-            params = creoson_driver.get_parameters(component)
+            creoson_driver.set_creo_parameters(component)
+            params = creoson_driver.get_creo_parameters(component)
             component_dict = component.dict(by_alias=True)
             for param in params:
                 if param["name"] in component_dict:
