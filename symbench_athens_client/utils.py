@@ -88,7 +88,7 @@ def get_mass_estimates_for_quadcopter(testbench_path_or_formulae, quad_copter):
     dict
         The dictionary of mass properties estimates
     """
-    from symbench_athens_client.models.designs import QuadCopter
+    from symbench_athens_client.models.uav_designs import QuadCopter
 
     assert isinstance(
         quad_copter, QuadCopter
@@ -149,7 +149,7 @@ def relative_path(src, destination):
 def assign_propellers_quadcopter(quad_design, propeller):
     """Given a quadcopter, properly assign propellers to it such that it can rise and hover"""
     from symbench_athens_client.models.components import Propeller, Propellers
-    from symbench_athens_client.models.designs import QuadCopter
+    from symbench_athens_client.models.uav_designs import QuadCopter
 
     if not isinstance(quad_design, QuadCopter):
         raise TypeError("Currently, this function only supports QuadCopter design")

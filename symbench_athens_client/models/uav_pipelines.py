@@ -2,8 +2,8 @@ from typing import ClassVar, Tuple, Union
 
 from pydantic import Field, validator
 
-from symbench_athens_client.models.designs import SeedDesign
 from symbench_athens_client.models.pipelines import JenkinsPipeline
+from symbench_athens_client.models.uav_designs import SeedDesign
 from symbench_athens_client.utils import dict_to_design_vars
 
 
@@ -211,6 +211,14 @@ class FlightPathsAll(FlightPathFlight):
             "NumSamples": self.num_samples,
             "DesignVars": '"' + dict_to_design_vars(params) + '"',
         }
+
+
+class FlightPathsAllRake(FlightPathsAll):
+    def set_rake_params(self, params_dict):
+        params = {}
+
+    def to_jenkins_parameters(self):
+        pass
 
 
 class StraightLineFlight(FlightPathFlight):

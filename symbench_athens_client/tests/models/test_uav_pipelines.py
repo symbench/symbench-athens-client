@@ -1,6 +1,6 @@
 import pytest
 
-from symbench_athens_client.models.designs import QuadCopter
+from symbench_athens_client.models.uav_designs import QuadCopter
 from symbench_athens_client.models.uav_pipelines import (
     CircularFlight,
     FlightPathsAll,

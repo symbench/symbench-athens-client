@@ -1,5 +1,5 @@
 from symbench_athens_client.models.components import Batteries, Motors, Propellers
-from symbench_athens_client.models.designs import QuadCopter
+from symbench_athens_client.models.uav_designs import QuadCopter
 
 
 class TurnigyGraphene5000MAHQuadCopter(QuadCopter):

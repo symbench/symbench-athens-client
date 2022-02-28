@@ -67,7 +67,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
 
         Parameters
         ----------
-        design: symbench_athens_client.models.designs.SeedDesign
+        design: symbench_athens_client.models.uav_designs.SeedDesign
             The design to clone
         """
         all_designs = self.get_all_design_names()
@@ -93,7 +93,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
 
         Parameters
         ----------
-        design: symbench_athens_client.models.designs.SeedDesign
+        design: symbench_athens_client.models.uav_designs.SeedDesign
             The design to delete/clear
         """
         clear_job = ClearDesign(design_name=design.name)
@@ -110,7 +110,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
 
         Parameters
         ----------
-        design: symbench_athens_client.models.designs.SeedDesign
+        design: symbench_athens_client.models.uav_designs.SeedDesign
             The design to delete/clear
         """
         for component_instance_name, swap_list in design.swap_list.items():

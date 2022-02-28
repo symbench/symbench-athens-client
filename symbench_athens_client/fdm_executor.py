@@ -8,12 +8,12 @@ from shutil import move
 from uuid import uuid4
 
 from symbench_athens_client.exceptions import FDMFailedException
-from symbench_athens_client.models.designs import QuadCopter
 from symbench_athens_client.models.fd_metrics import (
     FDMFlightMetric,
     FDMFlightPathMetric,
     FDMInputMetric,
 )
+from symbench_athens_client.models.uav_designs import QuadCopter
 from symbench_athens_client.utils import extract_from_zip, get_logger
 
 
