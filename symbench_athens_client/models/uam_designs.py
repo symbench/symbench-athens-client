@@ -36,6 +36,11 @@ class Rake(SeedDesign):
         "front_battery_percent",
         "voltage_1",
         "voltage_2",
+        "q_position",
+        "q_velocity",
+        "q_angular_velocity",
+        "q_angles",
+        "r"
     }
 
     naca: int = Field(default=4512, alias="NACA")
