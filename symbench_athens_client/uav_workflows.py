@@ -58,7 +58,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         connection = DriverRemoteConnection(self.gremlin_url, "g")
         g = traversal().withRemote(connection)
         self.logger.info(f"Connected to gremlin server at {self.gremlin_url}")
-        designs = g.V().hasLabel("[avm]Design").values("[]Name").toList()
+        designs = g.V().has("VertexLabel", "[avm]Design").values("[]Name").toList()
         connection.close()
         return set(designs)
 
