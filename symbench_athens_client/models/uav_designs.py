@@ -29,7 +29,11 @@ from symbench_athens_client.models.components import (
 )
 
 
-class QuadCopter(SeedDesign):
+class UAVSeedDesign(SeedDesign):
+    pass
+
+
+class QuadCopter(UAVSeedDesign):
     """The quadcopter seed design"""
 
     __design_vars__ = {
@@ -397,7 +401,7 @@ class QuadCopter(SeedDesign):
         ), "Propeller 2 and 3 should have opposite directions"
 
 
-class QuadSpiderCopter(SeedDesign):
+class QuadSpiderCopter(UAVSeedDesign):
     """The QuadSpiderCopter seed design."""
 
     __design_vars__ = {
@@ -652,7 +656,7 @@ class QuadSpiderCopter(SeedDesign):
         return value
 
 
-class HCopter(SeedDesign):
+class HCopter(UAVSeedDesign):
     """The H-Copter Seed Design"""
 
     __design_vars__ = {
@@ -826,7 +830,7 @@ class HCopter(SeedDesign):
         ), "Propeller 2 and 3 should have opposite directions"
 
 
-class HPlane(SeedDesign):
+class HPlane(UAVSeedDesign):
     """The H-Plane Seed Design"""
 
     __design_vars__ = {
@@ -1166,5 +1170,5 @@ class HPlane(SeedDesign):
         return value
 
 
-class HexRing(SeedDesign):
+class HexRing(UAVSeedDesign):
     pass

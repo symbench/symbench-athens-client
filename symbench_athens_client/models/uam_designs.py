@@ -5,7 +5,11 @@ from pydantic import Field
 from symbench_athens_client.models.base_design import SeedDesign
 
 
-class Rake(SeedDesign):
+class UAMSeedDesign(SeedDesign):
+    pass
+
+
+class Rake(UAMSeedDesign):
     __design_vars__ = {
         "naca",
         "param_0",
@@ -40,7 +44,7 @@ class Rake(SeedDesign):
         "q_velocity",
         "q_angular_velocity",
         "q_angles",
-        "r"
+        "r",
     }
 
     naca: int = Field(default=4512, alias="NACA")

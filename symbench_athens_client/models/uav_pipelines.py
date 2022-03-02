@@ -3,7 +3,7 @@ from typing import ClassVar, Tuple, Union
 from pydantic import Field, validator
 
 from symbench_athens_client.models.pipelines import JenkinsPipeline
-from symbench_athens_client.models.uav_designs import SeedDesign
+from symbench_athens_client.models.uav_designs import SeedDesign, UAVSeedDesign
 from symbench_athens_client.utils import dict_to_design_vars
 
 
@@ -14,7 +14,11 @@ class UAVWorkflows(JenkinsPipeline):
 
     @property
     def pipeline_name(self):
-        return "UAV_Workflows"
+        return (
+            "UAV_Workflows"
+            if isinstance(self.design, UAVSeedDesign)
+            else "UAM_Workflows"
+        )
 
     @property
     def pet_name(self):
