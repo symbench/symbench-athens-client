@@ -10,7 +10,7 @@ from symbench_athens_client.models.components import (
     Tubes,
     Wings,
 )
-from symbench_athens_client.models.designs import (
+from symbench_athens_client.models.uav_designs import (
     HCopter,
     HPlane,
     QuadCopter,

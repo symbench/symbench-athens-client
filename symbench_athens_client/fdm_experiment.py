@@ -21,7 +21,7 @@ from symbench_athens_client.models.components import (
     Motors,
     Propellers,
 )
-from symbench_athens_client.models.designs import QuadCopter
+from symbench_athens_client.models.uav_designs import QuadCopter
 from symbench_athens_client.utils import (
     assign_propellers_quadcopter,
     estimate_mass_formulae,

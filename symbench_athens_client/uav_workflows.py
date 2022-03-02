@@ -55,10 +55,10 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         import nest_asyncio  # Hack to make it work in jupyter notebook. Further Investigating necessary
 
         nest_asyncio.apply()
-        connection = DriverRemoteConnection("ws://localhost:8182/gremlin", "g")
+        connection = DriverRemoteConnection(self.gremlin_url, "g")
         g = traversal().withRemote(connection)
         self.logger.info(f"Connected to gremlin server at {self.gremlin_url}")
-        designs = g.V().hasLabel("[avm]Design").values("[]Name").toList()
+        designs = g.V().has("VertexLabel", "[avm]Design").values("[]Name").toList()
         connection.close()
         return set(designs)
 
@@ -67,7 +67,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
 
         Parameters
         ----------
-        design: symbench_athens_client.models.designs.SeedDesign
+        design: symbench_athens_client.models.uav_designs.SeedDesign
             The design to clone
         """
         all_designs = self.get_all_design_names()
@@ -93,7 +93,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
 
         Parameters
         ----------
-        design: symbench_athens_client.models.designs.SeedDesign
+        design: symbench_athens_client.models.uav_designs.SeedDesign
             The design to delete/clear
         """
         clear_job = ClearDesign(design_name=design.name)
@@ -110,7 +110,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
 
         Parameters
         ----------
-        design: symbench_athens_client.models.designs.SeedDesign
+        design: symbench_athens_client.models.uav_designs.SeedDesign
             The design to delete/clear
         """
         for component_instance_name, swap_list in design.swap_list.items():
