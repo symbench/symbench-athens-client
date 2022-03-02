@@ -1,5 +1,6 @@
 import pytest
 
+from symbench_athens_client.models.uam_designs import Rake
 from symbench_athens_client.models.uav_designs import QuadCopter
 from symbench_athens_client.models.uav_pipelines import (
     CircularFlight,
@@ -108,3 +109,12 @@ class TestFlightModes:
             all_flights_path.to_jenkins_parameters()["PETName"]
             == "/D_Testing/PET/FlightDyn_V1_AllPaths"
         )
+
+    def test_fd_all_paths_pet_name(self):
+        quadcopter_pipeline = FlightPathsAll(design=QuadCopter())
+
+        assert quadcopter_pipeline.pet_name == "/D_Testing/PET/FlightDyn_V1_AllPaths"
+
+        rake_pipeline = FlightPathsAll(design=Rake())
+
+        assert rake_pipeline.pet_name == "/D_Testing/PET/FlightDyn_V2"
