@@ -2,7 +2,7 @@ import logging
 
 from gremlin_python.driver.client import Client
 
-from symbench_athens_client.queries import CLONE_QUERY
+from symbench_athens_client.graph_db_queries import CLONE_QUERY
 from symbench_athens_client.utils import get_logger
 
 
