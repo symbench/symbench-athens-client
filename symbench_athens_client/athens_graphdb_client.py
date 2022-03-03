@@ -50,7 +50,6 @@ class SymbenchAthensGraphDBClient(GraphDBDriver):
     def _clone(self, src_name, dst_name):
         """Clone a design in the graph database."""
         clone_query = CLONE_DESIGN_QUERY.format(src_name=src_name, dst_name=dst_name)
-
         self.run_queries(clone_query.split("\n"), commit=True)
 
     def _clear(self, name):
