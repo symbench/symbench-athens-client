@@ -2,7 +2,10 @@ import logging
 
 from gremlin_python.driver.client import Client
 
-from symbench_athens_client.graphdb_queries import CLONE_QUERY
+from symbench_athens_client.graphdb_queries import (
+    CLEAR_DESIGN_QUERY,
+    CLONE_DESIGN_QUERY,
+)
 from symbench_athens_client.utils import get_logger
 
 
@@ -20,6 +23,7 @@ class GraphDBDriver:
         self.logger.info(f"Connected to gremlin server at {self.gremlin_url}")
 
     def close(self):
+        self.logger.info(f"Closed connection to gremlin server at {self.gremlin_url}")
         self.client.close()
 
     def run_queries(self, queries, commit=False):
@@ -44,12 +48,13 @@ class SymbenchAthensGraphDBClient(GraphDBDriver):
     """Utility class for cloning/clearing designs in the Graph Database."""
 
     def _clone(self, src_name, dst_name):
-        clone_query = CLONE_QUERY.format(**{"src_name": src_name, "dst_name": dst_name})
+        clone_query = CLONE_DESIGN_QUERY.format(src_name=src_name, dst_name=dst_name)
 
         self.run_queries(clone_query.split("\n"), commit=True)
 
     def _clear(self, name):
-        pass
+        clear_query = CLEAR_DESIGN_QUERY.format(src_name=name)
+        self.run_queries(clear_query.split("\n"), commit=True)
 
     def get_all_design_names(self):
         results = self.client.submit(
@@ -63,8 +68,10 @@ class SymbenchAthensGraphDBClient(GraphDBDriver):
         """Clone a design in the graph database."""
         all_designs = self.get_all_design_names()
         i = 0
-        assert design.name in all_designs, "Cannot clone a non existent design"
-        clone_name = design.name + f"Clone{i + 1}"
+        assert (
+            design.name in all_designs
+        ), f"Cannot clone a non existent design {design.name}"
+        clone_name = design.name + f"{i + 1}"
 
         while clone_name in all_designs:
             clone_name = design.name + f"{i + 1}"
@@ -74,3 +81,33 @@ class SymbenchAthensGraphDBClient(GraphDBDriver):
         self._clone(design.name, clone_name)
         design.name = clone_name
         self.logger.info(f"Successfully cloned the design as {design.name}")
+
+    def clear_design(self, design):
+        """Clear a design in the graph database.
+
+        Parameters
+        ----------
+        design: symbench_athens_client.models.base_design.SeedDesign
+            The design to clear
+
+        Warnings
+        --------
+        This method removes the design in the graph database. Use with caution
+
+        Notes
+        -----
+        This doesn't clear the name of the design as the previous versions would
+        Please use design.reset_name after calling this function.
+        """
+        all_designs = self.get_all_design_names()
+        assert (
+            design.name in all_designs
+        ), f"Cannot clear a non existent design {design.name}"
+
+        self.logger.info(f"About to clear design {design.name}")
+        self._clear(design.name)
+
+        assert (
+            design.name not in self.get_all_design_names()
+        ), f"Something went wrong while clearing the design {design.name}"
+        self.logger.info(f"Successfully cleared design {design.name}")

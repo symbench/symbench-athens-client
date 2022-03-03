@@ -1,3 +1,4 @@
+import contextlib
 import csv
 import io
 import logging
@@ -59,10 +60,20 @@ class UAVWorkflowRunner:
         self.jenkins_client = SymbenchAthensJenkinsClient(
             jenkins_url, username, password, log_level
         )
-        self.graph_db_client = SymbenchAthensGraphDBClient(
-            gremlin_url=gremlin_url, log_level=log_level
-        )
-        self.logger = get_logger(log_level)
+        self.gremlin_url = gremlin_url
+        self.logger = get_logger(self.__class__.__name__, log_level)
+
+    @contextlib.contextmanager
+    def graphdb_client(self):  # ToDo: is this the best way to handle this?
+        try:
+            graphdb_client = SymbenchAthensGraphDBClient(
+                gremlin_url=self.gremlin_url, log_level=self.logger.getEffectiveLevel()
+            )
+            yield graphdb_client
+        except Exception as e:
+            raise e
+        finally:
+            graphdb_client.close()
 
     def clone_design(self, design):
         """Clone a design from the graph database
@@ -72,7 +83,8 @@ class UAVWorkflowRunner:
         design: symbench_athens_client.models.base_design.SeedDesign
             The design to clone
         """
-        self.graph_db_client.clone_design(design)
+        with self.graphdb_client() as g:
+            g.clone_design(design)
 
     def clear_design(self, design):
         """Clear a design from the graph database
@@ -81,18 +93,15 @@ class UAVWorkflowRunner:
         ----------
         design: symbench_athens_client.models.base_design.SeedDesign
             The design to delete/clear
+
         """
+        with self.graphdb_client() as g:
+            g.clear_design(design)
 
-        clear_job = ClearDesign(design_name=design.name)
-
-        self.logger.info(f"About to clear design {design.name}")
-
-        self.jenkins_client.build_and_wait(
-            clear_job.pipeline_name, clear_job.to_jenkins_parameters()
-        )
-
-        design.reset_name()
-        self.logger.info(f"Cleared Design, name has been reset to {design.name}")
+    def get_all_design_names(self):
+        """Get all the design names from the graph database"""
+        with self.graphdb_client() as g:
+            return g.get_all_design_names()
 
     def _swap_components(self, design):
         """Given a design, iterate through its swap list and begin swapping components
