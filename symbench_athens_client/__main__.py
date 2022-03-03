@@ -1,4 +1,4 @@
-from symbench_athens_client.athens_client import SymbenchAthensClient
+from symbench_athens_client.athens_jenkins_client import SymbenchAthensJenkinsClient
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
@@ -21,6 +21,6 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    athens_client = SymbenchAthensClient(
+    athens_client = SymbenchAthensJenkinsClient(
         jenkins_url=args.url, username=args.username, password=args.password
     )

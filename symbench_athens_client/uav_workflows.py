@@ -1,21 +1,16 @@
+import contextlib
 import csv
 import io
 import logging
 import time
 import zipfile
 from tempfile import TemporaryDirectory
-from uuid import uuid4
 
 import requests
-from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
-from gremlin_python.process.anonymous_traversal import traversal
 
-from symbench_athens_client.athens_client import SymbenchAthensClient
-from symbench_athens_client.models.pipelines import (
-    ClearDesign,
-    CloneDesign,
-    SwapComponent,
-)
+from symbench_athens_client.athens_graphdb_client import SymbenchAthensGraphDBClient
+from symbench_athens_client.athens_jenkins_client import SymbenchAthensJenkinsClient
+from symbench_athens_client.models.pipelines import SwapComponent
 from symbench_athens_client.models.uav_pipelines import (
     CircularFlight,
     FlightPathsAll,
@@ -27,83 +22,87 @@ from symbench_athens_client.models.uav_pipelines import (
     StraightLineFlight,
     TrimSteadyFlight,
 )
+from symbench_athens_client.utils import get_logger
 
 
-class UAVWorkflowRunner(SymbenchAthensClient):
-    """UAVWorkflow Runner class
+class UAVWorkflowRunner:
+    """UAVWorkflow Runner class.
 
-    Notes
-    -----
-    This class subclasses the SymbenchAthensClient (architecture is hairy),
-    can switch to composition in the future.
+    This class uses two clients (for Jenkins and the Graph Database) to
+    run uav workflows by cloning/clearing/swapping components for designs.
+
+    Parameters
+    ----------
+    jenkins_url: str, required
+        The URL for the jenkins server
+    username: str, required
+        The username for jenkins server
+    password: str, required
+        The password for jenkins server
+    gremlin_url: str, required
+        The URL for the graph-database
+    log_level: int, default=10
+        The log verbosity
 
     See Also
     --------
-    symbench_athens_client.athens_client.SymbenchAthensClient
+    symbench_athens_client.athens_jenkins_client.SymbenchAthensJenkinsClient
         The Jenkins server interface which uses api4Jenkins to
         communicate with the jenkins server
+
+    symbench_athens_client.athens_graphdb_client.SymbenchAthensGraphDBClient
+        The gremlin-python client interface to the graph-database
     """
 
     def __init__(
         self, jenkins_url, username, password, gremlin_url, log_level=logging.DEBUG
     ):
-        super().__init__(jenkins_url, username, password, log_level)
+        self.jenkins_client = SymbenchAthensJenkinsClient(
+            jenkins_url, username, password, log_level
+        )
         self.gremlin_url = gremlin_url
+        self.logger = get_logger(self.__class__.__name__, log_level)
 
-    def get_all_design_names(self):
-        """Get all the design names in the graph-database."""
-        import nest_asyncio  # Hack to make it work in jupyter notebook. Further Investigating necessary
-
-        nest_asyncio.apply()
-        connection = DriverRemoteConnection(self.gremlin_url, "g")
-        g = traversal().withRemote(connection)
-        self.logger.info(f"Connected to gremlin server at {self.gremlin_url}")
-        designs = g.V().has("VertexLabel", "[avm]Design").values("[]Name").toList()
-        connection.close()
-        return set(designs)
+    @contextlib.contextmanager
+    def graphdb_client(self):  # ToDo: is this the best way to handle this?
+        """Get an instance of the graphdb client."""
+        try:
+            graphdb_client = SymbenchAthensGraphDBClient(
+                gremlin_url=self.gremlin_url, log_level=self.logger.getEffectiveLevel()
+            )
+            yield graphdb_client
+        except Exception as e:
+            raise e
+        finally:
+            graphdb_client.close()
 
     def clone_design(self, design):
         """Clone a design from the graph database
 
         Parameters
         ----------
-        design: symbench_athens_client.models.uav_designs.SeedDesign
+        design: symbench_athens_client.models.base_design.SeedDesign
             The design to clone
         """
-        all_designs = self.get_all_design_names()
-        i = 0
-
-        clone_name = design.name + f"Clone{i+1}"
-
-        while clone_name in all_designs:
-            clone_name = design.name + f"Clone{i+1}"
-            i += 1
-
-        self.logger.info(f"About to clone design {design.name} to {clone_name}")
-
-        clone_job = CloneDesign(from_design_name=design.name, to_design_name=clone_name)
-
-        self.build_and_wait(clone_job.pipeline_name, clone_job.to_jenkins_parameters())
-
-        design.name = clone_name
-        self.logger.info(f"Successfully cloned the design as {design.name}")
+        with self.graphdb_client() as g:
+            g.clone_design(design)
 
     def clear_design(self, design):
         """Clear a design from the graph database
 
         Parameters
         ----------
-        design: symbench_athens_client.models.uav_designs.SeedDesign
+        design: symbench_athens_client.models.base_design.SeedDesign
             The design to delete/clear
+
         """
-        clear_job = ClearDesign(design_name=design.name)
+        with self.graphdb_client() as g:
+            g.clear_design(design)
 
-        self.logger.info(f"About to clear design {design.name}")
-
-        self.build_and_wait(clear_job.pipeline_name, clear_job.to_jenkins_parameters())
-
-        design.reset_name()
-        self.logger.info(f"Cleared Design, name has been reset to {design.name}")
+    def get_all_design_names(self):
+        """Get all the design names from the graph database."""
+        with self.graphdb_client() as g:
+            return g.get_all_design_names()
 
     def _swap_components(self, design):
         """Given a design, iterate through its swap list and begin swapping components
@@ -124,7 +123,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             self.logger.info(
                 f"{component_instance_name} of {design.name} will be changed from {swap_job.from_comp_name} to {swap_job.to_comp_name}"
             )
-            self.build_and_wait(
+            self.jenkins_client.build_and_wait(
                 swap_job.pipeline_name, swap_job.to_jenkins_parameters()
             )
 
@@ -137,7 +136,8 @@ class UAVWorkflowRunner(SymbenchAthensClient):
             artifact_url = f'{build.url}artifact/{build_artifacts[0]["relativePath"]}'
             with TemporaryDirectory() as tmpdir:
                 response = requests.get(
-                    artifact_url, auth=(self.username, self.password)
+                    artifact_url,
+                    auth=(self.jenkins_client.username, self.jenkins_client.password),
                 )
                 if response.status_code != 200:
                     raise FileNotFoundError
@@ -175,7 +175,7 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         list of dict
             The results (logged in output.csv as a list of dictionaries)
         """
-        build = self.build_and_wait(
+        build = self.jenkins_client.build_and_wait(
             pipeline.pipeline_name, parameters=pipeline.to_jenkins_parameters()
         )
         while not build.api_json()["artifacts"]:
