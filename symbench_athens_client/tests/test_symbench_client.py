@@ -2,14 +2,14 @@ import os
 
 import pytest
 
-from symbench_athens_client.__main__ import SymbenchAthensClient
+from symbench_athens_client.__main__ import SymbenchAthensJenkinsClient
 
 
 @pytest.mark.skip
 class TestSymbenchClient:
     @pytest.fixture(scope="session")
     def symbench_client(self):
-        return SymbenchAthensClient(
+        return SymbenchAthensJenkinsClient(
             jenkins_url=os.environ.get("JENKINS_URL"),
             username=os.environ.get("JENKINS_USERNAME"),
             password=os.environ.get("JENKINS_PASSWORD"),
