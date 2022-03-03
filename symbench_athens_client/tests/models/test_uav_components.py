@@ -1,3 +1,4 @@
+import itertools
 import json
 import math
 
@@ -159,3 +160,29 @@ class TestComponents:
         assert Tubes[0].prt_file is None
         assert Hubs[0].prt_file is None
         assert CFPs[0].prt_file is None
+
+    def test_proptype(self):
+        assert not any(prop.prop_type for prop in Propellers)
+
+    def test_corpus(self):
+        assert set(
+            batt.corpus
+            for batt in itertools.chain(
+                Autopilots,
+                Batteries,
+                CFPs,
+                ESCs,
+                Flanges,
+                GPSes,
+                Hubs,
+                Instrument_Batteries,
+                Motors,
+                Orients,
+                Propellers,
+                Receivers,
+                Sensors,
+                Servos,
+                Tubes,
+                Wings,
+            )
+        ) == {"uav"}

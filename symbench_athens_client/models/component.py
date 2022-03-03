@@ -1,17 +1,19 @@
 import csv
 import json
-from typing import ClassVar, Optional, Tuple, Union
+from typing import ClassVar, Dict, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, root_validator, validator
 
 from symbench_athens_client.utils import (
     get_data_file_path,
-    inject_none_for_missing_fields,
+    inject_none_for_missing_fields_and_nans,
 )
 
 
 class Component(BaseModel):
     """The Base Component Class"""
+
+    __swap_aliases__: ClassVar[Dict[str, str]] = {}
 
     name: str = Field(
         ...,
@@ -48,6 +50,11 @@ class Component(BaseModel):
 
         if not values.get("model", values.get("MODEL", values.get("Model"))):
             values["model"] = values.get("name", values.get("Name"))
+
+        for original, replace in cls.__swap_aliases__.items():
+            if original in values:
+                values[replace] = values.pop(original)
+
         return values
 
     @validator("corpus")
@@ -63,6 +70,8 @@ class Component(BaseModel):
 
 
 class Battery(Component):
+    __swap_aliases__ = {"BASE_VOLTAGE": "VOLTAGE"}
+
     """The Battery Component
     An example of a battery attributes in the Graph database is shown below:
 
@@ -83,6 +92,9 @@ class Battery(Component):
     "LENGTH": "168.0",
     "Classification": "Battery"
     """
+    battery_type: Optional[str] = Field(
+        default=None, alias="BATTERY_TYPE", description="The Battery Type"
+    )
 
     peak_discharge_rate: float = Field(
         ...,
@@ -90,8 +102,8 @@ class Battery(Component):
         alias="PEAK_DISCHARGE_RATE",
     )
 
-    number_of_cells: str = Field(
-        ..., description="Number of cells", alias="NUMBER_OF_CELLS"
+    number_of_cells: Optional[str] = Field(
+        None, description="Number of cells", alias="NUMBER_OF_CELLS"
     )
 
     thickness: float = Field(..., description="Thickness", alias="THICKNESS")
@@ -106,29 +118,63 @@ class Battery(Component):
         ..., description="Capacity of the Battery", alias="CAPACITY"
     )
 
-    discharge_plug: str = Field(
-        ..., description="Discharge Plug Details", alias="DISCHARGE_PLUG"
+    discharge_plug: Optional[str] = Field(
+        None, description="Discharge Plug Details", alias="DISCHARGE_PLUG"
     )
 
-    width: float = Field(..., description="Width of the Battery", alias="WIDTH")
-
-    chemistry_type: str = Field(
-        ..., description="Chemistry Type of the Battery", alias="CHEMISTRY_TYPE"
+    width: Optional[float] = Field(
+        None, description="Width of the Battery", alias="WIDTH"
     )
 
-    cost: float = Field(..., description="Cost of the Battery", alias="COST")
-
-    pack_resistance: float = Field(
-        0.0, description="Pack Resistance of the Battery", alias="PACK_RESISTANCE"
+    chemistry_type: Optional[str] = Field(
+        None, description="Chemistry Type of the Battery", alias="CHEMISTRY_TYPE"
     )
 
-    weight: float = Field(
-        ...,
+    cost: Optional[float] = Field(None, description="Cost of the Battery", alias="COST")
+
+    pack_resistance: Optional[float] = Field(
+        None, description="Pack Resistance of the Battery", alias="PACK_RESISTANCE"
+    )
+
+    weight: Optional[float] = Field(
+        None,
         description="Weight of the Battery",
         alias="WEIGHT",
     )
 
-    length: float = Field(..., description="Length of the Battery", alias="LENGTH")
+    length: Optional[float] = Field(
+        None, description="Length of the Battery", alias="LENGTH"
+    )
+
+    chord_1: Optional[float] = Field(None, description="Chord 1", alias="CHORD_1")
+
+    chord_2: Optional[float] = Field(None, description="Chord 2", alias="CHORD_2")
+
+    module_mass: Optional[float] = Field(
+        None, description="Module Mass", alias="MODULE_MASS"
+    )
+
+    module_volume: Optional[float] = Field(
+        None, description="Module Volume", alias="MODULE_VOLUME"
+    )
+
+    mount_side: Optional[float] = Field(
+        None, description="Mount Side", alias="MOUNT_SIDE"
+    )
+
+    span: Optional[float] = Field(None, description="Span", alias="SPAN")
+
+    taper_offset: Optional[float] = Field(
+        None, description="TAPER_OFFSET", alias="TAPER_OFFSET"
+    )
+
+    voltage_request: Optional[float] = Field(
+        None, description="Voltage Request", alias="VOLTAGE_REQUEST"
+    )
+
+    volume_percent: Optional[float] = Field(
+        None, description="VOLUME_PERCENT", alias="VOLUME_PERCENT"
+    )
 
     @property
     def prt_file(self) -> Optional[str]:
@@ -175,7 +221,7 @@ class Propeller(Component):
 
     diameter: float = Field(..., description="Diameter", alias="DIAMETER")
 
-    direction: float = Field(..., description="Direction", alias="Direction")
+    direction: int = Field(..., description="Direction", alias="Direction")
 
     performance_file: str = Field(
         ..., description="Performance file location/name", alias="Performance_File"
@@ -188,6 +234,10 @@ class Propeller(Component):
     pitch: float = Field(..., description="The pitch of the propeller", alias="PITCH")
 
     weight: float = Field(..., description="Weight of the propeller", alias="WEIGHT")
+
+    prop_type: Optional[int] = Field(
+        default=None, description="The propeller type", alias="Prop_type"
+    )
 
     @property
     def prt_file(self) -> Optional[str]:
@@ -248,20 +298,29 @@ class Motor(Component):
     "Classification": "Motor"
     """
 
+    __swap_aliases__ = {
+        "ESC/BEC Class": "ESC_BEC_Class",
+        "Max # of Cells": "Max_Cells",
+        "Min # of Cells": "Min_Cells",
+        "IO_IDLE_CURRENT@10V": "IO_IDLE_CURRENT_10V",
+        "PROP_SIZE_REC.": "PROP_SIZE_REC",
+        "PROP_PITCH_REC.": "PROP_PITCH_REC",
+    }
+
     max_power: float = Field(
         ..., description="Max power of the motor", alias="MAX_POWER"
     )
 
     io_idle_current_at_10V: float = Field(
-        ..., description="Maximum idle current at 10V", alias="IO_IDLE_CURRENT@10V"
+        ..., description="Maximum idle current at 10V", alias="IO_IDLE_CURRENT_10V"
     )
 
     length: float = Field(..., description="Length of the Motor", alias="LENGTH")
 
     kt: float = Field(..., description="The KT rating of the Motor", alias="KT")
 
-    esc_bec_class: float = Field(
-        ..., description="The ESC/BEC Class", alias="ESC/BEC Class"
+    esc_bec_class: Optional[float] = Field(
+        ..., description="The ESC/BEC Class", alias="ESC_BEC_Class"
     )
 
     can_length: float = Field(..., description="The can length", alias="CAN_LENGTH")
@@ -276,7 +335,9 @@ class Motor(Component):
 
     weight: float = Field(..., description="Weight of the motor", alias="WEIGHT")
 
-    poles: str = Field(..., description="The poles of the motor", alias="Poles")
+    poles: Optional[str] = Field(
+        ..., description="The poles of the motor", alias="Poles"
+    )
 
     internal_resistance: float = Field(
         ..., description="Internal Resistance of the motor", alias="INTERNAL_RESISTANCE"
@@ -294,8 +355,8 @@ class Motor(Component):
         ..., description="Max current rating of the motor", alias="MAX_CURRENT"
     )
 
-    max_no_cells: float = Field(
-        ..., description="Max number of cells in the motor", alias="Max # of Cells"
+    max_no_cells: int = Field(
+        ..., description="Max number of cells in the motor", alias="Max_Cells"
     )
 
     kv: float = Field(..., description="The KV rating of the motor", alias="KV")
@@ -306,20 +367,20 @@ class Motor(Component):
         ..., description="The can diameter of the motor", alias="CAN_DIAMETER"
     )
 
-    min_no_cells: float = Field(
+    min_no_cells: int = Field(
         ...,
         description="The minimum number of cells of the motor",
-        alias="Min # of Cells",
+        alias="Min_Cells",
     )
 
-    prop_size_rec: Union[float, Tuple[float, float]] = Field(
+    prop_size_rec: Optional[Union[float, Tuple[float, float]]] = Field(
         ...,
         description="The propsize rec",
-        alias="PROP_SIZE_REC.",
+        alias="PROP_SIZE_REC",
     )
 
-    prop_pitch_rec: Union[float, Tuple[float, float]] = Field(
-        ..., description="The prop pitch rec", alias="PROP_PITCH_REC."
+    prop_pitch_rec: Optional[Union[float, Tuple[float, float]]] = Field(
+        ..., description="The prop pitch rec", alias="PROP_PITCH_REC"
     )
 
     esc_pwm_rate_min: Optional[float] = Field(
@@ -383,11 +444,16 @@ class Motor(Component):
             value = tuple(float(v) for v in value.split(","))
         return value
 
+    @validator("max_no_cells", "min_no_cells", pre=True, always=True)
+    def validate_int(cls, cell):
+        return int(float(cell))
+
     @root_validator(pre=True)
     def validate_fields(cls, values):
         if "CONTROL_CHANNEL" in values and values["CONTROL_CHANNEL"] == "none":
             values["CONTROL_CHANNEL"] = None
-        return inject_none_for_missing_fields(cls, values)
+
+        return inject_none_for_missing_fields_and_nans(cls, values)
 
 
 class ESC(Component):
@@ -474,7 +540,7 @@ class ESC(Component):
         for field in ["Offset", "Mount_Angle", "CONTROL_CHANNEL", "TUBE_OD"]:
             if field in values and values[field] == "none":
                 values[field] = None
-        return inject_none_for_missing_fields(cls, values)
+        return inject_none_for_missing_fields_and_nans(cls, values)
 
 
 class Instrument_Battery(Battery):
@@ -613,7 +679,7 @@ class GPS(Component):
 
     @root_validator(pre=True)
     def validate_gps_fields(cls, values):
-        return inject_none_for_missing_fields(cls, values)
+        return inject_none_for_missing_fields_and_nans(cls, values)
 
 
 class Servo(Component):
@@ -769,7 +835,7 @@ class Sensor(Component):
 
     @root_validator(pre=True)
     def validate_fields(cls, values):
-        return inject_none_for_missing_fields(cls, values)
+        return inject_none_for_missing_fields_and_nans(cls, values)
 
 
 class Autopilot(Component):
@@ -867,7 +933,7 @@ class Autopilot(Component):
     def validate_fields(cls, values):
         if "Number_of_Tele_ Inputs" in values:
             values["Number_of_Telem_Inputs"] = values.pop("Number_of_Tele_ Inputs")
-        return inject_none_for_missing_fields(cls, values)
+        return inject_none_for_missing_fields_and_nans(cls, values)
 
 
 class Flange(Component):
@@ -952,12 +1018,13 @@ class CarbonFiberPlate(Component):
     z5_offset: float = Field(..., description="Z5_OFFSET", alias="Z5_OFFSET")
 
 
-class ComponentsBuilder:
+class ComponentsRepository:
     """The components repository builder class"""
 
     def __init__(self, creator, components, corpus):
         self.creator = creator
-        self.components = self._initialize_components(components, corpus)
+        self.corpus = corpus
+        self.components = self._initialize_components(components)
 
     @property
     def all(self):
@@ -1003,12 +1070,12 @@ class ComponentsBuilder:
             for component in self.components.values():
                 dict_writer.writerow(component.dict(by_alias=True))
 
-    def _initialize_components(self, components, corpus):
+    def _initialize_components(self, components):
         component_instances = {}
 
         for component_dict in components:
             object_dict = self._fix_parametric_properties(component_dict)
-            object_dict["corpus"] = corpus
+            object_dict["corpus"] = self.corpus
             component_instance = self.creator.parse_obj(object_dict)
             component_instances[component_instance.name] = component_instance
 
@@ -1041,32 +1108,51 @@ class ComponentsBuilder:
         return all_properties
 
     def __repr__(self):
-        return f"<{self.creator.__name__} Library, Count: {self.__len__()}>"
+        return f"<{self.creator.__name__} Library, Count: {self.__len__()}, Corpus: {self.corpus}>"
 
 
-all_comps = get_data_file_path("all_uav_components.json")
-with open(all_comps) as json_file:
-    all_comps = json.load(json_file)
+all_uav_components = get_data_file_path("all_uav_components.json")
+with open(all_uav_components) as json_file:
+    all_uav_components = json.load(json_file)
+
+all_uam_components = get_data_file_path("all_uam_components.json")
+with open(all_uam_components) as json_file:
+    all_uam_components = json.load(json_file)
 
 
-def get_all_components_of_class(cls):
-    for key, value in all_comps.items():
+def get_corpus_components(corpus):
+    if corpus == "uav":
+        all_components = all_uav_components
+    elif corpus == "uam":
+        all_components = all_uam_components
+    else:
+        raise ValueError("corpus can only be either `uav` or `uam`")
+    return all_components
+
+
+def get_all_components_of_class(cls, corpus):
+    all_components = get_corpus_components(corpus)
+    for key, value in all_components.items():
         if value["Classification"] == cls.__name__:
             value["Name"] = key
             yield value
 
 
 def build_components(cls, corpus):
-    return ComponentsBuilder(
-        creator=cls, components=get_all_components_of_class(cls), corpus=corpus
+    return ComponentsRepository(
+        creator=cls, components=get_all_components_of_class(cls, corpus), corpus=corpus
     )
 
 
 def build_parametric_components(cls, names, corpus):
-    return ComponentsBuilder(
+    return ComponentsRepository(
         creator=cls,
         components=(
-            {"Name": comp_name, **all_comps[comp_name], "Classification": cls.__name__}
+            {
+                "Name": comp_name,
+                **get_corpus_components(corpus)[comp_name],
+                "Classification": cls.__name__,
+            }
             for comp_name in names
         ),
         corpus=corpus,
@@ -1076,8 +1162,8 @@ def build_parametric_components(cls, names, corpus):
 def build_tubes(names, corpus):
     for tube_name in names:
         if tube_name == "0281OD_para_tube":
-            all_comps[tube_name]["para_Length_[]AssignedValue"] = all_comps[
-                tube_name
-            ].pop("LENGTH")
+            get_corpus_components(corpus)[tube_name][
+                "para_Length_[]AssignedValue"
+            ] = all_uav_components[tube_name].pop("LENGTH")
 
     return build_parametric_components(Tube, names, corpus=corpus)
