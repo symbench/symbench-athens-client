@@ -27,7 +27,7 @@ from symbench_athens_client.utils import get_data_file_path
 class TestComponents:
     @pytest.fixture(scope="session")
     def all_components(self):
-        with open(get_data_file_path("all_components.json")) as json_file:
+        with open(get_data_file_path("all_uav_components.json")) as json_file:
             return json.load(json_file)
 
     def test_batteries_count(self):
