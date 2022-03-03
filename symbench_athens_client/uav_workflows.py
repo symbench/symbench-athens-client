@@ -4,18 +4,12 @@ import logging
 import time
 import zipfile
 from tempfile import TemporaryDirectory
-from uuid import uuid4
 
 import requests
-from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
-from gremlin_python.process.anonymous_traversal import traversal
 
 from symbench_athens_client.athens_client import SymbenchAthensClient
-from symbench_athens_client.models.pipelines import (
-    ClearDesign,
-    CloneDesign,
-    SwapComponent,
-)
+from symbench_athens_client.athens_graphdb_client import SymbenchAthensGraphDBClient
+from symbench_athens_client.models.pipelines import ClearDesign, SwapComponent
 from symbench_athens_client.models.uav_pipelines import (
     CircularFlight,
     FlightPathsAll,
@@ -48,52 +42,26 @@ class UAVWorkflowRunner(SymbenchAthensClient):
         self, jenkins_url, username, password, gremlin_url, log_level=logging.DEBUG
     ):
         super().__init__(jenkins_url, username, password, log_level)
-        self.gremlin_url = gremlin_url
-
-    def get_all_design_names(self):
-        """Get all the design names in the graph-database."""
-        import nest_asyncio  # Hack to make it work in jupyter notebook. Further Investigating necessary
-
-        nest_asyncio.apply()
-        connection = DriverRemoteConnection(self.gremlin_url, "g")
-        g = traversal().withRemote(connection)
-        self.logger.info(f"Connected to gremlin server at {self.gremlin_url}")
-        designs = g.V().has("VertexLabel", "[avm]Design").values("[]Name").toList()
-        connection.close()
-        return set(designs)
+        self.graph_db_client = SymbenchAthensGraphDBClient(
+            gremlin_url=gremlin_url, log_level=log_level
+        )
 
     def clone_design(self, design):
         """Clone a design from the graph database
 
         Parameters
         ----------
-        design: symbench_athens_client.models.uav_designs.SeedDesign
+        design: symbench_athens_client.models.base_design.SeedDesign
             The design to clone
         """
-        all_designs = self.get_all_design_names()
-        i = 0
-
-        clone_name = design.name + f"Clone{i+1}"
-
-        while clone_name in all_designs:
-            clone_name = design.name + f"Clone{i+1}"
-            i += 1
-
-        self.logger.info(f"About to clone design {design.name} to {clone_name}")
-
-        clone_job = CloneDesign(from_design_name=design.name, to_design_name=clone_name)
-
-        self.build_and_wait(clone_job.pipeline_name, clone_job.to_jenkins_parameters())
-
-        design.name = clone_name
-        self.logger.info(f"Successfully cloned the design as {design.name}")
+        self.graph_db_client.clone_design(design)
 
     def clear_design(self, design):
         """Clear a design from the graph database
 
         Parameters
         ----------
-        design: symbench_athens_client.models.uav_designs.SeedDesign
+        design: symbench_athens_client.models.base_design.SeedDesign
             The design to delete/clear
         """
         clear_job = ClearDesign(design_name=design.name)
