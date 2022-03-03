@@ -1033,7 +1033,7 @@ class ComponentsBuilder:
         return f"<{self.creator.__name__} Library, Count: {self.__len__()}>"
 
 
-all_comps = get_data_file_path("all_uav_components.json")
+all_comps = get_data_file_path("all_components.json")
 with open(all_comps) as json_file:
     all_comps = json.load(json_file)
 
