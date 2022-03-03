@@ -27,6 +27,10 @@ class Component(BaseModel):
         alias="Classification",
     )
 
+    corpus: str = Field(
+        ..., description="The corpus for which this element belongs to", alias="Corpus"
+    )
+
     @property
     def prt_file(self) -> Optional[str]:
         return None
@@ -45,6 +49,12 @@ class Component(BaseModel):
         if not values.get("model", values.get("MODEL", values.get("Model"))):
             values["model"] = values.get("name", values.get("Name"))
         return values
+
+    @validator("corpus")
+    def check_corpus(cls, corpus):
+        if corpus not in {"uav", "uam"}:
+            raise ValueError("Corpus can only be either `uav` or `uam`")
+        return corpus
 
     class Config:
         allow_mutation = False
@@ -945,9 +955,9 @@ class CarbonFiberPlate(Component):
 class ComponentsBuilder:
     """The components repository builder class"""
 
-    def __init__(self, creator, components):
+    def __init__(self, creator, components, corpus):
         self.creator = creator
-        self.components = self._initialize_components(components)
+        self.components = self._initialize_components(components, corpus)
 
     @property
     def all(self):
@@ -993,11 +1003,12 @@ class ComponentsBuilder:
             for component in self.components.values():
                 dict_writer.writerow(component.dict(by_alias=True))
 
-    def _initialize_components(self, components):
+    def _initialize_components(self, components, corpus):
         component_instances = {}
 
         for component_dict in components:
             object_dict = self._fix_parametric_properties(component_dict)
+            object_dict["corpus"] = corpus
             component_instance = self.creator.parse_obj(object_dict)
             component_instances[component_instance.name] = component_instance
 
@@ -1045,56 +1056,28 @@ def get_all_components_of_class(cls):
             yield value
 
 
-def _build_components(cls):
-    return ComponentsBuilder(creator=cls, components=get_all_components_of_class(cls))
+def build_components(cls, corpus):
+    return ComponentsBuilder(
+        creator=cls, components=get_all_components_of_class(cls), corpus=corpus
+    )
 
 
-def _build_parametric_components(cls, names):
+def build_parametric_components(cls, names, corpus):
     return ComponentsBuilder(
         creator=cls,
         components=(
             {"Name": comp_name, **all_comps[comp_name], "Classification": cls.__name__}
             for comp_name in names
         ),
+        corpus=corpus,
     )
 
 
-def _build_tubes(names):
+def build_tubes(names, corpus):
     for tube_name in names:
         if tube_name == "0281OD_para_tube":
             all_comps[tube_name]["para_Length_[]AssignedValue"] = all_comps[
                 tube_name
             ].pop("LENGTH")
 
-    return _build_parametric_components(Tube, names)
-
-
-ALL_FLANGES = ["0394_para_flange"]
-ALL_TUBES = ["0281OD_para_tube", "0394OD_para_tube"]
-ALL_HUBS = [
-    "0394od_para_hub_2",
-    "0394od_para_hub_3",
-    "0394od_para_hub_4",
-    "0394od_para_hub_5",
-    "0394od_para_hub_6",
-]
-ALL_ORIENTS = ["Orient"]
-ALL_CFPS = ["para_cf_fplate"]
-
-Batteries = _build_components(Battery)
-Propellers = _build_components(Propeller)
-Motors = _build_components(Motor)
-ESCs = _build_components(ESC)
-Instrument_Batteries = _build_components(Instrument_Battery)
-Wings = _build_components(Wing)
-GPSes = _build_components(GPS)
-Servos = _build_components(Servo)
-Receivers = _build_components(Receiver)
-Sensors = _build_components(Sensor)
-Autopilots = _build_components(Autopilot)
-# # Begin Parametric Components
-Orients = _build_parametric_components(Orient, ALL_ORIENTS)
-Flanges = _build_parametric_components(Flange, ALL_FLANGES)
-Tubes = _build_tubes(ALL_TUBES)
-Hubs = _build_parametric_components(Hub, ALL_HUBS)
-CFPs = _build_parametric_components(CarbonFiberPlate, ALL_CFPS)
+    return build_parametric_components(Tube, names, corpus=corpus)

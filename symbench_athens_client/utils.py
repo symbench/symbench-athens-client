@@ -148,7 +148,8 @@ def relative_path(src, destination):
 
 def assign_propellers_quadcopter(quad_design, propeller):
     """Given a quadcopter, properly assign propellers to it such that it can rise and hover"""
-    from symbench_athens_client.models.components import Propeller, Propellers
+    from symbench_athens_client.models.component import Propeller
+    from symbench_athens_client.models.uav_components import Propellers
     from symbench_athens_client.models.uav_designs import QuadCopter
 
     if not isinstance(quad_design, QuadCopter):

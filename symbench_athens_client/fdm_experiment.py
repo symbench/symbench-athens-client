@@ -15,12 +15,8 @@ from symbench_athens_client.fdm_executor import (
     update_total_score,
     write_output_csv,
 )
-from symbench_athens_client.models.components import (
-    Batteries,
-    Battery,
-    Motors,
-    Propellers,
-)
+from symbench_athens_client.models.component import Battery
+from symbench_athens_client.models.uav_components import Batteries, Motors, Propellers
 from symbench_athens_client.models.uav_designs import QuadCopter
 from symbench_athens_client.utils import (
     assign_propellers_quadcopter,

@@ -6,7 +6,7 @@ from symbench_athens_client.fdm_experiment import (
     FlightDynamicsExperiment,
     QuadCopterVariableBatteryPropExperiment,
 )
-from symbench_athens_client.models.fixed_bemp_designs import (
+from symbench_athens_client.models.fixed_bemp_uav_designs import (
     QuadCopter_5,
     QuadCopter_5Light,
     TurnigyGraphene5000MAHQuadCopter,

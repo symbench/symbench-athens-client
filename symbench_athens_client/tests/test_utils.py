@@ -1,7 +1,7 @@
 import pytest
 
 from symbench_athens_client.exceptions import PropellerAssignmentError
-from symbench_athens_client.models.components import Propellers
+from symbench_athens_client.models.uav_components import Propellers
 from symbench_athens_client.models.uav_designs import QuadCopter
 from symbench_athens_client.utils import assign_propellers_quadcopter
 

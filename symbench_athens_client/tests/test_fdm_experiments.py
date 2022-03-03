@@ -8,7 +8,7 @@ import minio
 import pytest
 
 from symbench_athens_client.fdm_experiments import get_experiments_by_name
-from symbench_athens_client.models.components import Batteries, Motors, Propellers
+from symbench_athens_client.models.uav_components import Batteries, Motors, Propellers
 
 
 @pytest.mark.slow

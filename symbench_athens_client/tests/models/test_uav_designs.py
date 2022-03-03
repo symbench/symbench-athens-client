@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from symbench_athens_client.models.components import (
+from symbench_athens_client.models.uav_components import (
     Batteries,
     ESCs,
     Flanges,

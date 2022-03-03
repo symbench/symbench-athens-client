@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Generate CSV files (one per component type) from the database"""
-from symbench_athens_client.models.components import (
+from symbench_athens_client.models.component import (
     Battery,
     ComponentsBuilder,
     Motor,

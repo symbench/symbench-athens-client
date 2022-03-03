@@ -3,7 +3,7 @@ import time
 
 import creopyson
 
-from symbench_athens_client.models.components import Component
+from symbench_athens_client.models.component import Component
 from symbench_athens_client.utils import get_data_file_path, get_logger
 
 

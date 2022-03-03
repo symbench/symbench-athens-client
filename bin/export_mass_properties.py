@@ -2,7 +2,7 @@
 import csv
 
 from symbench_athens_client.creoson import CreosonMassPropertiesDriver
-from symbench_athens_client.models.components import (
+from symbench_athens_client.models.uav_components import (
     Batteries,
     ESCs,
     Motors,
