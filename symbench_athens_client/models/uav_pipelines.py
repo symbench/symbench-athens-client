@@ -186,7 +186,11 @@ class FlightPathsAll(FlightPathFlight):
 
     @property
     def pet_name(self):
-        return "/D_Testing/PET/FlightDyn_V1_AllPaths"
+        return (
+            "/D_Testing/PET/FlightDyn_V1_AllPaths"
+            if isinstance(self.design, UAVSeedDesign)
+            else "/D_Testing/PET/FlightDyn_V2"
+        )
 
     def to_jenkins_parameters(self):
         design_params = self.design.parameters()
