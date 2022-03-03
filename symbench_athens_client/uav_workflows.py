@@ -10,7 +10,7 @@ import requests
 
 from symbench_athens_client.athens_graphdb_client import SymbenchAthensGraphDBClient
 from symbench_athens_client.athens_jenkins_client import SymbenchAthensJenkinsClient
-from symbench_athens_client.models.pipelines import ClearDesign, SwapComponent
+from symbench_athens_client.models.pipelines import SwapComponent
 from symbench_athens_client.models.uav_pipelines import (
     CircularFlight,
     FlightPathsAll,
@@ -65,6 +65,7 @@ class UAVWorkflowRunner:
 
     @contextlib.contextmanager
     def graphdb_client(self):  # ToDo: is this the best way to handle this?
+        """Get an instance of the graphdb client."""
         try:
             graphdb_client = SymbenchAthensGraphDBClient(
                 gremlin_url=self.gremlin_url, log_level=self.logger.getEffectiveLevel()
@@ -99,7 +100,7 @@ class UAVWorkflowRunner:
             g.clear_design(design)
 
     def get_all_design_names(self):
-        """Get all the design names from the graph database"""
+        """Get all the design names from the graph database."""
         with self.graphdb_client() as g:
             return g.get_all_design_names()
 

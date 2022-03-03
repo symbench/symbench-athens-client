@@ -23,8 +23,8 @@ class GraphDBDriver:
         self.logger.info(f"Connected to gremlin server at {self.gremlin_url}")
 
     def close(self):
-        self.logger.info(f"Closed connection to gremlin server at {self.gremlin_url}")
         self.client.close()
+        self.logger.info(f"Closed connection to gremlin server at {self.gremlin_url}")
 
     def run_queries(self, queries, commit=False):
         request_options = {"evaluationTimeout": 0}
@@ -45,18 +45,21 @@ class GraphDBDriver:
 
 
 class SymbenchAthensGraphDBClient(GraphDBDriver):
-    """Utility class for cloning/clearing designs in the Graph Database."""
+    """Client for cloning/clearing designs in the Graph Database."""
 
     def _clone(self, src_name, dst_name):
+        """Clone a design in the graph database."""
         clone_query = CLONE_DESIGN_QUERY.format(src_name=src_name, dst_name=dst_name)
 
         self.run_queries(clone_query.split("\n"), commit=True)
 
     def _clear(self, name):
+        """Clear a design in the graph database."""
         clear_query = CLEAR_DESIGN_QUERY.format(src_name=name)
         self.run_queries(clear_query.split("\n"), commit=True)
 
     def get_all_design_names(self):
+        """Get all the design names in the graph database."""
         results = self.client.submit(
             "g.V().has('VertexLabel', '[avm]Design').values('[]Name').toList()"
         )
@@ -65,7 +68,13 @@ class SymbenchAthensGraphDBClient(GraphDBDriver):
         return set(designs)
 
     def clone_design(self, design):
-        """Clone a design in the graph database."""
+        """Clone a design in the graph database.
+
+        Parameters
+        ----------
+        design: symbench_athens_client.models.base_design.SeedDesign
+            The design to clone
+        """
         all_designs = self.get_all_design_names()
         i = 0
         assert (
@@ -92,7 +101,7 @@ class SymbenchAthensGraphDBClient(GraphDBDriver):
 
         Warnings
         --------
-        This method removes the design in the graph database. Use with caution
+        This method removes the design in the graph database. Use with caution.
 
         Notes
         -----
