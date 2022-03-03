@@ -25,12 +25,23 @@ from symbench_athens_client.utils import get_logger
 
 
 class UAVWorkflowRunner:
-    """UAVWorkflow Runner class
+    """UAVWorkflow Runner class.
 
-    Notes
-    -----
-    This class subclasses the SymbenchAthensClient (architecture is hairy),
-    can switch to composition in the future.
+    This class uses two clients (for Jenkins and the Graph Database) to
+    run uav workflows by cloning/clearing/swapping components for designs.
+
+    Parameters
+    ----------
+    jenkins_url: str, required
+        The URL for the jenkins server
+    username: str, required
+        The username for jenkins server
+    password: str, required
+        The password for jenkins server
+    gremlin_url: str, required
+        The URL for the graph-database
+    log_level: int, default=10
+        The log verbosity
 
     See Also
     --------

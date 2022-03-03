@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from symbench_athens_client.__main__ import SymbenchAthensJenkinsClient
+from symbench_athens_client.athens_jenkins_client import SymbenchAthensJenkinsClient
 
 
 @pytest.mark.skip
