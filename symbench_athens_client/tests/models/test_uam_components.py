@@ -247,5 +247,19 @@ class TestComponents:
         assert hub.num_of_horizontal_connections == 4
         assert hub.angle_of_horizontal_connections == 90.0
 
+    def test_battery_swap_aliases(self):
+        battery = Batteries[0]
+        battery_dict = battery.dict(by_alias=True)
+        for key, value in battery.__swap_aliases__.items():
+            assert key in battery_dict
+            assert value not in battery_dict
+
+    def test_motor_swap_aliases(self):
+        motor = Motors[0]
+        motor_dict = motor.dict(by_alias=True)
+        for key, value in motor.__swap_aliases__.items():
+            assert key not in motor_dict
+            assert value in motor_dict
+
     def test_repr(self):
         assert repr(Propellers["55x12_4_1600_51_700"])
