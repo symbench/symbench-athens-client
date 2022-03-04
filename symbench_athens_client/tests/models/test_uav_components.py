@@ -143,6 +143,20 @@ class TestComponents:
     def test_repr(self):
         assert repr(Batteries["TurnigyGraphene1600mAh4S75C"])
 
+    def test_battery_swap_aliases(self):
+        battery = Batteries[0]
+        battery_dict = battery.dict(by_alias=True)
+        for key, value in battery.__swap_aliases__.items():
+            assert key not in battery_dict
+            assert value in battery_dict
+
+    def test_motor_swap_aliases(self):
+        motor = Motors[0]
+        motor_dict = motor.dict(by_alias=True)
+        for key, value in motor.__swap_aliases__.items():
+            assert key in motor_dict
+            assert value not in motor_dict
+
     def test_prt_files(self):
         assert Batteries[0].prt_file == "para_battery.prt"
         assert Propellers[0].prt_file == "para_prop.prt"

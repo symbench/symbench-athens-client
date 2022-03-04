@@ -43,6 +43,35 @@ class Component(BaseModel):
     def __str__(self):
         return repr(self)
 
+    def dict(
+        self,
+        *,
+        include: Union["AbstractSetIntStr", "MappingIntStrAny"] = None,
+        exclude: Union["AbstractSetIntStr", "MappingIntStrAny"] = None,
+        by_alias: bool = False,
+        skip_defaults: bool = None,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+    ) -> "DictStrAny":
+        comp_dict = super().dict(
+            include=include,
+            exclude=exclude,
+            by_alias=by_alias,
+            skip_defaults=skip_defaults,
+            exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults,
+            exclude_none=exclude_none,
+        )
+        if by_alias and self.should_swap_aliases():
+            for key, value in self.__swap_aliases__.items():
+                if value in comp_dict:
+                    comp_dict[key] = comp_dict.pop(value)
+        return comp_dict
+
+    def should_swap_aliases(self):
+        return False
+
     @root_validator(pre=True)
     def inject_model(cls, values):
         if "Model" in values:
@@ -179,6 +208,9 @@ class Battery(Component):
     @property
     def prt_file(self) -> Optional[str]:
         return "para_battery.prt"
+
+    def should_swap_aliases(self):
+        return self.corpus == "uam"
 
     def to_fd_inp(self):
         return {
@@ -429,6 +461,9 @@ class Motor(Component):
             "icontrol": None,
             "ibattery": None,
         }
+
+    def should_swap_aliases(self):
+        return self.corpus == "uav"
 
     @validator("prop_size_rec", pre=True, always=True)
     def validate_prop_pitch(cls, value):
