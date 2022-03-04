@@ -1,4 +1,4 @@
-from symbench_athens_client.models.components import Batteries, Motors, Propellers
+from symbench_athens_client.models.uav_components import Batteries, Motors, Propellers
 from symbench_athens_client.models.uav_designs import QuadCopter
 
 

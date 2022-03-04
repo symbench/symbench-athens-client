@@ -35,11 +35,16 @@ def get_data_file_path(filename):
     return resource_filename("symbench_athens_client", f"data/{filename}")
 
 
-def inject_none_for_missing_fields(cls, values):
+def inject_none_for_missing_fields_and_nans(cls, values):
     """Given a BaseModel class and a dictionary to populate its fields, inject None for missing fields."""
     for field_name, field_info in cls.__fields__.items():
         if field_name not in values and field_info.alias not in values:
             values[field_name] = None
+        else:
+            if field_name in values and values[field_name] == "nan":
+                values[field_name] = None
+            elif field_info.alias in values and values[field_info.alias] == "nan":
+                values[field_info.alias] = None
     return values
 
 
@@ -148,7 +153,8 @@ def relative_path(src, destination):
 
 def assign_propellers_quadcopter(quad_design, propeller):
     """Given a quadcopter, properly assign propellers to it such that it can rise and hover"""
-    from symbench_athens_client.models.components import Propeller, Propellers
+    from symbench_athens_client.models.component import Propeller
+    from symbench_athens_client.models.uav_components import Propellers
     from symbench_athens_client.models.uav_designs import QuadCopter
 
     if not isinstance(quad_design, QuadCopter):

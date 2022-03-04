@@ -1,17 +1,19 @@
 import csv
 import json
-from typing import ClassVar, Optional, Tuple, Union
+from typing import ClassVar, Dict, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, root_validator, validator
 
 from symbench_athens_client.utils import (
     get_data_file_path,
-    inject_none_for_missing_fields,
+    inject_none_for_missing_fields_and_nans,
 )
 
 
 class Component(BaseModel):
     """The Base Component Class"""
+
+    __swap_aliases__: ClassVar[Dict[str, str]] = {}
 
     name: str = Field(
         ...,
@@ -25,6 +27,10 @@ class Component(BaseModel):
         "Battery",
         description="The component type for this battery. Redundant but useful info",
         alias="Classification",
+    )
+
+    corpus: str = Field(
+        ..., description="The corpus for which this element belongs to", alias="Corpus"
     )
 
     @property
@@ -44,7 +50,18 @@ class Component(BaseModel):
 
         if not values.get("model", values.get("MODEL", values.get("Model"))):
             values["model"] = values.get("name", values.get("Name"))
+
+        for original, replace in cls.__swap_aliases__.items():
+            if original in values:
+                values[replace] = values.pop(original)
+
         return values
+
+    @validator("corpus")
+    def check_corpus(cls, corpus):
+        if corpus not in {"uav", "uam"}:
+            raise ValueError("Corpus can only be either `uav` or `uam`")
+        return corpus
 
     class Config:
         allow_mutation = False
@@ -53,6 +70,8 @@ class Component(BaseModel):
 
 
 class Battery(Component):
+    __swap_aliases__ = {"BASE_VOLTAGE": "VOLTAGE"}
+
     """The Battery Component
     An example of a battery attributes in the Graph database is shown below:
 
@@ -73,6 +92,9 @@ class Battery(Component):
     "LENGTH": "168.0",
     "Classification": "Battery"
     """
+    battery_type: Optional[str] = Field(
+        default=None, alias="BATTERY_TYPE", description="The Battery Type"
+    )
 
     peak_discharge_rate: float = Field(
         ...,
@@ -80,8 +102,8 @@ class Battery(Component):
         alias="PEAK_DISCHARGE_RATE",
     )
 
-    number_of_cells: str = Field(
-        ..., description="Number of cells", alias="NUMBER_OF_CELLS"
+    number_of_cells: Optional[str] = Field(
+        None, description="Number of cells", alias="NUMBER_OF_CELLS"
     )
 
     thickness: float = Field(..., description="Thickness", alias="THICKNESS")
@@ -96,29 +118,63 @@ class Battery(Component):
         ..., description="Capacity of the Battery", alias="CAPACITY"
     )
 
-    discharge_plug: str = Field(
-        ..., description="Discharge Plug Details", alias="DISCHARGE_PLUG"
+    discharge_plug: Optional[str] = Field(
+        None, description="Discharge Plug Details", alias="DISCHARGE_PLUG"
     )
 
-    width: float = Field(..., description="Width of the Battery", alias="WIDTH")
-
-    chemistry_type: str = Field(
-        ..., description="Chemistry Type of the Battery", alias="CHEMISTRY_TYPE"
+    width: Optional[float] = Field(
+        None, description="Width of the Battery", alias="WIDTH"
     )
 
-    cost: float = Field(..., description="Cost of the Battery", alias="COST")
-
-    pack_resistance: float = Field(
-        0.0, description="Pack Resistance of the Battery", alias="PACK_RESISTANCE"
+    chemistry_type: Optional[str] = Field(
+        None, description="Chemistry Type of the Battery", alias="CHEMISTRY_TYPE"
     )
 
-    weight: float = Field(
-        ...,
+    cost: Optional[float] = Field(None, description="Cost of the Battery", alias="COST")
+
+    pack_resistance: Optional[float] = Field(
+        None, description="Pack Resistance of the Battery", alias="PACK_RESISTANCE"
+    )
+
+    weight: Optional[float] = Field(
+        None,
         description="Weight of the Battery",
         alias="WEIGHT",
     )
 
-    length: float = Field(..., description="Length of the Battery", alias="LENGTH")
+    length: Optional[float] = Field(
+        None, description="Length of the Battery", alias="LENGTH"
+    )
+
+    chord_1: Optional[float] = Field(None, description="Chord 1", alias="CHORD_1")
+
+    chord_2: Optional[float] = Field(None, description="Chord 2", alias="CHORD_2")
+
+    module_mass: Optional[float] = Field(
+        None, description="Module Mass", alias="MODULE_MASS"
+    )
+
+    module_volume: Optional[float] = Field(
+        None, description="Module Volume", alias="MODULE_VOLUME"
+    )
+
+    mount_side: Optional[float] = Field(
+        None, description="Mount Side", alias="MOUNT_SIDE"
+    )
+
+    span: Optional[float] = Field(None, description="Span", alias="SPAN")
+
+    taper_offset: Optional[float] = Field(
+        None, description="TAPER_OFFSET", alias="TAPER_OFFSET"
+    )
+
+    voltage_request: Optional[float] = Field(
+        None, description="Voltage Request", alias="VOLTAGE_REQUEST"
+    )
+
+    volume_percent: Optional[float] = Field(
+        None, description="VOLUME_PERCENT", alias="VOLUME_PERCENT"
+    )
 
     @property
     def prt_file(self) -> Optional[str]:
@@ -144,6 +200,16 @@ class Battery(Component):
         return values
 
 
+class BatteryController(Component):
+    input_voltage: float = Field(
+        ..., description="Input Voltage", alias="Input_Voltage"
+    )
+
+    output_voltage: float = Field(
+        ..., description="Output Voltage", alias="Output_Voltage"
+    )
+
+
 class Propeller(Component):
     """The propeller component
 
@@ -165,7 +231,7 @@ class Propeller(Component):
 
     diameter: float = Field(..., description="Diameter", alias="DIAMETER")
 
-    direction: float = Field(..., description="Direction", alias="Direction")
+    direction: int = Field(..., description="Direction", alias="Direction")
 
     performance_file: str = Field(
         ..., description="Performance file location/name", alias="Performance_File"
@@ -178,6 +244,10 @@ class Propeller(Component):
     pitch: float = Field(..., description="The pitch of the propeller", alias="PITCH")
 
     weight: float = Field(..., description="Weight of the propeller", alias="WEIGHT")
+
+    prop_type: Optional[int] = Field(
+        default=None, description="The propeller type", alias="Prop_type"
+    )
 
     @property
     def prt_file(self) -> Optional[str]:
@@ -238,20 +308,29 @@ class Motor(Component):
     "Classification": "Motor"
     """
 
+    __swap_aliases__ = {
+        "ESC/BEC Class": "ESC_BEC_Class",
+        "Max # of Cells": "Max_Cells",
+        "Min # of Cells": "Min_Cells",
+        "IO_IDLE_CURRENT@10V": "IO_IDLE_CURRENT_10V",
+        "PROP_SIZE_REC.": "PROP_SIZE_REC",
+        "PROP_PITCH_REC.": "PROP_PITCH_REC",
+    }
+
     max_power: float = Field(
         ..., description="Max power of the motor", alias="MAX_POWER"
     )
 
     io_idle_current_at_10V: float = Field(
-        ..., description="Maximum idle current at 10V", alias="IO_IDLE_CURRENT@10V"
+        ..., description="Maximum idle current at 10V", alias="IO_IDLE_CURRENT_10V"
     )
 
     length: float = Field(..., description="Length of the Motor", alias="LENGTH")
 
     kt: float = Field(..., description="The KT rating of the Motor", alias="KT")
 
-    esc_bec_class: float = Field(
-        ..., description="The ESC/BEC Class", alias="ESC/BEC Class"
+    esc_bec_class: Optional[float] = Field(
+        ..., description="The ESC/BEC Class", alias="ESC_BEC_Class"
     )
 
     can_length: float = Field(..., description="The can length", alias="CAN_LENGTH")
@@ -266,7 +345,9 @@ class Motor(Component):
 
     weight: float = Field(..., description="Weight of the motor", alias="WEIGHT")
 
-    poles: str = Field(..., description="The poles of the motor", alias="Poles")
+    poles: Optional[str] = Field(
+        ..., description="The poles of the motor", alias="Poles"
+    )
 
     internal_resistance: float = Field(
         ..., description="Internal Resistance of the motor", alias="INTERNAL_RESISTANCE"
@@ -284,8 +365,8 @@ class Motor(Component):
         ..., description="Max current rating of the motor", alias="MAX_CURRENT"
     )
 
-    max_no_cells: float = Field(
-        ..., description="Max number of cells in the motor", alias="Max # of Cells"
+    max_no_cells: int = Field(
+        ..., description="Max number of cells in the motor", alias="Max_Cells"
     )
 
     kv: float = Field(..., description="The KV rating of the motor", alias="KV")
@@ -296,20 +377,20 @@ class Motor(Component):
         ..., description="The can diameter of the motor", alias="CAN_DIAMETER"
     )
 
-    min_no_cells: float = Field(
+    min_no_cells: int = Field(
         ...,
         description="The minimum number of cells of the motor",
-        alias="Min # of Cells",
+        alias="Min_Cells",
     )
 
-    prop_size_rec: Union[float, Tuple[float, float]] = Field(
+    prop_size_rec: Optional[Union[float, Tuple[float, float]]] = Field(
         ...,
         description="The propsize rec",
-        alias="PROP_SIZE_REC.",
+        alias="PROP_SIZE_REC",
     )
 
-    prop_pitch_rec: Union[float, Tuple[float, float]] = Field(
-        ..., description="The prop pitch rec", alias="PROP_PITCH_REC."
+    prop_pitch_rec: Optional[Union[float, Tuple[float, float]]] = Field(
+        ..., description="The prop pitch rec", alias="PROP_PITCH_REC"
     )
 
     esc_pwm_rate_min: Optional[float] = Field(
@@ -373,11 +454,16 @@ class Motor(Component):
             value = tuple(float(v) for v in value.split(","))
         return value
 
+    @validator("max_no_cells", "min_no_cells", pre=True, always=True)
+    def validate_int(cls, cell):
+        return int(float(cell))
+
     @root_validator(pre=True)
     def validate_fields(cls, values):
         if "CONTROL_CHANNEL" in values and values["CONTROL_CHANNEL"] == "none":
             values["CONTROL_CHANNEL"] = None
-        return inject_none_for_missing_fields(cls, values)
+
+        return inject_none_for_missing_fields_and_nans(cls, values)
 
 
 class ESC(Component):
@@ -464,7 +550,7 @@ class ESC(Component):
         for field in ["Offset", "Mount_Angle", "CONTROL_CHANNEL", "TUBE_OD"]:
             if field in values and values[field] == "none":
                 values[field] = None
-        return inject_none_for_missing_fields(cls, values)
+        return inject_none_for_missing_fields_and_nans(cls, values)
 
 
 class Instrument_Battery(Battery):
@@ -482,55 +568,77 @@ class Wing(Component):
 
     aileron_bias: Optional[float] = Field(..., description="BIAS", alias="AILERON_BIAS")
 
-    aoa_cl_max: float = Field(..., description="AoA_CL_Max", alias="AoA_CL_Max")
-
-    offset: float = Field(..., description="OFFSET", alias="OFFSET")
-
-    control_channel_flaps: int = Field(
-        ..., description="CONTROL_CHANNEL_FLAPS", alias="CONTROL_CHANNEL_FLAPS"
+    aoa_cl_max: Optional[float] = Field(
+        None, description="AoA_CL_Max", alias="AoA_CL_Max"
     )
 
-    cl_max: float = Field(..., description="CL_Max", alias="CL_Max")
+    offset: Optional[float] = Field(None, description="OFFSET", alias="OFFSET")
 
-    cl_max_cd0_min: float = Field(
-        ..., description="CL_Max_CD0_Min", alias="CL_Max_CD0_Min"
+    control_channel_flaps: Optional[int] = Field(
+        None, description="CONTROL_CHANNEL_FLAPS", alias="CONTROL_CHANNEL_FLAPS"
     )
 
-    last_two: float = Field(..., description="LAST_TWO", alias="LASTTWO")
+    cl_max: Optional[float] = Field(None, description="CL_Max", alias="CL_Max")
 
-    chord: float = Field(..., description="CHORD", alias="CHORD")
-
-    tube_offset: float = Field(..., description="Tube Offset", alias="TUBE_OFFSET")
-
-    cl_ld_max: float = Field(..., description="CL_LD_Max", alias="CL_LD_Max")
-
-    servo_width: float = Field(..., description="Servo Width", alias="SERVO_WIDTH")
-
-    aoa_l0: Optional[float] = Field(..., description="AOA_L0", alias="AoA_L0")
-
-    dcl_daoa_slope: float = Field(
-        ..., description="dCl_dAoA_Slope", alias="dCl_dAoA_Slope"
+    cl_max_cd0_min: Optional[float] = Field(
+        None, description="CL_Max_CD0_Min", alias="CL_Max_CD0_Min"
     )
 
-    control_channel_ailerons: int = Field(
-        ..., description="CONTROL_CHANNEL_AILERONS", alias="CONTROL_CHANNEL_AILERONS"
+    last_two: Optional[float] = Field(None, description="LAST_TWO", alias="LASTTWO")
+
+    chord: Optional[float] = Field(None, description="CHORD", alias="CHORD")
+
+    tube_offset: Optional[float] = Field(
+        None, description="Tube Offset", alias="TUBE_OFFSET"
     )
 
-    diameter: float = Field(..., description="DIAMETER", alias="DIAMETER")
+    cl_ld_max: Optional[float] = Field(None, description="CL_LD_Max", alias="CL_LD_Max")
 
-    ld_max: float = Field(..., description="LD_Max", alias="LD_Max")
+    servo_width: Optional[float] = Field(
+        None, description="Servo Width", alias="SERVO_WIDTH"
+    )
+
+    aoa_l0: Optional[float] = Field(None, description="AOA_L0", alias="AoA_L0")
+
+    dcl_daoa_slope: Optional[float] = Field(
+        None, description="dCl_dAoA_Slope", alias="dCl_dAoA_Slope"
+    )
+
+    control_channel_ailerons: Optional[int] = Field(
+        None, description="CONTROL_CHANNEL_AILERONS", alias="CONTROL_CHANNEL_AILERONS"
+    )
+
+    diameter: Optional[float] = Field(None, description="DIAMETER", alias="DIAMETER")
+
+    ld_max: Optional[float] = Field(None, description="LD_Max", alias="LD_Max")
 
     servo_length: Optional[float] = Field(
-        ..., description="SERVO_LENGTH", alias="SERVO_LENGTH"
+        None, description="SERVO_LENGTH", alias="SERVO_LENGTH"
     )
 
-    cd0_min: float = Field(..., description="CD0_MIn", alias="CD0_Min")
+    cd0_min: Optional[float] = Field(None, description="CD0_MIn", alias="CD0_Min")
 
-    cd_min: float = Field(..., description="CD_MIN", alias="CD_Min")
+    cd_min: Optional[float] = Field(None, description="CD_MIN", alias="CD_Min")
 
-    cm0: float = Field(..., description="CM0", alias="CM0")
+    cm0: Optional[float] = Field(None, description="CM0", alias="CM0")
 
     flap_bias: float = Field(..., description="Flap Bias", alias="FLAP_BIAS")
+
+    chord_1: Optional[float] = Field(None, description="Chord 1", alias="CHORD_1")
+
+    chord_2: Optional[float] = Field(None, description="Chord 1", alias="CHORD_2")
+
+    load: Optional[float] = Field(None, description="Load", alias="LOAD")
+
+    naca_profile: Optional[str] = Field(
+        None, description="NACA Profile", alias="NACA_Profile"
+    )
+
+    taper_offset: Optional[float] = Field(
+        None, description="Taper Offset", alias="TAPER_OFFSET"
+    )
+
+    thickness: Optional[float] = Field(None, description="Thickness", alias="THICKNESS")
 
     @property
     def prt_file(self):
@@ -603,7 +711,7 @@ class GPS(Component):
 
     @root_validator(pre=True)
     def validate_gps_fields(cls, values):
-        return inject_none_for_missing_fields(cls, values)
+        return inject_none_for_missing_fields_and_nans(cls, values)
 
 
 class Servo(Component):
@@ -759,7 +867,7 @@ class Sensor(Component):
 
     @root_validator(pre=True)
     def validate_fields(cls, values):
-        return inject_none_for_missing_fields(cls, values)
+        return inject_none_for_missing_fields_and_nans(cls, values)
 
 
 class Autopilot(Component):
@@ -857,7 +965,7 @@ class Autopilot(Component):
     def validate_fields(cls, values):
         if "Number_of_Tele_ Inputs" in values:
             values["Number_of_Telem_Inputs"] = values.pop("Number_of_Tele_ Inputs")
-        return inject_none_for_missing_fields(cls, values)
+        return inject_none_for_missing_fields_and_nans(cls, values)
 
 
 class Flange(Component):
@@ -865,10 +973,22 @@ class Flange(Component):
 
     box: float = Field(..., description="Box", alias="BOX")
 
-    clock_angle: float = Field(..., description="The Clock Angle", alias="CLOCK_ANGLE")
+    clock_angle: Optional[float] = Field(
+        None, description="The Clock Angle", alias="CLOCK_ANGLE"
+    )
 
-    sidemount_offset: float = Field(
-        ..., description="The Side Mount Offset", alias="SIDEMOUNT_OFFSET"
+    sidemount_offset: Optional[float] = Field(
+        None, description="The Side Mount Offset", alias="SIDEMOUNT_OFFSET"
+    )
+
+    offset: Optional[float] = Field(None, description="Offset", alias="OFFSET")
+
+    num_horizontal_conn: Optional[int] = Field(
+        None, description="The number of horizontal connections", alias="NUMHORZCONN"
+    )
+
+    angle_horizontal_connection: Optional[float] = Field(
+        None, description="The angle of horizontal connections", alias="ANGHORZCONN"
     )
 
 
@@ -942,11 +1062,32 @@ class CarbonFiberPlate(Component):
     z5_offset: float = Field(..., description="Z5_OFFSET", alias="Z5_OFFSET")
 
 
-class ComponentsBuilder:
+class Beam_Cap(Component):
+    thickness: float = Field(..., description="Thickness", alias="THICKNESS")
+
+    chord: float = Field(..., alias="CHORD")
+
+
+class NACA_Port_Connector(Component):
+    bottom_connection_disp: float = Field(
+        default=0, description="BOTTOM_CONNECTION_DISP", alias="BOTTOM_CONNECTION_DISP"
+    )
+
+    port_thickness: float = Field(
+        default=100, description="CHORD", alias="PORT_THICKNESS"
+    )
+
+    chord: float = Field(default=500, description="CHORD", alias="CHORD")
+
+    thickness: float = Field(default=12, description="THICKNESS", alias="THICKNESS")
+
+
+class ComponentsRepository:
     """The components repository builder class"""
 
-    def __init__(self, creator, components):
+    def __init__(self, creator, components, corpus):
         self.creator = creator
+        self.corpus = corpus
         self.components = self._initialize_components(components)
 
     @property
@@ -998,6 +1139,7 @@ class ComponentsBuilder:
 
         for component_dict in components:
             object_dict = self._fix_parametric_properties(component_dict)
+            object_dict["corpus"] = self.corpus
             component_instance = self.creator.parse_obj(object_dict)
             component_instances[component_instance.name] = component_instance
 
@@ -1030,71 +1172,166 @@ class ComponentsBuilder:
         return all_properties
 
     def __repr__(self):
-        return f"<{self.creator.__name__} Library, Count: {self.__len__()}>"
+        return f"<{self.creator.__name__} Library, Count: {self.__len__()}, Corpus: {self.corpus}>"
 
 
-all_comps = get_data_file_path("all_components.json")
-with open(all_comps) as json_file:
-    all_comps = json.load(json_file)
+class Cylinder(Component):
+    wall_thickness: float = Field(default=3.0, alias="WALL_THICKNESS")
+
+    left_conn_display: float = Field(default=0.0, alias="LEFT_CONN_DISP")
+
+    top_conn_display: float = Field(default=0.0, alias="TOP_CONN_DISP")
+
+    right_conn_display: float = Field(default=0.0, alias="RIGHT_CONN_DISP")
+
+    bottom_conn_display: float = Field(default=0.0, alias="BOTTOM_CONN_DISP")
+
+    diameter: float = Field(default=0.0, alias="DIAMETER")
+
+    port_thickness: float = Field(default=100.0, alias="PORT_THICKNESS")
+
+    length: float = Field(default=100.0, alias="LENGTH")
+
+    front_angle: float = Field(default=1000.0, alias="FRONT_ANGLE")
 
 
-def get_all_components_of_class(cls):
-    for key, value in all_comps.items():
+class Fuselage(Component):
+    wall_thickness: float = Field(
+        ..., description="WALL THICKNESS", alias="WALL_THICKNESS"
+    )
+
+    seat_1_lr: float = Field(default=100, description="SEAT 1 LR", alias="SEAT_1_LR")
+
+    floor_height: float = Field(
+        default=100, description="FLOOR HEIGHT", alias="FLOOR_HEIGHT"
+    )
+
+    port_thickness: float = Field(
+        default=100, description="PORT THICKNESS", alias="PORT_THICKNESS"
+    )
+
+    middle_length: float = Field(
+        default=100, description="MIDDLE LENGTH", alias="MIDDLE_LENGTH"
+    )
+
+    bottom_port_disp: float = Field(
+        default=100, description="BOTTOM PORT DISP", alias="BOTTOM_PORT_DISP"
+    )
+
+    length: float = Field(default=100, description="LENGTH", alias="LENGTH")
+
+    seat_2_fb: float = Field(default=100, description="SEAT 2 FB", alias="SEAT_2_FB")
+
+    seat_1_fb: float = Field(default=100, description="SEAT 1 FB", alias="SEAT_1_FB")
+
+    seat_2_lr: float = Field(default=100, description="SEAT 2 LR", alias="SEAT_2_LR")
+
+    tail_diameter: float = Field(
+        default=100, description="TAIL DIAMETER", alias="TAIL_DIAMETER"
+    )
+
+    sphere_diameter: float = Field(
+        default=100, description="SPHERE DIAMETER", alias="SPHERE_DIAMETER"
+    )
+
+    right_port_disp: float = Field(
+        default=100, description="RIGHT PORT DISP", alias="RIGHT_PORT_DISP"
+    )
+
+    top_port_disp: float = Field(
+        default=100, description="TOP PORT DISP", alias="TOP_PORT_DISP"
+    )
+
+    left_port_disp: float = Field(
+        default=100, description="LEFT PORT DISP", alias="LEFT_PORT_DISP"
+    )
+
+
+class Passenger(Component):
+
+    weight: float = Field(..., description="WEIGHT", alias="WEIGHT")
+
+
+class Beam(Component):
+    top_conn_disp: float = Field(
+        default=0.0, description="TOP CONN DISP", alias="TOP_CONN_DISP"
+    )
+
+    chord: float = Field(default=500.0, description="CHORD", alias="CHORD")
+
+    thickness: float = Field(default=40.0, description="THICKNESS", alias="THICKNESS")
+
+    span: float = Field(default=1000.0, description="SPAN", alias="SPAN")
+
+    bottom_conn_disp: float = Field(
+        default=0.0, description="BOTTOM CONN DISP", alias="BOTTOM_CONN_DISP"
+    )
+
+
+class Cylinder_Flip(Component):
+    wall_thickness: float = Field(
+        ..., description="WALL THICKNESS", alias="WALL_THICKNESS"
+    )
+
+    length: float = Field(..., description="LENGTH", alias="LENGTH")
+
+    diameter: float = Field(default=0, description="DIAMETER", alias="DIAMETER")
+
+
+all_uav_components = get_data_file_path("all_uav_components.json")
+with open(all_uav_components) as json_file:
+    all_uav_components = json.load(json_file)
+
+all_uam_components = get_data_file_path("all_uam_components.json")
+with open(all_uam_components) as json_file:
+    all_uam_components = json.load(json_file)
+
+
+def get_corpus_components(corpus):
+    if corpus == "uav":
+        all_components = all_uav_components
+    elif corpus == "uam":
+        all_components = all_uam_components
+    else:
+        raise ValueError("corpus can only be either `uav` or `uam`")
+    return all_components
+
+
+def get_all_components_of_class(cls, corpus):
+    all_components = get_corpus_components(corpus)
+    for key, value in all_components.items():
         if value["Classification"] == cls.__name__:
             value["Name"] = key
             yield value
 
 
-def _build_components(cls):
-    return ComponentsBuilder(creator=cls, components=get_all_components_of_class(cls))
-
-
-def _build_parametric_components(cls, names):
-    return ComponentsBuilder(
-        creator=cls,
-        components=(
-            {"Name": comp_name, **all_comps[comp_name], "Classification": cls.__name__}
-            for comp_name in names
-        ),
+def build_components(cls, corpus):
+    return ComponentsRepository(
+        creator=cls, components=get_all_components_of_class(cls, corpus), corpus=corpus
     )
 
 
-def _build_tubes(names):
+def build_components_of_class(cls, names, corpus):
+    return ComponentsRepository(
+        creator=cls,
+        components=(
+            {
+                "Name": comp_name,
+                **get_corpus_components(corpus)[comp_name],
+                "Classification": cls.__name__,
+            }
+            for comp_name in names
+        ),
+        corpus=corpus,
+    )
+
+
+def build_tubes(names, corpus):
     for tube_name in names:
-        if tube_name == "0281OD_para_tube":
-            all_comps[tube_name]["para_Length_[]AssignedValue"] = all_comps[
-                tube_name
-            ].pop("LENGTH")
+        corpus_components = get_corpus_components(corpus)
+        if "para_Length_[]AssignedValue" not in corpus_components[tube_name]:
+            corpus_components[tube_name][
+                "para_Length_[]AssignedValue"
+            ] = corpus_components[tube_name].pop("LENGTH", 200.0)
 
-    return _build_parametric_components(Tube, names)
-
-
-ALL_FLANGES = ["0394_para_flange"]
-ALL_TUBES = ["0281OD_para_tube", "0394OD_para_tube"]
-ALL_HUBS = [
-    "0394od_para_hub_2",
-    "0394od_para_hub_3",
-    "0394od_para_hub_4",
-    "0394od_para_hub_5",
-    "0394od_para_hub_6",
-]
-ALL_ORIENTS = ["Orient"]
-ALL_CFPS = ["para_cf_fplate"]
-
-Batteries = _build_components(Battery)
-Propellers = _build_components(Propeller)
-Motors = _build_components(Motor)
-ESCs = _build_components(ESC)
-Instrument_Batteries = _build_components(Instrument_Battery)
-Wings = _build_components(Wing)
-GPSes = _build_components(GPS)
-Servos = _build_components(Servo)
-Receivers = _build_components(Receiver)
-Sensors = _build_components(Sensor)
-Autopilots = _build_components(Autopilot)
-# # Begin Parametric Components
-Orients = _build_parametric_components(Orient, ALL_ORIENTS)
-Flanges = _build_parametric_components(Flange, ALL_FLANGES)
-Tubes = _build_tubes(ALL_TUBES)
-Hubs = _build_parametric_components(Hub, ALL_HUBS)
-CFPs = _build_parametric_components(CarbonFiberPlate, ALL_CFPS)
+    return build_components_of_class(Tube, names, corpus=corpus)

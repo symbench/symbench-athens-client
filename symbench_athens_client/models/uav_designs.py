@@ -3,28 +3,30 @@ from typing import Tuple, Union
 from pydantic import Field, validator
 
 from symbench_athens_client.models.base_design import SeedDesign
-from symbench_athens_client.models.components import (
+from symbench_athens_client.models.component import (
     ESC,
-    Batteries,
     Battery,
     CarbonFiberPlate,
+    Flange,
+    Hub,
+    Motor,
+    Orient,
+    Propeller,
+    Servo,
+    Tube,
+    Wing,
+)
+from symbench_athens_client.models.uav_components import (
+    Batteries,
     CFPs,
     ESCs,
-    Flange,
     Flanges,
-    Hub,
     Hubs,
-    Motor,
     Motors,
-    Orient,
     Orients,
-    Propeller,
     Propellers,
-    Servo,
     Servos,
-    Tube,
     Tubes,
-    Wing,
     Wings,
 )
 

@@ -1,9 +1,10 @@
+import itertools
 import json
 import math
 
 import pytest
 
-from symbench_athens_client.models.components import (
+from symbench_athens_client.models.uav_components import (
     Autopilots,
     Batteries,
     CFPs,
@@ -27,7 +28,7 @@ from symbench_athens_client.utils import get_data_file_path
 class TestComponents:
     @pytest.fixture(scope="session")
     def all_components(self):
-        with open(get_data_file_path("all_components.json")) as json_file:
+        with open(get_data_file_path("all_uav_components.json")) as json_file:
             return json.load(json_file)
 
     def test_batteries_count(self):
@@ -159,3 +160,29 @@ class TestComponents:
         assert Tubes[0].prt_file is None
         assert Hubs[0].prt_file is None
         assert CFPs[0].prt_file is None
+
+    def test_proptype(self):
+        assert not any(prop.prop_type for prop in Propellers)
+
+    def test_corpus(self):
+        assert set(
+            batt.corpus
+            for batt in itertools.chain(
+                Autopilots,
+                Batteries,
+                CFPs,
+                ESCs,
+                Flanges,
+                GPSes,
+                Hubs,
+                Instrument_Batteries,
+                Motors,
+                Orients,
+                Propellers,
+                Receivers,
+                Sensors,
+                Servos,
+                Tubes,
+                Wings,
+            )
+        ) == {"uav"}
