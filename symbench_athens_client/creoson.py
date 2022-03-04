@@ -92,21 +92,20 @@ class CreosonMassPropertiesDriver:
 
     def _load_component(self, component):
         """Load a component's CAD from UAV/UAM corpus to CREO."""
-        self.logger.debug(
-            f"About to load component {component.name}'s .prt file  to CREO"
-        )
 
         dirname = get_data_file_path("CAD")
         file = component.prt_file
         loaded_files = self.creoson_client.file_list()
 
         if file not in loaded_files:
+            self.logger.debug(
+                f"About to load component {component.name}'s .prt file  to CREO"
+            )
             self.creoson_client.file_open(
                 file,
                 dirname=dirname,
             )
-
-        self.logger.info(f"Successfully loaded {file} for {component.name}")
+            self.logger.info(f"Successfully loaded {file} for {component.name}")
         return file
 
     def set_creo_parameters(self, component):
@@ -119,7 +118,7 @@ class CreosonMassPropertiesDriver:
         """
         file = self._load_component(component)
         parameter_list = self.creoson_client.parameter_list(name="", file_=file)
-        component_params = component.dict(by_alias=True)
+        component_params = component.dict(by_alias=True, exclude_none=True)
         params_of_interest = []
 
         for param in parameter_list:

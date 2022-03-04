@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import zipfile
 from functools import lru_cache
 from pathlib import Path
@@ -202,3 +203,18 @@ def assign_propellers_quadcopter(quad_design, propeller):
     quad_design.propeller_3 = prop_3
 
     quad_design.validate_propellers_directions()
+
+
+def create_directory(dir_name, clear_contents=False):
+    """Create a directory."""
+    dir_path = Path(dir_name).resolve()
+
+    if clear_contents:
+        shutil.rmtree(dir_path)
+
+    if not dir_path.exists():
+        os.makedirs(dir_path, exist_ok=True)
+    elif not dir_path.is_dir():
+        raise NotADirectoryError(f"{dir_path} is not a directory")
+
+    return dir_path

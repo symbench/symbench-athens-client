@@ -207,7 +207,7 @@ class Battery(Component):
 
     @property
     def prt_file(self) -> Optional[str]:
-        return "para_battery.prt"
+        return "para_battery.prt" if self.corpus == "uav" else "mega_battery.prt"
 
     def should_swap_aliases(self):
         return self.corpus == "uam"
