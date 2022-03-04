@@ -15,7 +15,7 @@ from symbench_athens_client.models.component import (
     Servo,
     Wing,
     build_components,
-    build_parametric_components,
+    build_components_of_class,
     build_tubes,
 )
 
@@ -44,8 +44,8 @@ Receivers = build_components(Receiver, CORPUS)
 Sensors = build_components(Sensor, CORPUS)
 Autopilots = build_components(Autopilot, CORPUS)
 # # Begin Parametric Components
-Orients = build_parametric_components(Orient, ALL_ORIENTS, CORPUS)
-Flanges = build_parametric_components(Flange, ALL_FLANGES, CORPUS)
+Orients = build_components_of_class(Orient, ALL_ORIENTS, CORPUS)
+Flanges = build_components_of_class(Flange, ALL_FLANGES, CORPUS)
 Tubes = build_tubes(ALL_TUBES, CORPUS)
-Hubs = build_parametric_components(Hub, ALL_HUBS, CORPUS)
-CFPs = build_parametric_components(CarbonFiberPlate, ALL_CFPS, CORPUS)
+Hubs = build_components_of_class(Hub, ALL_HUBS, CORPUS)
+CFPs = build_components_of_class(CarbonFiberPlate, ALL_CFPS, CORPUS)

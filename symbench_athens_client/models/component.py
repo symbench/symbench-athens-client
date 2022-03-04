@@ -200,6 +200,16 @@ class Battery(Component):
         return values
 
 
+class BatteryController(Component):
+    input_voltage: float = Field(
+        ..., description="Input Voltage", alias="Input_Voltage"
+    )
+
+    output_voltage: float = Field(
+        ..., description="Output Voltage", alias="Output_Voltage"
+    )
+
+
 class Propeller(Component):
     """The propeller component
 
@@ -558,55 +568,77 @@ class Wing(Component):
 
     aileron_bias: Optional[float] = Field(..., description="BIAS", alias="AILERON_BIAS")
 
-    aoa_cl_max: float = Field(..., description="AoA_CL_Max", alias="AoA_CL_Max")
-
-    offset: float = Field(..., description="OFFSET", alias="OFFSET")
-
-    control_channel_flaps: int = Field(
-        ..., description="CONTROL_CHANNEL_FLAPS", alias="CONTROL_CHANNEL_FLAPS"
+    aoa_cl_max: Optional[float] = Field(
+        None, description="AoA_CL_Max", alias="AoA_CL_Max"
     )
 
-    cl_max: float = Field(..., description="CL_Max", alias="CL_Max")
+    offset: Optional[float] = Field(None, description="OFFSET", alias="OFFSET")
 
-    cl_max_cd0_min: float = Field(
-        ..., description="CL_Max_CD0_Min", alias="CL_Max_CD0_Min"
+    control_channel_flaps: Optional[int] = Field(
+        None, description="CONTROL_CHANNEL_FLAPS", alias="CONTROL_CHANNEL_FLAPS"
     )
 
-    last_two: float = Field(..., description="LAST_TWO", alias="LASTTWO")
+    cl_max: Optional[float] = Field(None, description="CL_Max", alias="CL_Max")
 
-    chord: float = Field(..., description="CHORD", alias="CHORD")
-
-    tube_offset: float = Field(..., description="Tube Offset", alias="TUBE_OFFSET")
-
-    cl_ld_max: float = Field(..., description="CL_LD_Max", alias="CL_LD_Max")
-
-    servo_width: float = Field(..., description="Servo Width", alias="SERVO_WIDTH")
-
-    aoa_l0: Optional[float] = Field(..., description="AOA_L0", alias="AoA_L0")
-
-    dcl_daoa_slope: float = Field(
-        ..., description="dCl_dAoA_Slope", alias="dCl_dAoA_Slope"
+    cl_max_cd0_min: Optional[float] = Field(
+        None, description="CL_Max_CD0_Min", alias="CL_Max_CD0_Min"
     )
 
-    control_channel_ailerons: int = Field(
-        ..., description="CONTROL_CHANNEL_AILERONS", alias="CONTROL_CHANNEL_AILERONS"
+    last_two: Optional[float] = Field(None, description="LAST_TWO", alias="LASTTWO")
+
+    chord: Optional[float] = Field(None, description="CHORD", alias="CHORD")
+
+    tube_offset: Optional[float] = Field(
+        None, description="Tube Offset", alias="TUBE_OFFSET"
     )
 
-    diameter: float = Field(..., description="DIAMETER", alias="DIAMETER")
+    cl_ld_max: Optional[float] = Field(None, description="CL_LD_Max", alias="CL_LD_Max")
 
-    ld_max: float = Field(..., description="LD_Max", alias="LD_Max")
+    servo_width: Optional[float] = Field(
+        None, description="Servo Width", alias="SERVO_WIDTH"
+    )
+
+    aoa_l0: Optional[float] = Field(None, description="AOA_L0", alias="AoA_L0")
+
+    dcl_daoa_slope: Optional[float] = Field(
+        None, description="dCl_dAoA_Slope", alias="dCl_dAoA_Slope"
+    )
+
+    control_channel_ailerons: Optional[int] = Field(
+        None, description="CONTROL_CHANNEL_AILERONS", alias="CONTROL_CHANNEL_AILERONS"
+    )
+
+    diameter: Optional[float] = Field(None, description="DIAMETER", alias="DIAMETER")
+
+    ld_max: Optional[float] = Field(None, description="LD_Max", alias="LD_Max")
 
     servo_length: Optional[float] = Field(
-        ..., description="SERVO_LENGTH", alias="SERVO_LENGTH"
+        None, description="SERVO_LENGTH", alias="SERVO_LENGTH"
     )
 
-    cd0_min: float = Field(..., description="CD0_MIn", alias="CD0_Min")
+    cd0_min: Optional[float] = Field(None, description="CD0_MIn", alias="CD0_Min")
 
-    cd_min: float = Field(..., description="CD_MIN", alias="CD_Min")
+    cd_min: Optional[float] = Field(None, description="CD_MIN", alias="CD_Min")
 
-    cm0: float = Field(..., description="CM0", alias="CM0")
+    cm0: Optional[float] = Field(None, description="CM0", alias="CM0")
 
     flap_bias: float = Field(..., description="Flap Bias", alias="FLAP_BIAS")
+
+    chord_1: Optional[float] = Field(None, description="Chord 1", alias="CHORD_1")
+
+    chord_2: Optional[float] = Field(None, description="Chord 1", alias="CHORD_2")
+
+    load: Optional[float] = Field(None, description="Load", alias="LOAD")
+
+    naca_profile: Optional[str] = Field(
+        None, description="NACA Profile", alias="NACA_Profile"
+    )
+
+    taper_offset: Optional[float] = Field(
+        None, description="Taper Offset", alias="TAPER_OFFSET"
+    )
+
+    thickness: Optional[float] = Field(None, description="Thickness", alias="THICKNESS")
 
     @property
     def prt_file(self):
@@ -941,10 +973,22 @@ class Flange(Component):
 
     box: float = Field(..., description="Box", alias="BOX")
 
-    clock_angle: float = Field(..., description="The Clock Angle", alias="CLOCK_ANGLE")
+    clock_angle: Optional[float] = Field(
+        None, description="The Clock Angle", alias="CLOCK_ANGLE"
+    )
 
-    sidemount_offset: float = Field(
-        ..., description="The Side Mount Offset", alias="SIDEMOUNT_OFFSET"
+    sidemount_offset: Optional[float] = Field(
+        None, description="The Side Mount Offset", alias="SIDEMOUNT_OFFSET"
+    )
+
+    offset: Optional[float] = Field(None, description="Offset", alias="OFFSET")
+
+    num_horizontal_conn: Optional[int] = Field(
+        None, description="The number of horizontal connections", alias="NUMHORZCONN"
+    )
+
+    angle_horizontal_connection: Optional[float] = Field(
+        None, description="The angle of horizontal connections", alias="ANGHORZCONN"
     )
 
 
@@ -1016,6 +1060,26 @@ class CarbonFiberPlate(Component):
     z2_offset: float = Field(..., description="Z2_OFFSET", alias="Z2_OFFSET")
 
     z5_offset: float = Field(..., description="Z5_OFFSET", alias="Z5_OFFSET")
+
+
+class Beam_Cap(Component):
+    thickness: float = Field(..., description="Thickness", alias="THICKNESS")
+
+    chord: float = Field(..., alias="CHORD")
+
+
+class NACA_Port_Connector(Component):
+    bottom_connection_disp: float = Field(
+        default=0, description="BOTTOM_CONNECTION_DISP", alias="BOTTOM_CONNECTION_DISP"
+    )
+
+    port_thickness: float = Field(
+        default=100, description="CHORD", alias="PORT_THICKNESS"
+    )
+
+    chord: float = Field(default=500, description="CHORD", alias="CHORD")
+
+    thickness: float = Field(default=12, description="THICKNESS", alias="THICKNESS")
 
 
 class ComponentsRepository:
@@ -1111,6 +1175,109 @@ class ComponentsRepository:
         return f"<{self.creator.__name__} Library, Count: {self.__len__()}, Corpus: {self.corpus}>"
 
 
+class Cylinder(Component):
+    wall_thickness: float = Field(default=3.0, alias="WALL_THICKNESS")
+
+    left_conn_display: float = Field(default=0.0, alias="LEFT_CONN_DISP")
+
+    top_conn_display: float = Field(default=0.0, alias="TOP_CONN_DISP")
+
+    right_conn_display: float = Field(default=0.0, alias="RIGHT_CONN_DISP")
+
+    bottom_conn_display: float = Field(default=0.0, alias="BOTTOM_CONN_DISP")
+
+    diameter: float = Field(default=0.0, alias="DIAMETER")
+
+    port_thickness: float = Field(default=100.0, alias="PORT_THICKNESS")
+
+    length: float = Field(default=100.0, alias="LENGTH")
+
+    front_angle: float = Field(default=1000.0, alias="FRONT_ANGLE")
+
+
+class Fuselage(Component):
+    wall_thickness: float = Field(
+        ..., description="WALL THICKNESS", alias="WALL_THICKNESS"
+    )
+
+    seat_1_lr: float = Field(default=100, description="SEAT 1 LR", alias="SEAT_1_LR")
+
+    floor_height: float = Field(
+        default=100, description="FLOOR HEIGHT", alias="FLOOR_HEIGHT"
+    )
+
+    port_thickness: float = Field(
+        default=100, description="PORT THICKNESS", alias="PORT_THICKNESS"
+    )
+
+    middle_length: float = Field(
+        default=100, description="MIDDLE LENGTH", alias="MIDDLE_LENGTH"
+    )
+
+    bottom_port_disp: float = Field(
+        default=100, description="BOTTOM PORT DISP", alias="BOTTOM_PORT_DISP"
+    )
+
+    length: float = Field(default=100, description="LENGTH", alias="LENGTH")
+
+    seat_2_fb: float = Field(default=100, description="SEAT 2 FB", alias="SEAT_2_FB")
+
+    seat_1_fb: float = Field(default=100, description="SEAT 1 FB", alias="SEAT_1_FB")
+
+    seat_2_lr: float = Field(default=100, description="SEAT 2 LR", alias="SEAT_2_LR")
+
+    tail_diameter: float = Field(
+        default=100, description="TAIL DIAMETER", alias="TAIL_DIAMETER"
+    )
+
+    sphere_diameter: float = Field(
+        default=100, description="SPHERE DIAMETER", alias="SPHERE_DIAMETER"
+    )
+
+    right_port_disp: float = Field(
+        default=100, description="RIGHT PORT DISP", alias="RIGHT_PORT_DISP"
+    )
+
+    top_port_disp: float = Field(
+        default=100, description="TOP PORT DISP", alias="TOP_PORT_DISP"
+    )
+
+    left_port_disp: float = Field(
+        default=100, description="LEFT PORT DISP", alias="LEFT_PORT_DISP"
+    )
+
+
+class Passenger(Component):
+
+    weight: float = Field(..., description="WEIGHT", alias="WEIGHT")
+
+
+class Beam(Component):
+    top_conn_disp: float = Field(
+        default=0.0, description="TOP CONN DISP", alias="TOP_CONN_DISP"
+    )
+
+    chord: float = Field(default=500.0, description="CHORD", alias="CHORD")
+
+    thickness: float = Field(default=40.0, description="THICKNESS", alias="THICKNESS")
+
+    span: float = Field(default=1000.0, description="SPAN", alias="SPAN")
+
+    bottom_conn_disp: float = Field(
+        default=0.0, description="BOTTOM CONN DISP", alias="BOTTOM_CONN_DISP"
+    )
+
+
+class Cylinder_Flip(Component):
+    wall_thickness: float = Field(
+        ..., description="WALL THICKNESS", alias="WALL_THICKNESS"
+    )
+
+    length: float = Field(..., description="LENGTH", alias="LENGTH")
+
+    diameter: float = Field(default=0, description="DIAMETER", alias="DIAMETER")
+
+
 all_uav_components = get_data_file_path("all_uav_components.json")
 with open(all_uav_components) as json_file:
     all_uav_components = json.load(json_file)
@@ -1144,7 +1311,7 @@ def build_components(cls, corpus):
     )
 
 
-def build_parametric_components(cls, names, corpus):
+def build_components_of_class(cls, names, corpus):
     return ComponentsRepository(
         creator=cls,
         components=(
@@ -1161,9 +1328,10 @@ def build_parametric_components(cls, names, corpus):
 
 def build_tubes(names, corpus):
     for tube_name in names:
-        if tube_name == "0281OD_para_tube":
-            get_corpus_components(corpus)[tube_name][
+        corpus_components = get_corpus_components(corpus)
+        if "para_Length_[]AssignedValue" not in corpus_components[tube_name]:
+            corpus_components[tube_name][
                 "para_Length_[]AssignedValue"
-            ] = all_uav_components[tube_name].pop("LENGTH")
+            ] = corpus_components[tube_name].pop("LENGTH", 200.0)
 
-    return build_parametric_components(Tube, names, corpus=corpus)
+    return build_components_of_class(Tube, names, corpus=corpus)

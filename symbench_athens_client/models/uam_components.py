@@ -1,51 +1,49 @@
 from symbench_athens_client.models.component import (
-    ESC,
-    GPS,
-    Autopilot,
     Battery,
-    CarbonFiberPlate,
+    BatteryController,
+    Beam,
+    Beam_Cap,
+    Cylinder,
+    Cylinder_Flip,
     Flange,
+    Fuselage,
     Hub,
-    Instrument_Battery,
     Motor,
+    NACA_Port_Connector,
     Orient,
+    Passenger,
     Propeller,
-    Receiver,
-    Sensor,
-    Servo,
     Wing,
     build_components,
-    build_parametric_components,
+    build_components_of_class,
     build_tubes,
 )
 
-# ALL_FLANGES = ["0394_para_flange"]
-# ALL_TUBES = ["0281OD_para_tube", "0394OD_para_tube"]
-# ALL_HUBS = [
-#     "0394od_para_hub_2",
-#     "0394od_para_hub_3",
-#     "0394od_para_hub_4",
-#     "0394od_para_hub_5",
-#     "0394od_para_hub_6",
-# ]
-# ALL_ORIENTS = ["Orient"]
-# ALL_CFPS = ["para_cf_fplate"]
+ALL_FLANGES = ["0394_para_flange", "0281_para_flange"]
+ALL_HUBS = [
+    "0394od_para_hub_2",
+    "0394od_para_hub_3",
+    "0394od_para_hub_4",
+    "0394od_para_hub_5",
+    "0394od_para_hub_6",
+]
+ALL_TUBES = ["0394OD_para_tube", "0281OD_para_tube"]
 CORPUS = "uam"
 
 Batteries = build_components(Battery, CORPUS)
 Propellers = build_components(Propeller, CORPUS)
 Motors = build_components(Motor, CORPUS)
-# ESCs = build_components(ESC, CORPUS)
-# Instrument_Batteries = build_components(Instrument_Battery, CORPUS)
-# Wings = build_components(Wing, CORPUS)
-# GPSes = build_components(GPS, CORPUS)
-# Servos = build_components(Servo, CORPUS)
-# Receivers = build_components(Receiver, CORPUS)
-# Sensors = build_components(Sensor, CORPUS)
-# Autopilots = build_components(Autopilot, CORPUS)
+Wings = build_components(Wing, CORPUS)
+Beam_Caps = build_components(Beam_Cap, CORPUS)
+NACA_Port_Connectors = build_components(NACA_Port_Connector, CORPUS)
+BatteryControllers = build_components(BatteryController, CORPUS)
+Orients = build_components(Orient, CORPUS)
+Cylinders = build_components(Cylinder, CORPUS)
+Fuselages = build_components(Fuselage, CORPUS)
+Passengers = build_components(Passenger, CORPUS)
+Beams = build_components(Beam, CORPUS)
+Cylinder_Flips = build_components(Cylinder_Flip, CORPUS)
 # Begin Parametric Components
-# Orients = build_parametric_components(Orient, ALL_ORIENTS, CORPUS)
-# Flanges = build_parametric_components(Flange, ALL_FLANGES, CORPUS)
-# Tubes = build_tubes(ALL_TUBES, CORPUS)
-# Hubs = build_parametric_components(Hub, ALL_HUBS, CORPUS)
-# CFPs = build_parametric_components(CarbonFiberPlate, ALL_CFPS, CORPUS)
+Flanges = build_components_of_class(Flange, ALL_FLANGES, CORPUS)
+Hubs = build_components_of_class(Hub, ALL_HUBS, CORPUS)
+Tubes = build_tubes(ALL_TUBES, CORPUS)
