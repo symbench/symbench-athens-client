@@ -231,7 +231,7 @@ class TestComponents:
         flange = Flanges["0281_para_flange"]
         assert flange.od == 7.3152
         assert flange.num_horizontal_conn == 2
-        assert flange.angle_horizontal_connection == 80
+        assert flange.angle_horizontal_connection == 90.0
         assert flange.box == 30.48
         assert flange.offset == 0.0
         assert flange.classification == "Flange"
@@ -239,8 +239,8 @@ class TestComponents:
     def test_tube_properties(self):
         tube = Tubes["0281OD_para_tube"]
         assert tube.length == 200.0
-        assert tube.id == 7.1374
-        assert tube.od == 4.699
+        assert tube.od == 7.1374
+        assert tube.id == 4.699
 
     def test_hub_properties(self):
         hub = Hubs["0394od_para_hub_4"]
