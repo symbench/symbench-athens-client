@@ -37,23 +37,13 @@ class MassPropertiesExporter:
                 Wings,
             )
 
-            motors, failed_motors = self._extract_components(Motors)
-            batteries, failed_batteries = self._extract_components(Batteries)
-            propellers, failed_propellers = self._extract_components(Propellers)
-            wings, failed_wings = self._extract_components(Wings)
-            escs, failed_escs = self._extract_components(ESCs)
-
-            components_zip = zip(
-                ["motors", "batteries", "propellers", "wings", "escs"],
-                [motors, batteries, propellers, wings, escs],
-                [
-                    failed_motors,
-                    failed_batteries,
-                    failed_propellers,
-                    failed_wings,
-                    failed_escs,
-                ],
-            )
+            components_and_prefix = [
+                (Motors, "motors"),
+                (Batteries, "batteries"),
+                (Propellers, "propellers"),
+                (Wings, "wings"),
+                (ESCs, "esc"),
+            ]
 
         elif corpus == "uam":
             from symbench_athens_client.models.uam_components import (
@@ -62,18 +52,20 @@ class MassPropertiesExporter:
                 Propellers,
             )
 
-            for (Components, prefix) in [
+            components_and_prefix = [
                 (Motors, "motors"),
                 (Batteries, "batteries"),
                 (Propellers, "propellers"),
-            ]:
-                components, failed_components = self._extract_components(Components)
-                self.write_files(prefix, components, failed_components)
-
+            ]
         else:
             raise ValueError(f"Unknown corpus {corpus}")
 
+        for (Components, prefix) in components_and_prefix:
+            components, failed_components = self._extract_components(Components)
+            self.write_files(prefix, components, failed_components)
+
     def write_files(self, prefix, data, failures):
+        """Write files exports for `csv` and `json` for components mass properties."""
         self._write_csv(prefix, data)
         self._write_json("failed_" + prefix, failures)
 
