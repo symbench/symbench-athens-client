@@ -15,6 +15,8 @@ from symbench_athens_client.models.component import (
 if __name__ == "__main__":
     import argparse
 
+    from symbench_athens_client.utils import create_directory
+
     parser = argparse.ArgumentParser("The CSV Exporter for components")
     parser.add_argument(
         "-c",
@@ -35,13 +37,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    save_dir = pathlib.Path(args.save_dir).resolve()
-
-    if not save_dir.exists():
-        os.makedirs(save_dir, exist_ok=True)
-
-    if not save_dir.is_dir():
-        raise NotADirectoryError(f"{save_dir} is not a directory")
+    save_dir = create_directory(dir_name=args.save_dir)
 
     for cls in Battery, Motor, Propeller, Wing:
         builder = ComponentsRepository(

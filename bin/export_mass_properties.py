@@ -1,14 +1,9 @@
 #! /usr/bin env python
 import csv
+import json
+import time
 
 from symbench_athens_client.creoson import CreosonMassPropertiesDriver
-from symbench_athens_client.models.uav_components import (
-    Batteries,
-    ESCs,
-    Motors,
-    Propellers,
-    Wings,
-)
 
 
 class MassPropertiesExporter:
@@ -31,36 +26,81 @@ class MassPropertiesExporter:
         self.driver = CreosonMassPropertiesDriver(creoson_ip=ip, creoson_port=port)
         self.outdir = outdir
 
-    def run(self):
+    def run(self, corpus):
         """Run the exporter for components' mass properties and save csv file of extracted properties."""
-        motors = self._extract_components(Motors)
-        batteries = self._extract_components(Batteries)
-        propellers = self._extract_components(Propellers)
-        wings = self._extract_components(Wings)
-        escs = self._extract_components(ESCs)
+        if corpus == "uav":
+            from symbench_athens_client.models.uav_components import (
+                Batteries,
+                ESCs,
+                Motors,
+                Propellers,
+                Wings,
+            )
 
-        for name, components in zip(
-            ["motors", "batteries", "propellers", "wings", "escs"],
-            [motors, batteries, propellers, wings, escs],
-        ):
-            with open(f"{self.outdir}/{name}.csv", "w", newline="") as csvfile:
-                fieldnames = components[0].keys()
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerows(components)
+            components_and_prefix = [
+                (Motors, "motors"),
+                (Batteries, "batteries"),
+                (Propellers, "propellers"),
+                (Wings, "wings"),
+                (ESCs, "esc"),
+            ]
+
+        elif corpus == "uam":
+            from symbench_athens_client.models.uam_components import (
+                Batteries,
+                Motors,
+                Propellers,
+            )
+
+            components_and_prefix = [
+                (Motors, "motors"),
+                (Batteries, "batteries"),
+                (Propellers, "propellers"),
+            ]
+        else:
+            raise ValueError(f"Unknown corpus {corpus}")
+
+        for (Components, prefix) in components_and_prefix:
+            components, failed_components = self._extract_components(Components)
+            self.write_files(prefix, components, failed_components)
+
+    def write_files(self, prefix, data, failures):
+        """Write files exports for `csv` and `json` for components mass properties."""
+        self._write_csv(prefix, data)
+        self._write_json("failed_" + prefix, failures)
+
+    def _write_json(self, prefix, data):
+        with open(f"{self.outdir}/{prefix}.json", "w", newline="") as json_file:
+            json.dump(data, json_file)
+
+    def _write_csv(self, prefix, data):
+        with open(f"{self.outdir}/{prefix}.csv", "w", newline="") as csvfile:
+            fieldnames = data[0].keys()
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(data)
 
     def _extract_components(self, components):
         """Extract mass properties for components."""
         components_properties = []
+        failed = {}
 
         for component in components:
-            component_properties = component.dict(by_alias=True)
-            mass_properties = self.driver.mass_properties(component)
-            component_properties.update(self._mass_props_to_csv_dict(mass_properties))
-            component_properties.update(self._get_creo_parameters(component))
-            components_properties.append(component_properties)
+            try:
+                component_properties = component.dict(by_alias=True, exclude_none=True)
+                mass_properties = self.driver.mass_properties(component)
+                component_properties.update(
+                    self._mass_props_to_csv_dict(mass_properties)
+                )
+                component_properties.update(self._get_creo_parameters(component))
+                components_properties.append(component_properties)
+                time.sleep(0.001)
 
-        return components_properties
+            except Exception as e:
+                self.driver.logger.debug(e)
+                failed[component.name] = str(e)
+
+        return components_properties, failed
 
     def _get_creo_parameters(self, component):
         """Get CREO parameters for a component."""
@@ -99,6 +139,8 @@ class MassPropertiesExporter:
 if __name__ == "__main__":
     from argparse import ArgumentParser
 
+    from symbench_athens_client.utils import create_directory
+
     parser = ArgumentParser("Export mass properties for UAV Components")
     parser.add_argument(
         "outdir",
@@ -121,6 +163,16 @@ if __name__ == "__main__":
         type=int,
     )
 
+    parser.add_argument(
+        "-c",
+        "--corpus",
+        help="The corpus to extract components from",
+        choices={"uav", "uam"},
+        default="uam",
+        type=str,
+    )
+
     args = parser.parse_args()
-    exporter = MassPropertiesExporter(args.outdir, args.ip_address, args.port)
-    exporter.run()
+    outdir = create_directory(dir_name=args.outdir)
+    exporter = MassPropertiesExporter(outdir, args.ip_address, args.port)
+    exporter.run(args.corpus)
