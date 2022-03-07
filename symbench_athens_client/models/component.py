@@ -1163,10 +1163,11 @@ class ComponentsRepository:
     def to_csv(self, filename):
         """Write these components to a csv_file"""
         keys = {field.alias for _, field in self.creator.__fields__.items()}
-        reverse_swap_aliases = {
-            val: key for key, val in self.creator.__swap_aliases__.items()
-        }
+
         if next(iter(self.components.values())).should_swap_aliases():
+            reverse_swap_aliases = {
+                val: key for key, val in self.creator.__swap_aliases__.items()
+            }
             for key in list(keys):
                 if key in reverse_swap_aliases:
                     keys.remove(key)
