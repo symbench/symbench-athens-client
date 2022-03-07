@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 """Generate CSV files (one per component type) from the database"""
-import os
-import pathlib
 
 from symbench_athens_client.models.component import (
     Battery,
@@ -23,7 +21,7 @@ if __name__ == "__main__":
         "--corpus",
         choices={"uav", "uam"},
         default="uav",
-        descrption="The corpus to export",
+        help="The corpus to export",
         type=str,
     )
 
@@ -31,7 +29,7 @@ if __name__ == "__main__":
         "-d",
         "--save-dir",
         default=".",
-        descrption="The directory to save the csv files in",
+        help="The directory to save the csv files in",
         type=str,
     )
 
@@ -41,6 +39,8 @@ if __name__ == "__main__":
 
     for cls in Battery, Motor, Propeller, Wing:
         builder = ComponentsRepository(
-            cls, get_all_components_of_class(Battery, corpus=args.corpus)
+            cls,
+            get_all_components_of_class(cls, corpus=args.corpus),
+            corpus=args.corpus,
         )
-        builder.to_csv(f"{cls.__name__}.csv")
+        builder.to_csv(f"{save_dir}/{args.corpus.upper()}_{cls.__name__}.csv")

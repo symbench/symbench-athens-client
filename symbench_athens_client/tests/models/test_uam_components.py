@@ -1,3 +1,4 @@
+import csv
 import itertools
 import json
 
@@ -263,3 +264,16 @@ class TestComponents:
 
     def test_repr(self):
         assert repr(Propellers["55x12_4_1600_51_700"])
+
+    def test_to_csv(self):
+        Batteries.to_csv("batteries.csv")
+        with open("batteries.csv") as batt_csv:
+            reader = csv.DictReader(batt_csv)
+            assert "VOLTAGE" not in reader.fieldnames
+            assert "BASE_VOLTAGE" in reader.fieldnames
+
+        Motors.to_csv("motors.csv")
+        with open("motors.csv") as batt_csv:
+            reader = csv.DictReader(batt_csv)
+            assert "IO_IDLE_CURRENT_10V" in reader.fieldnames
+            assert "IO_IDLE_CURRENT@10V" not in reader.fieldnames
