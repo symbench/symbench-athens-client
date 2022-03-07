@@ -1,3 +1,4 @@
+import csv
 import itertools
 import json
 import math
@@ -200,3 +201,16 @@ class TestComponents:
                 Wings,
             )
         ) == {"uav"}
+
+    def test_to_csv(self):
+        Batteries.to_csv("batteries.csv")
+        with open("batteries.csv") as batt_csv:
+            reader = csv.DictReader(batt_csv)
+            assert "VOLTAGE" in reader.fieldnames
+            assert "BASE_VOLTAGE" not in reader.fieldnames
+
+        Motors.to_csv("motors.csv")
+        with open("motors.csv") as batt_csv:
+            reader = csv.DictReader(batt_csv)
+            assert "IO_IDLE_CURRENT_10V" not in reader.fieldnames
+            assert "IO_IDLE_CURRENT@10V" in reader.fieldnames
