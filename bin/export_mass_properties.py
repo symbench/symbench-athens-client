@@ -113,6 +113,7 @@ class MassPropertiesExporter:
         return {
             "surface_area": mass_props["surface_area"],
             "density": mass_props["density"],
+            "mass": mass_props["mass"],
             # Coordinate System
             "coordIxx": mass_props["coord_sys_inertia_tensor"]["x_axis"]["x"],
             "coordIxy": mass_props["coord_sys_inertia_tensor"]["x_axis"]["y"],
