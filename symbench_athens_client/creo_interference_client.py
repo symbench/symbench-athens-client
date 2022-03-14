@@ -13,14 +13,14 @@ class SymbenchCreoInterferenceClient:
 
     Parameters
     ----------
-    url: str, default="http://localhost"
+    ip: str, default="http://localhost"
         The url of the Interference Server
     port: int, default=8000
         The port number for the interference Server
     """
 
-    def __init__(self, url="http://localhost", port=8000):
-        self.server = f"{url}:{port}{INTEFERENCE_ENDPOINT}"
+    def __init__(self, ip_address="localhost", port=8000):
+        self.server = f"http://{ip_address}:{port}{INTEFERENCE_ENDPOINT}"
 
     def get_global_interferences(self, assembly_path=None):
         """Given an assembly path, find global interferences."""
