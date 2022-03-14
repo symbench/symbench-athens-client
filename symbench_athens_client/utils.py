@@ -6,7 +6,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
 
-from uav_analysis.mass_properties import quad_copter_fixed_bemp2
+from uav_analysis.mass_properties_hackathon1 import quad_copter_fixed_bemp2
 from uav_analysis.testbench_data import TestbenchData
 
 from symbench_athens_client.exceptions import PropellerAssignmentError

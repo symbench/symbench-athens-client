@@ -5,7 +5,10 @@ from pathlib import Path
 from shutil import move
 from uuid import uuid4
 
-from uav_analysis.mass_properties import quad_copter_batt_prop, quad_copter_fixed_bemp2
+from uav_analysis.mass_properties_hackathon1 import (
+    quad_copter_batt_prop,
+    quad_copter_fixed_bemp2,
+)
 from uav_analysis.testbench_data import TestbenchData
 
 from symbench_athens_client.exceptions import PropellerAssignmentError
