@@ -8,6 +8,7 @@ from symbench_athens_client.creo_interference_client import (
 
 
 @pytest.mark.skipif(os.environ.get("CI"), reason="Skip in CI.")
+@pytest.mark.slow
 class TestInterferenceClient:
     @pytest.fixture(scope="session")
     def intf_client(self):
