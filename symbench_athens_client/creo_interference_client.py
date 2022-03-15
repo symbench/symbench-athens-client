@@ -13,7 +13,7 @@ class SymbenchCreoInterferenceClient:
 
     Parameters
     ----------
-    ip: str, default="http://localhost"
+    ip_address: str, default="localhost"
         The url of the Interference Server
     port: int, default=8000
         The port number for the interference Server

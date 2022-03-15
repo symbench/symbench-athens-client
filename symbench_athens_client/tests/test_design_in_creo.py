@@ -21,5 +21,5 @@ class TestCreoDesignSweeper:
             parameters_map=parameters_map, assembly_path=os.environ["RAKE_DESIGN_PATH"]
         )
 
-    def test_parameters_map(self, rake_in_creo):
-        pass
+    def test_get_state(self, rake_in_creo):
+        assert rake_in_creo.get_state()

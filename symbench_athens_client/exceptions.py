@@ -16,3 +16,7 @@ class MissingExperimentError(Exception):
 
 class PropellerAssignmentError(Exception):
     """Exception to be raised when there's an error in assigning propellers."""
+
+
+class ParameterMismatchError(ValueError):
+    """Exception to be raised when the parameters mismatch."""

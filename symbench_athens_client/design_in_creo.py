@@ -1,3 +1,4 @@
+import json
 import logging
 from collections import defaultdict
 from pathlib import Path
@@ -6,6 +7,13 @@ from creopyson import Client
 
 from symbench_athens_client.creo_interference_client import (
     SymbenchCreoInterferenceClient,
+)
+from symbench_athens_client.exceptions import ParameterMismatchError
+from symbench_athens_client.models.design_state_creo import (
+    CreoDesignState,
+    DesignInputParameter,
+    Interference,
+    MassProperties,
 )
 from symbench_athens_client.utils import get_logger
 
@@ -57,6 +65,7 @@ class SymbenchDesingInCREO:
         interference_port=8000,
     ):
         self.logger = get_logger(self.__class__.__name__, logging.DEBUG)
+        self.logger.setLevel(logging.ERROR)
         self._initialize_clients(
             creoson_ip, creoson_port, interference_ip, interference_port
         )
@@ -86,6 +95,7 @@ class SymbenchDesingInCREO:
             file_=assembly_name,
             dirname=assembly_dir,
         )
+        self.assembly_name = assembly_name
         self.logger.info(f"Successfully loaded the file at {assembly_path} into CREO")
 
     def _design_parameters_to_cad(self, parameters_map):
@@ -133,5 +143,70 @@ class SymbenchDesingInCREO:
             ml_cyphy_param = ml_cyphy_param.pop()
             return ml_cyphy_param["value"]
 
+    def _get_creo_values(self, param_details):
+        """Get CREO values for a parameter"""
+        all_values = []
+        for detail in param_details:
+            param = self.creoson_client.parameter_list(
+                detail[CONSTANTS.COMPONENT_PARAM], file_=detail[CONSTANTS.PRT_FILE]
+            )
+            if param:
+                all_values.append(param[0]["value"])
+        return all_values
+
+    def get_creo_parameters(self):
+        """Get a dictionary of parameters and their values for the design"""
+        cad_params = {}
+        for param in self.design_params:
+            values = self._get_creo_values(self.design_params[param])
+            if values and len(set(values)) == 1:
+                cad_params[param] = values[0]
+            elif len(set(values)) > 1:
+                raise ParameterMismatchError(
+                    f"Multiple Values found for parameter {param}: {values}"
+                )
+            else:
+                self.logger.debug(f"No CREO parameter found. Skipping {param}")
+        return cad_params
+
     def get_interferences(self):
         return self.interference_client.get_global_interferences()
+
+    def get_state(self, regenerate=False, flat=True):
+        """Get the current state of the design from CREO.
+
+        This method computes the mass properties and get the design parameter values and returns a json
+        serializable dictionary of the design state with values.
+
+        Parameters
+        ----------
+        regenerate: bool, default=False
+            If True, force creo to regenerate the design
+
+        flat: bool, default=True
+            If True, return a flat csv style dictionary instead of nested dictionary
+        """
+        if regenerate:
+            self.creoson_client.file_regenerate(file_=self.assembly_name)
+        intf_data = self.get_interferences()
+        interferences = None
+        if intf_data["num_interferences"] > 0:
+            interferences = Interference.from_dicts(intf_data["interferences"])
+
+        mass_properties_dict = self.creoson_client.file_massprops(
+            file_=self.assembly_name
+        )
+
+        mass_props = MassProperties.from_creoson_dict(mass_properties_dict)
+        cad_params_dict = self.get_creo_parameters()
+        parameters = [
+            DesignInputParameter(name=k, value=v) for k, v in cad_params_dict.items()
+        ]
+
+        design_state = CreoDesignState(
+            interferences=interferences or [],
+            parameters=parameters,
+            mass_properties=mass_props,
+        )
+
+        return design_state.flat_dict() if flat else design_state.dict()
