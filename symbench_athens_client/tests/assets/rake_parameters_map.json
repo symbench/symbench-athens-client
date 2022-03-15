@@ -1,0 +1,622 @@
+[
+  {
+    "DESIGN_PARAM": "UpFacingCCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "front_left_top_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "rear_left_top_prop_vert_2"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "front_ctr_top_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "rear_left_top_prop_vert_1"
+  },
+  {
+    "DESIGN_PARAM": "Param_6",
+    "COMPONENT_PARAM": "SPHERE_DIAMETER",
+    "COMPONENT_NAME": "fuselage"
+  },
+  {
+    "DESIGN_PARAM": "Param_17",
+    "COMPONENT_PARAM": "LENGTH",
+    "COMPONENT_NAME": "rear_left_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_17",
+    "COMPONENT_PARAM": "LENGTH",
+    "COMPONENT_NAME": "rear_right_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "FwdFacingCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "front_right_prop_fwd"
+  },
+  {
+    "DESIGN_PARAM": "FwdFacingCCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "front_left_prop_fwd"
+  },
+  {
+    "DESIGN_PARAM": "Param_13",
+    "COMPONENT_PARAM": "LOAD",
+    "COMPONENT_NAME": "rear_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_13",
+    "COMPONENT_PARAM": "LOAD",
+    "COMPONENT_NAME": "rear_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_25",
+    "COMPONENT_PARAM": "LEFT_CONN_DISP",
+    "COMPONENT_NAME": "rear_right_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_25",
+    "COMPONENT_PARAM": "RIGHT_CONN_DISP",
+    "COMPONENT_NAME": "rear_left_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_15",
+    "COMPONENT_PARAM": "LENGTH",
+    "COMPONENT_NAME": "front_left_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_15",
+    "COMPONENT_PARAM": "LENGTH",
+    "COMPONENT_NAME": "front_right_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Rear_Mount_Side",
+    "COMPONENT_PARAM": "MOUNT_SIDE",
+    "COMPONENT_NAME": "rear_right_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_23",
+    "COMPONENT_PARAM": "TOP_CONN_DISP",
+    "COMPONENT_NAME": "rear_right_motor_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_23",
+    "COMPONENT_PARAM": "TOP_CONN_DISP",
+    "COMPONENT_NAME": "rear_left_motor_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_23",
+    "COMPONENT_PARAM": "BOTTOM_CONN_DISP",
+    "COMPONENT_NAME": "rear_right_motor_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_23",
+    "COMPONENT_PARAM": "BOTTOM_CONN_DISP",
+    "COMPONENT_NAME": "rear_left_motor_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "DownCWFacing_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "rear_left_bot_prop_vert_2"
+  },
+  {
+    "DESIGN_PARAM": "DownCWFacing_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "rear_left_bot_prop_vert_1"
+  },
+  {
+    "DESIGN_PARAM": "DownCWFacing_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "front_left_bot_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "Param_4",
+    "COMPONENT_PARAM": "PORT_THICKNESS",
+    "COMPONENT_NAME": "rear_ctr_naca_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_4",
+    "COMPONENT_PARAM": "PORT_THICKNESS",
+    "COMPONENT_NAME": "fuselage"
+  },
+  {
+    "DESIGN_PARAM": "Param_4",
+    "COMPONENT_PARAM": "PORT_THICKNESS",
+    "COMPONENT_NAME": "center_fwd_struct_cyl"
+  },
+  {
+    "DESIGN_PARAM": "Param_4",
+    "COMPONENT_PARAM": "PORT_THICKNESS",
+    "COMPONENT_NAME": "front_ctr_naca_mount"
+  },
+  {
+    "DESIGN_PARAM": "NACA",
+    "COMPONENT_PARAM": "NACA_Profile",
+    "COMPONENT_NAME": "front_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "NACA",
+    "COMPONENT_PARAM": "NACA_Profile",
+    "COMPONENT_NAME": "rear_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "NACA",
+    "COMPONENT_PARAM": "NACA_Profile",
+    "COMPONENT_NAME": "front_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "NACA",
+    "COMPONENT_PARAM": "NACA_Profile",
+    "COMPONENT_NAME": "rear_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "front_right_bot_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "rear_right_bot_prop_vert_1"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "ctr_bot_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "rear_right_bot_prop_vert_2"
+  },
+  {
+    "DESIGN_PARAM": "Param_16",
+    "COMPONENT_PARAM": "PORT_THICKNESS",
+    "COMPONENT_NAME": "front_right_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_16",
+    "COMPONENT_PARAM": "PORT_THICKNESS",
+    "COMPONENT_NAME": "front_left_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "rear_left_bot_prop_vert_1"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "rear_left_bot_prop_vert_2"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "front_left_bot_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "Param_0",
+    "COMPONENT_PARAM": "SPAN",
+    "COMPONENT_NAME": "front_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_0",
+    "COMPONENT_PARAM": "SPAN",
+    "COMPONENT_NAME": "front_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "Voltage1",
+    "COMPONENT_PARAM": "VOLTAGE_REQUEST",
+    "COMPONENT_NAME": "rear_right_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Voltage1",
+    "COMPONENT_PARAM": "VOLTAGE_REQUEST",
+    "COMPONENT_NAME": "rear_left_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_21",
+    "COMPONENT_PARAM": "SEAT_2_LR",
+    "COMPONENT_NAME": "fuselage"
+  },
+  {
+    "DESIGN_PARAM": "Param_20",
+    "COMPONENT_PARAM": "SEAT_1_LR",
+    "COMPONENT_NAME": "fuselage"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "rear_left_top_prop_vert_2"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "front_ctr_top_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "front_left_top_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "rear_left_top_prop_vert_1"
+  },
+  {
+    "DESIGN_PARAM": "Param_18",
+    "COMPONENT_PARAM": "VOLUME_PERCENT",
+    "COMPONENT_NAME": "rear_right_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_18",
+    "COMPONENT_PARAM": "VOLUME_PERCENT",
+    "COMPONENT_NAME": "rear_left_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_3",
+    "COMPONENT_PARAM": "LOAD",
+    "COMPONENT_NAME": "front_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_3",
+    "COMPONENT_PARAM": "LOAD",
+    "COMPONENT_NAME": "front_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_10",
+    "COMPONENT_PARAM": "LENGTH",
+    "COMPONENT_NAME": "center_fwd_struct_cyl"
+  },
+  {
+    "DESIGN_PARAM": "Param_24",
+    "COMPONENT_PARAM": "TOP_CONN_DISP",
+    "COMPONENT_NAME": "rear_left_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_24",
+    "COMPONENT_PARAM": "TOP_CONN_DISP",
+    "COMPONENT_NAME": "rear_right_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_24",
+    "COMPONENT_PARAM": "BOTTOM_CONN_DISP",
+    "COMPONENT_NAME": "rear_right_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_24",
+    "COMPONENT_PARAM": "BOTTOM_CONN_DISP",
+    "COMPONENT_NAME": "rear_left_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_11",
+    "COMPONENT_PARAM": "CHORD_2",
+    "COMPONENT_NAME": "rear_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_11",
+    "COMPONENT_PARAM": "CHORD_1",
+    "COMPONENT_NAME": "rear_left_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_11",
+    "COMPONENT_PARAM": "CHORD_2",
+    "COMPONENT_NAME": "rear_right_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_11",
+    "COMPONENT_PARAM": "LENGTH",
+    "COMPONENT_NAME": "center_rear_struct_cyl"
+  },
+  {
+    "DESIGN_PARAM": "Param_11",
+    "COMPONENT_PARAM": "CHORD_1",
+    "COMPONENT_NAME": "rear_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_11",
+    "COMPONENT_PARAM": "CHORD",
+    "COMPONENT_NAME": "rear_ctr_naca_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_11",
+    "COMPONENT_PARAM": "CHORD_1",
+    "COMPONENT_NAME": "rear_right_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_11",
+    "COMPONENT_PARAM": "CHORD_1",
+    "COMPONENT_NAME": "rear_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_11",
+    "COMPONENT_PARAM": "CHORD_2",
+    "COMPONENT_NAME": "rear_left_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_11",
+    "COMPONENT_PARAM": "CHORD_2",
+    "COMPONENT_NAME": "rear_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_19",
+    "COMPONENT_PARAM": "BOTTOM_CONN_DISP",
+    "COMPONENT_NAME": "front_right_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_19",
+    "COMPONENT_PARAM": "BOTTOM_CONN_DISP",
+    "COMPONENT_NAME": "front_left_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_19",
+    "COMPONENT_PARAM": "TOP_CONN_DISP",
+    "COMPONENT_NAME": "front_left_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_19",
+    "COMPONENT_PARAM": "TOP_CONN_DISP",
+    "COMPONENT_NAME": "front_right_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "FwdFacingCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "front_right_prop_fwd"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "front_left_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "rear_right_motor_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "rear_left_motor_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "rear_right_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "rear_left_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "rear_right_flip_adapter"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "center_fwd_struct_cyl"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "front_right_flip_adapter"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "center_rear_struct_cyl"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "front_left_flip_adapter"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "front_right_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "TAIL_DIAMETER",
+    "COMPONENT_NAME": "fuselage"
+  },
+  {
+    "DESIGN_PARAM": "Param_7",
+    "COMPONENT_PARAM": "DIAMETER",
+    "COMPONENT_NAME": "rear_left_flip_adapter"
+  },
+  {
+    "DESIGN_PARAM": "Param_26",
+    "COMPONENT_PARAM": "SEAT_2_FB",
+    "COMPONENT_NAME": "fuselage"
+  },
+  {
+    "DESIGN_PARAM": "Param_26",
+    "COMPONENT_PARAM": "SEAT_1_FB",
+    "COMPONENT_NAME": "fuselage"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "rear_right_bot_prop_vert_2"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "front_right_bot_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "ctr_bot_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "DownFacingCCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "rear_right_bot_prop_vert_1"
+  },
+  {
+    "DESIGN_PARAM": "Param_9",
+    "COMPONENT_PARAM": "FLOOR_HEIGHT",
+    "COMPONENT_NAME": "fuselage"
+  },
+  {
+    "DESIGN_PARAM": "Param_1",
+    "COMPONENT_PARAM": "CHORD",
+    "COMPONENT_NAME": "front_ctr_naca_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_1",
+    "COMPONENT_PARAM": "CHORD_2",
+    "COMPONENT_NAME": "front_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_1",
+    "COMPONENT_PARAM": "CHORD_2",
+    "COMPONENT_NAME": "front_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_1",
+    "COMPONENT_PARAM": "CHORD_1",
+    "COMPONENT_NAME": "front_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_1",
+    "COMPONENT_PARAM": "CHORD_1",
+    "COMPONENT_NAME": "front_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_22",
+    "COMPONENT_PARAM": "LENGTH",
+    "COMPONENT_NAME": "rear_right_motor_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_22",
+    "COMPONENT_PARAM": "LENGTH",
+    "COMPONENT_NAME": "rear_left_motor_cyl_mount"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "front_right_top__prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "rear_right_top_prop_vert_2"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "rear_right_top_prop_vert_1"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "ctr_top_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "Param_2",
+    "COMPONENT_PARAM": "THICKNESS",
+    "COMPONENT_NAME": "front_ctr_naca_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_2",
+    "COMPONENT_PARAM": "THICKNESS",
+    "COMPONENT_NAME": "front_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_2",
+    "COMPONENT_PARAM": "THICKNESS",
+    "COMPONENT_NAME": "front_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "FwdFacingCCW_PropType",
+    "COMPONENT_PARAM": "Prop_type",
+    "COMPONENT_NAME": "front_left_prop_fwd"
+  },
+  {
+    "DESIGN_PARAM": "Param_12",
+    "COMPONENT_PARAM": "THICKNESS",
+    "COMPONENT_NAME": "rear_ctr_naca_mount"
+  },
+  {
+    "DESIGN_PARAM": "Param_12",
+    "COMPONENT_PARAM": "THICKNESS",
+    "COMPONENT_NAME": "rear_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_12",
+    "COMPONENT_PARAM": "THICKNESS",
+    "COMPONENT_NAME": "rear_right_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_12",
+    "COMPONENT_PARAM": "THICKNESS",
+    "COMPONENT_NAME": "rear_right_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_12",
+    "COMPONENT_PARAM": "THICKNESS",
+    "COMPONENT_NAME": "rear_left_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_5",
+    "COMPONENT_PARAM": "LENGTH",
+    "COMPONENT_NAME": "fuselage"
+  },
+  {
+    "DESIGN_PARAM": "Param_8",
+    "COMPONENT_PARAM": "MIDDLE_LENGTH",
+    "COMPONENT_NAME": "fuselage"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "rear_right_top_prop_vert_1"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "ctr_top_prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "rear_right_top_prop_vert_2"
+  },
+  {
+    "DESIGN_PARAM": "UpFacingCW_Spin",
+    "COMPONENT_PARAM": "Direction",
+    "COMPONENT_NAME": "front_right_top__prop_vert"
+  },
+  {
+    "DESIGN_PARAM": "Param_14",
+    "COMPONENT_PARAM": "SPAN",
+    "COMPONENT_NAME": "rear_right_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_14",
+    "COMPONENT_PARAM": "SPAN",
+    "COMPONENT_NAME": "rear_left_wing"
+  },
+  {
+    "DESIGN_PARAM": "Param_14",
+    "COMPONENT_PARAM": "SPAN",
+    "COMPONENT_NAME": "rear_left_wing_battery"
+  },
+  {
+    "DESIGN_PARAM": "Param_14",
+    "COMPONENT_PARAM": "SPAN",
+    "COMPONENT_NAME": "rear_right_wing"
+  }
+]

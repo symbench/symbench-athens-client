@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from pathlib import Path
 
 from creopyson import Client
@@ -9,7 +10,15 @@ from symbench_athens_client.creo_interference_client import (
 from symbench_athens_client.utils import get_logger
 
 
-class CREODesignSweeper:
+class CONSTANTS:
+    ML_CYPHY_NAME = "ML_CYPHY_NAME"
+    DESIGN_PARAM = "DESIGN_PARAM"
+    COMPONENT_PARAM = "COMPONENT_PARAM"
+    COMPONENT_NAME = "COMPONENT_NAME"
+    PRT_FILE = "PRT_FILE"
+
+
+class SymbenchDesingInCREO:
     """Sweep a design with multiple parameters in CREO.
 
     Notes
@@ -23,9 +32,6 @@ class CREODesignSweeper:
 
     assembly_path: str, pathlib.Path, required
         The assembly path for the design
-
-    results_dir: str, pathlib.Path, default="."
-        Where to save the output of the sweep
 
     creoson_ip: str, default="localhost"
         The ip address of the CREOSON server
@@ -56,8 +62,7 @@ class CREODesignSweeper:
         )
         self._open_assembly(assembly_path)
 
-        # ToDo: Map parameters to CAD Parts
-        # Sample and Sweep
+        self.design_params = self._design_parameters_to_cad(parameters_map)
 
     def _initialize_clients(
         self, creoson_ip, creoson_port, interference_ip, interference_port
@@ -83,11 +88,50 @@ class CREODesignSweeper:
         )
         self.logger.info(f"Successfully loaded the file at {assembly_path} into CREO")
 
-    def sweep(self, parameter_ranges, number_of_samples=10000, sampling_method="lhs"):
-        pass
+    def _design_parameters_to_cad(self, parameters_map):
+        """Given `parameters_map`, return mapping with CAD assembly prt info."""
+        ml_cyphy_to_prt = self._ml_cyphy_to_prt()
+        return self._get_design_parameters_with_cad_info(
+            parameters_map, ml_cyphy_to_prt
+        )
 
+    def _get_design_parameters_with_cad_info(self, params, ml_cyphy_to_prt):
+        """Add cad .prt info and map design to cad params."""
+        design_params = defaultdict(list)
+        for param in params:
+            ml_cyphy_name = param[CONSTANTS.COMPONENT_NAME]
+            prt_file = ml_cyphy_to_prt[ml_cyphy_name]
+            param[CONSTANTS.PRT_FILE] = prt_file
+            design_params[param[CONSTANTS.DESIGN_PARAM]].append(param)
+            self.logger.debug(
+                f"Parameter `{param[CONSTANTS.DESIGN_PARAM]}` controls "
+                f"parameter `{param[CONSTANTS.COMPONENT_PARAM]}` of component "
+                f"{ml_cyphy_name}. The part file for it is {prt_file}."
+            )
 
-if __name__ == "__main__":
-    sweeper = CREODesignSweeper(
-        parameters_map={}, assembly_path="./TestBench_CADTB_V1/uav_1.asm"
-    )
+        return design_params
+
+    def _ml_cyphy_to_prt(self):
+        """Returns a mapping between component and its corresponding .prt file in GME."""
+        all_prt_files = filter(
+            lambda f: f.endswith(".prt"), self.creoson_client.file_list(file_="*")
+        )
+        ml_cyphy_to_prt = {}
+        for file in all_prt_files:
+            ml_cyphy_name = self.ml_cyphy_name(file)
+            if ml_cyphy_name:
+                self.logger.debug(f"{file} is mapped from {ml_cyphy_name} in GME")
+                ml_cyphy_to_prt[ml_cyphy_name] = file
+
+        return ml_cyphy_to_prt
+
+    def ml_cyphy_name(self, prt_file):
+        ml_cyphy_param = self.creoson_client.parameter_list(
+            name=CONSTANTS.ML_CYPHY_NAME, file_=prt_file
+        )
+        if ml_cyphy_param:
+            ml_cyphy_param = ml_cyphy_param.pop()
+            return ml_cyphy_param["value"]
+
+    def get_interferences(self):
+        return self.interference_client.get_global_interferences()
