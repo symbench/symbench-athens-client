@@ -1,6 +1,8 @@
-from typing import Any, List
+import json
+from typing import List, Tuple, Union
 
 from pydantic import BaseModel, Field
+from scipy.stats.qmc import LatinHypercube, scale
 
 
 class Parameter(BaseModel):
@@ -9,7 +11,9 @@ class Parameter(BaseModel):
 
 class DesignInputParameter(Parameter):
     name: str = Field(..., description="Name of the input parameter")
-    value: Any = Field(..., description="Value of the input parameter")
+    value: Union[float, Tuple[float, float]] = Field(
+        ..., description="Value of the input parameter"
+    )
 
 
 class DesignOutputParameter(Parameter):
@@ -165,3 +169,57 @@ class CreoDesignState(BaseModel):
 
         flat_dict.update(self.mass_properties.dict())
         return flat_dict
+
+
+class DesignSweep(BaseModel):
+    parameters: List[DesignInputParameter] = Field(
+        ..., description="The parameters to sweep the design from"
+    )
+
+    def fixed_params(self):
+        for parameter in self.parameters:
+            if isinstance(parameter.value, float):
+                yield parameter.name, parameter.value
+
+    def lhs_states(self, num_states, include_fixed=False, seed=42):
+        """Yield the latin hypercube sample states for design parameters.
+
+        Parameters
+        ----------
+        num_states: int
+            The number of states to yield
+
+        include_fixed: bool, default=False
+            If True, include fixed values in the parameter
+
+        seed: int, default=42
+            The random seed for LHS Samples
+        """
+        parameter_keys = []
+        u_bounds = []
+        l_bounds = []
+        for parameter in self.parameters:
+            if isinstance(parameter.value, tuple):
+                parameter_keys.append(parameter.name)
+                u_bounds.append(parameter.value[-1])
+                l_bounds.append(parameter.value[0])
+
+        assert len(u_bounds) == len(l_bounds)
+
+        sampler = LatinHypercube(d=len(u_bounds), centered=True, seed=seed)
+
+        lhs_samples = sampler.random(n=num_states)
+
+        parameter_samples = scale(
+            sample=lhs_samples, l_bounds=l_bounds, u_bounds=u_bounds
+        )
+
+        fixed_params = {name: value for name, value in self.fixed_params()}
+
+        for sample in parameter_samples:
+            state = {key: sample[i] for i, key in enumerate(parameter_keys)}
+
+            if include_fixed:
+                state.update(fixed_params)
+
+            yield state
