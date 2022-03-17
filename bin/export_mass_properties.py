@@ -3,7 +3,7 @@ import csv
 import json
 import time
 
-from symbench_athens_client.creoson import CreosonMassPropertiesDriver
+from symbench_athens_client.component_massproperties import CreosonMassPropertiesDriver
 
 
 class MassPropertiesExporter:
@@ -13,8 +13,14 @@ class MassPropertiesExporter:
     ----------
     outdir: str
         The location to save generated CSVs in
-    ip: str, default=localhost
-        The ip address of the CREOSON server
+    creoson_ip: str, default=localhost
+        The ip address of the creoson server
+    creoson_port: int, default=9056
+        The port number that the server is listening to
+    creo_properties_server_ip: str, default=localhost
+        The ip address of the symbench creo properties server
+    creo_properties_server_port: int, default=9000
+        The port number that the symbench creo properties server is listening in
 
     See Also
     --------
@@ -22,8 +28,20 @@ class MassPropertiesExporter:
         Symbench Athens Client's driver for CREO
     """
 
-    def __init__(self, outdir, ip="localhost", port=9056):
-        self.driver = CreosonMassPropertiesDriver(creoson_ip=ip, creoson_port=port)
+    def __init__(
+        self,
+        outdir,
+        creoson_ip="localhost",
+        creoson_port=9056,
+        creo_properties_server_ip="localhost",
+        creo_properties_server_port=8000,
+    ):
+        self.driver = CreosonMassPropertiesDriver(
+            creoson_ip=creoson_ip,
+            creoson_port=creoson_port,
+            creo_properties_server_ip=creo_properties_server_ip,
+            creo_properties_server_port=creo_properties_server_port,
+        )
         self.outdir = outdir
 
     def run(self, corpus):
@@ -114,6 +132,9 @@ class MassPropertiesExporter:
             "surface_area": mass_props["surface_area"],
             "density": mass_props["density"],
             "mass": mass_props["mass"],
+            "center_of_mass_x": mass_props["center_of_mass"]["x"],
+            "center_of_mass_y": mass_props["center_of_mass"]["y"],
+            "center_of_mass_z": mass_props["center_of_mass"]["z"],
             # Coordinate System
             "coordIxx": mass_props["coord_sys_inertia_tensor"]["x_axis"]["x"],
             "coordIxy": mass_props["coord_sys_inertia_tensor"]["x_axis"]["y"],
@@ -150,16 +171,31 @@ if __name__ == "__main__":
         type=str,
     )
     parser.add_argument(
-        "--ip-address",
-        "-ip",
+        "--creoson-ip",
+        "-crip",
         help="The IP address of the creoson server",
         default="localhost",
         type=str,
     )
     parser.add_argument(
-        "--port",
-        "-p",
+        "--creoson-port",
+        "-crp",
         help="The port number which the creoson server is listening from",
+        default=9056,
+        type=int,
+    )
+
+    parser.add_argument(
+        "--creo-properties-ip",
+        "-cpip",
+        help="The IP address of the symbench creo properties server",
+        default="localhost",
+        type=str,
+    )
+    parser.add_argument(
+        "--creo-properties-server-port",
+        "-cpp",
+        help="The port number which the symbench creo properties server is listening from",
         default=9056,
         type=int,
     )
@@ -175,5 +211,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     outdir = create_directory(dir_name=args.outdir)
-    exporter = MassPropertiesExporter(outdir, args.ip_address, args.port)
+    exporter = MassPropertiesExporter(
+        outdir,
+        creoson_ip=args.creoson_ip,
+        creoson_port=args.creoson_port,
+        creo_properties_server_ip=args.creo_properties_server_ip,
+        creo_properties_server_port=args.creo_properties_server_port,
+    )
     exporter.run(args.corpus)
