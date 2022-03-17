@@ -92,11 +92,11 @@ class TestDesignStateCreo:
         sweep = DesignSweep(parameters=param_list)
 
         param_state_with_fixed = list(
-            sweep.lhs_states(num_states=10, include_fixed=True, seed=42)
+            sweep.lhs_sweep(num_states=10, include_fixed=True, seed=42)
         )
 
         param_state_with_fixed_repeat = list(
-            sweep.lhs_states(num_states=10, include_fixed=True, seed=42)
+            sweep.lhs_sweep(num_states=10, include_fixed=True, seed=42)
         )
 
         assert param_state_with_fixed_repeat == param_state_with_fixed
@@ -105,11 +105,11 @@ class TestDesignStateCreo:
         assert "Param_3" in param_state_with_fixed_repeat[0]
 
         param_state_without_fixed = list(
-            sweep.lhs_states(num_states=10, include_fixed=False, seed=32)
+            sweep.lhs_sweep(num_states=10, include_fixed=False, seed=32)
         )
 
         param_state_without_fixed_repeat = list(
-            sweep.lhs_states(num_states=10, include_fixed=False, seed=32)
+            sweep.lhs_sweep(num_states=10, include_fixed=False, seed=32)
         )
 
         assert param_state_without_fixed == param_state_without_fixed_repeat

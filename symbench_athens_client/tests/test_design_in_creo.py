@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from symbench_athens_client.design_in_creo import SymbenchDesingInCREO
+from symbench_athens_client.design_in_creo import SymbenchDesignInCREO
 from symbench_athens_client.tests.utils import get_test_file_path
 
 
@@ -17,9 +17,11 @@ class TestCreoDesignSweeper:
 
     @pytest.fixture(scope="session")
     def rake_in_creo(self, parameters_map):
-        return SymbenchDesingInCREO(
+        return SymbenchDesignInCREO(
             parameters_map=parameters_map, assembly_path=os.environ["RAKE_DESIGN_PATH"]
         )
 
-    def test_get_state(self, rake_in_creo):
-        assert rake_in_creo.get_state()
+    def test_apply_parameters(self, rake_in_creo):
+        parameters = {"Param_10": 2800.0, "Param_15": 1000.0}
+
+        assert rake_in_creo.apply_params(parameters)

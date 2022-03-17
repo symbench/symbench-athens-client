@@ -1,4 +1,5 @@
 import json
+import uuid
 from typing import List, Tuple, Union
 
 from pydantic import BaseModel, Field
@@ -6,6 +7,12 @@ from scipy.stats.qmc import LatinHypercube, scale
 
 
 class Parameter(BaseModel):
+    pass
+
+
+class ParameterSweepError(ValueError):
+    """Exception to be raised when a sweep is not possible with a given set of parameters."""
+
     pass
 
 
@@ -147,6 +154,16 @@ class MassProperties(DesignOutputParameter):
 
 
 class CreoDesignState(BaseModel):
+    """The CREO parameters for a design.
+
+    This class encapsulates mass properties, input parameters as well as
+    the interferences in the creo design at the point of its initialization.
+    """
+
+    GUID: str = Field(
+        default_factory=lambda: str(uuid.uuid4()), description="The GUID for this state"
+    )
+
     parameters: List[DesignInputParameter] = Field(
         ..., description="The input parameters for the design"
     )
@@ -158,31 +175,63 @@ class CreoDesignState(BaseModel):
         ..., description="The mass properties of the design"
     )
 
+    def interferences_dict(self):
+        """Return a dictionary of intereferences from the current state"""
+        return [interference.dict() for interference in self.interferences]
+
     def flat_dict(self):
         """Return a flat dictionary of parameters/massproperties/interferences."""
-        flat_dict = {}
+        flat_dict = {
+            "GUID": self.GUID,
+            "interferences": True if self.interferences else False,
+            "number_of_interferences": len(self.interferences),
+        }
+
         for parameter in self.parameters:
             flat_dict[parameter.name] = parameter.value
-
-        flat_dict["interferences"] = True if self.interferences else False
-        flat_dict["number_of_interferences"] = len(self.interferences)
 
         flat_dict.update(self.mass_properties.dict())
         return flat_dict
 
+    class Config:
+        allow_mutation = False
+
 
 class DesignSweep(BaseModel):
+    design_name: str = Field(
+        ..., description="The name of the design for which the sweep is intended for"
+    )
+
     parameters: List[DesignInputParameter] = Field(
         ..., description="The parameters to sweep the design from"
     )
 
     def fixed_params(self):
+        """Return a dictionary of fixed parameters."""
         for parameter in self.parameters:
             if isinstance(parameter.value, float):
                 yield parameter.name, parameter.value
 
-    def lhs_states(self, num_states, include_fixed=False, seed=42):
-        """Yield the latin hypercube sample states for design parameters.
+    def fixed_dict(self):
+        """Return a fixed dictionary of sweep.
+        Notes
+        -----
+        If a parameter has a range, its midpoint is returned
+
+        Returns
+        -------
+        dict
+            The fixed dictionary with (parameter, value) as pairs.
+        """
+        return {
+            parameter.name: parameter.value
+            if isinstance(parameter.value, float)
+            else sum(parameter.value) / 2
+            for parameter in self.parameters
+        }
+
+    def lhs_sweep(self, num_states, include_fixed=False, seed=42):
+        """Yield the latin hypercube sample sweeps for design parameters.
 
         Parameters
         ----------
@@ -205,6 +254,12 @@ class DesignSweep(BaseModel):
                 l_bounds.append(parameter.value[0])
 
         assert len(u_bounds) == len(l_bounds)
+
+        if not parameter_keys:
+            raise ParameterSweepError(
+                "Cannot sample LHS states for a Sweep with input parameters."
+                "Please provide a range of values for some input parameters"
+            )
 
         sampler = LatinHypercube(d=len(u_bounds), centered=True, seed=seed)
 

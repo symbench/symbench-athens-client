@@ -20,3 +20,7 @@ class PropellerAssignmentError(Exception):
 
 class ParameterMismatchError(ValueError):
     """Exception to be raised when the parameters mismatch."""
+
+
+class ParameterNotFoundError(ValueError):
+    """Exception to be raised when a parameter is not found."""
