@@ -19,7 +19,7 @@ class MassPropertiesExporter:
         The port number that the server is listening to
     creo_properties_server_ip: str, default=localhost
         The ip address of the symbench creo properties server
-    creo_properties_server_port: int, default=9000
+    creo_properties_server_port: int, default=8000
         The port number that the symbench creo properties server is listening in
 
     See Also
