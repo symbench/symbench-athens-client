@@ -196,7 +196,7 @@ if __name__ == "__main__":
         "--creo-properties-server-port",
         "-cpp",
         help="The port number which the symbench creo properties server is listening from",
-        default=9056,
+        default=8000,
         type=int,
     )
 
