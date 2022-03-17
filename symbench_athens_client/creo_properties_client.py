@@ -40,7 +40,7 @@ class SymbenchCreoPropertiesClient:
         data = {
             "command": CONSTANTS.INTERFERENCE_COMMAND,
             "function": "global_interference",
-            "data": {"assembly_path": model_path},
+            "data": {"model_path": model_path},
         }
 
         return self._post(data)
