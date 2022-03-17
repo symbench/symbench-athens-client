@@ -3,6 +3,7 @@ import time
 
 import creopyson
 
+from symbench_athens_client.creo_properties_client import SymbenchCreoPropertiesClient
 from symbench_athens_client.models.component import Component
 from symbench_athens_client.utils import get_data_file_path, get_logger
 
@@ -16,6 +17,10 @@ class CreosonMassPropertiesDriver:
         The ip address of the creoson server
     creoson_port: int, default=9056
         The port number that the server is listening to
+    creo_properties_server_ip: str, default=localhost
+        The ip address of the symbench creo properties server
+    creo_properties_server_port: int, default=8000
+        The port number that the symbench creo properties server is listening in
     use_desktop: bool, default=False
         If true start creo in desktop rather than java runtime,
         useful for debugging. This is only relevent when this
@@ -46,10 +51,15 @@ class CreosonMassPropertiesDriver:
         nitro_proe_remote_loc=None,
         creoson_ip="localhost",
         creoson_port=9056,
+        creo_properties_server_ip="localhost",
+        creo_properties_server_port=8000,
         use_desktop=False,
         creo_version=5,
     ):
         self.creoson_client = creopyson.Client(ip_adress=creoson_ip, port=creoson_port)
+        self.creo_properties_client = SymbenchCreoPropertiesClient(
+            ip_address=creo_properties_server_ip, port=creo_properties_server_port
+        )
 
         self.creoson_client.connect()
         self.logger = get_logger(name=self.__class__.__name__)
@@ -155,7 +165,7 @@ class CreosonMassPropertiesDriver:
 
         # Regenerate and add new mass properties
         self.creoson_client.file_regenerate(file_=file)
-        mass_props = self.creoson_client.file_massprops(file)
+        mass_props = self.creo_properties_client.get_massproperties()
         self.logger.info(
             f"Successfully calculated mass properties for {component.name}"
         )

@@ -3,31 +3,44 @@ from json import JSONDecodeError
 
 import requests
 
-INTEFERENCE_ENDPOINT = "/symbench-creoson"
 
-INTERFERENCE_COMMAND = "interference"
+class CONSTANTS:
+    CREO_PROPERTIES_ENDPOINT = "/symbench-creoson"
+
+    INTERFERENCE_COMMAND = "interference"
+
+    FILE_COMMAND = "file"
 
 
-class SymbenchCreoInterferenceClient:
-    """Client interface to the interference server.
+class SymbenchCreoPropertiesClient:
+    """Client interface to the symbench's creo properties server.
 
     Parameters
     ----------
-    url: str, default="http://localhost"
-        The url of the Interference Server
+    ip_address: str, default="http://localhost"
+        The ip_address of the CREOProperties Server
     port: int, default=8000
         The port number for the interference Server
     """
 
-    def __init__(self, url="http://localhost", port=8000):
-        self.server = f"{url}:{port}{INTEFERENCE_ENDPOINT}"
+    def __init__(self, ip_address="localhost", port=8000):
+        self.server = f"http://{ip_address}:{port}{CONSTANTS.CREO_PROPERTIES_ENDPOINT}"  # This is suss but is consistent with CREOSON
 
-    def get_global_interferences(self, assembly_path=None):
+    def get_massproperties(self, model_path=None):
+        data = {
+            "command": CONSTANTS.FILE_COMMAND,
+            "function": "massproperties",
+            "data": {"model_path": model_path},
+        }
+
+        return self._post(data)
+
+    def get_global_interferences(self, model_path=None):
         """Given an assembly path, find global interferences."""
         data = {
-            "command": INTERFERENCE_COMMAND,
+            "command": CONSTANTS.INTERFERENCE_COMMAND,
             "function": "global_interference",
-            "data": {"assembly_path": assembly_path},
+            "data": {"model_path": model_path},
         }
 
         return self._post(data)
