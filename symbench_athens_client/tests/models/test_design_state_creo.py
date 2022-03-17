@@ -89,7 +89,7 @@ class TestDesignStateCreo:
 
     def test_design_sweep(self, param_list):
 
-        sweep = DesignSweep(parameters=param_list)
+        sweep = DesignSweep(design_name="Dummy", parameters=param_list)
 
         param_state_with_fixed = list(
             sweep.lhs_sweep(num_states=10, include_fixed=True, seed=42)
