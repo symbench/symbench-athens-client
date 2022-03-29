@@ -4,6 +4,7 @@ import json
 import time
 
 from symbench_athens_client.component_massproperties import CreosonMassPropertiesDriver
+from symbench_athens_client.models.design_state_creo import MassProperties
 
 
 class MassPropertiesExporter:
@@ -105,10 +106,10 @@ class MassPropertiesExporter:
 
         for component in components:
             try:
-                component_properties = component.dict(by_alias=True, exclude_none=True)
+                component_properties = component.dict(by_alias=True)
                 mass_properties = self.driver.mass_properties(component)
                 component_properties.update(
-                    self._mass_props_to_csv_dict(mass_properties)
+                    MassProperties.from_creoson_dict(mass_properties).dict()
                 )
                 component_properties.update(self._get_creo_parameters(component))
                 components_properties.append(component_properties)
@@ -128,34 +129,7 @@ class MassPropertiesExporter:
     @staticmethod
     def _mass_props_to_csv_dict(mass_props):
         """Return a csv style dict from creopyson mass-properties dict."""
-        return {
-            "surface_area": mass_props["surface_area"],
-            "density": mass_props["density"],
-            "mass": mass_props["mass"],
-            "center_of_mass_x": mass_props["center_of_mass"]["x"],
-            "center_of_mass_y": mass_props["center_of_mass"]["y"],
-            "center_of_mass_z": mass_props["center_of_mass"]["z"],
-            # Coordinate System
-            "coordIxx": mass_props["coord_sys_inertia_tensor"]["x_axis"]["x"],
-            "coordIxy": mass_props["coord_sys_inertia_tensor"]["x_axis"]["y"],
-            "coordIxz": mass_props["coord_sys_inertia_tensor"]["x_axis"]["z"],
-            "coordIyx": mass_props["coord_sys_inertia_tensor"]["y_axis"]["x"],
-            "coordIyy": mass_props["coord_sys_inertia_tensor"]["y_axis"]["y"],
-            "coordIyz": mass_props["coord_sys_inertia_tensor"]["y_axis"]["z"],
-            "coordIzx": mass_props["coord_sys_inertia_tensor"]["z_axis"]["x"],
-            "coordIzy": mass_props["coord_sys_inertia_tensor"]["z_axis"]["y"],
-            "coordIzz": mass_props["coord_sys_inertia_tensor"]["z_axis"]["z"],
-            # Center of Gravity
-            "cgIxx": mass_props["ctr_grav_inertia_tensor"]["x_axis"]["x"],
-            "cgIxy": mass_props["ctr_grav_inertia_tensor"]["x_axis"]["y"],
-            "cgIxz": mass_props["ctr_grav_inertia_tensor"]["x_axis"]["z"],
-            "cgIyx": mass_props["ctr_grav_inertia_tensor"]["y_axis"]["x"],
-            "cgIyy": mass_props["ctr_grav_inertia_tensor"]["y_axis"]["y"],
-            "cgIyz": mass_props["ctr_grav_inertia_tensor"]["y_axis"]["z"],
-            "cgIzx": mass_props["ctr_grav_inertia_tensor"]["z_axis"]["x"],
-            "cgIzy": mass_props["ctr_grav_inertia_tensor"]["z_axis"]["y"],
-            "cgIzz": mass_props["ctr_grav_inertia_tensor"]["z_axis"]["z"],
-        }
+        return MassProperties.from_creoson_dict(mass_props).dict()
 
 
 if __name__ == "__main__":
