@@ -6,10 +6,12 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
 
+from parea.main import _calculate_projected_area
 from uav_analysis.mass_properties_hackathon1 import quad_copter_fixed_bemp2
 from uav_analysis.testbench_data import TestbenchData
 
 from symbench_athens_client.exceptions import PropellerAssignmentError
+from symbench_athens_client.models.design_state_creo import ProjectedAreas
 
 
 def get_logger(name, level=logging.DEBUG):
@@ -218,3 +220,18 @@ def create_directory(dir_name, clear_contents=False):
         raise NotADirectoryError(f"{dir_path} is not a directory")
 
     return dir_path
+
+
+def projected_areas(stl_location):
+    """Calculate projected areas for a stl file using p-area."""
+    projected_area_yz = _calculate_projected_area([stl_location], "x", -999)
+    projected_area_xz = _calculate_projected_area([stl_location], "y", -999)
+    projected_area_xy = _calculate_projected_area([stl_location], "z", -999)
+
+    areas = ProjectedAreas(
+        parea_xy=projected_area_xy,
+        parea_xz=projected_area_xz,
+        parea_yz=projected_area_yz,
+    )
+
+    return areas

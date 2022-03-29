@@ -2,4 +2,5 @@ api4jenkins
 pydantic
 gremlinpython
 creopyson
+parea
 --editable=git+https://github.com/symbench/uav-analysis.git#egg=uav-analysis

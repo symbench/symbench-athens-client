@@ -56,6 +56,21 @@ class MassProperties(DesignOutputParameter):
         description="The mass",
     )
 
+    center_of_mass_x: float = Field(
+        ...,
+        description="Center of mass X",
+    )
+
+    center_of_mass_y: float = Field(
+        ...,
+        description="Center of mass Y",
+    )
+
+    center_of_mass_z: float = Field(
+        ...,
+        description="Center of mass Z",
+    )
+
     coordIxx: float = Field(
         ...,
         description="The coordinate system inertia Ixx",
@@ -129,6 +144,9 @@ class MassProperties(DesignOutputParameter):
                 "surface_area": mass_props["surface_area"],
                 "density": mass_props["density"],
                 "mass": mass_props["mass"],
+                "center_of_mass_x": mass_props["center_of_mass"]["x"],
+                "center_of_mass_y": mass_props["center_of_mass"]["y"],
+                "center_of_mass_z": mass_props["center_of_mass"]["z"],
                 # Coordinate System
                 "coordIxx": mass_props["coord_sys_inertia_tensor"]["x_axis"]["x"],
                 "coordIxy": mass_props["coord_sys_inertia_tensor"]["x_axis"]["y"],
@@ -153,6 +171,14 @@ class MassProperties(DesignOutputParameter):
         )
 
 
+class ProjectedAreas(DesignOutputParameter):
+    parea_xy: float = Field(..., description="The projected area in the xy plane")
+
+    parea_xz: float = Field(..., description="The Projected area in the xz plane")
+
+    parea_yz: float = Field(..., description="The Projected area in the yz plane")
+
+
 class CreoDesignState(BaseModel):
     """The CREO parameters for a design.
 
@@ -171,8 +197,13 @@ class CreoDesignState(BaseModel):
     interferences: List[Interference] = Field(
         ..., description="The interferences in the design"
     )
+
     mass_properties: MassProperties = Field(
         ..., description="The mass properties of the design"
+    )
+
+    projected_areas: ProjectedAreas = Field(
+        ..., description="The projected areas of the design"
     )
 
     def interferences_dict(self):
@@ -189,6 +220,10 @@ class CreoDesignState(BaseModel):
 
         for parameter in self.parameters:
             flat_dict[parameter.name] = parameter.value
+
+        flat_dict["parea_xy"] = self.projected_areas.parea_xy
+        flat_dict["parea_yz"] = self.projected_areas.parea_yz
+        flat_dict["parea_xz"] = self.projected_areas.parea_xz
 
         flat_dict.update(self.mass_properties.dict())
         return flat_dict

@@ -1,14 +1,15 @@
 """Process, get/set state of a design in CREO."""
+import json
 import logging
+import os
+import uuid
 from collections import defaultdict
 from pathlib import Path
 
 import creopyson
 from creopyson import Client
 
-from symbench_athens_client.creo_interference_client import (
-    SymbenchCreoInterferenceClient,
-)
+from symbench_athens_client.creo_properties_client import SymbenchCreoPropertiesClient
 from symbench_athens_client.exceptions import (
     ParameterMismatchError,
     ParameterNotFoundError,
@@ -19,7 +20,7 @@ from symbench_athens_client.models.design_state_creo import (
     Interference,
     MassProperties,
 )
-from symbench_athens_client.utils import get_logger
+from symbench_athens_client.utils import get_logger, projected_areas
 
 
 class CONSTANTS:
@@ -89,12 +90,12 @@ class SymbenchDesignInCREO:
         """Initialize the interference and creoson clients."""
         self.creoson_client = Client(ip_adress=creoson_ip, port=creoson_port)
 
-        self.interference_client = SymbenchCreoInterferenceClient(
+        self.creo_properties_client = SymbenchCreoPropertiesClient(
             ip_address=interference_ip, port=interference_port
         )
 
         self.creoson_client.connect()
-        self.logger.info("Successfully initialized CREOSON/Interference Clients")
+        self.logger.info("Successfully initialized CREOSON and CreoProperties Clients")
 
     def _open_assembly(self, assembly_path):
         """Given an assembly path, open it in CREO"""
@@ -115,6 +116,9 @@ class SymbenchDesignInCREO:
         self.design_params = self._get_design_parameters_with_cad_info(
             parameters_map, ml_cyphy_to_prt
         )
+        # with open("./TrowelCADData/ConsolidatedParametersMap.json", 'w') as \
+        #         json_file:
+        #     json.dump(self.design_params, json_file, indent=2)
         self.logger.info("Initialized design parameter and component to GME name map")
 
     def _get_design_parameters_with_cad_info(self, params, ml_cyphy_to_prt):
@@ -183,7 +187,7 @@ class SymbenchDesignInCREO:
         return cad_params
 
     def get_interferences(self):
-        return self.interference_client.get_global_interferences()
+        return self.creo_properties_client.get_global_interferences()
 
     def _propagate_parameter(self, parameter, value):
         """Propagate a design parameter to CREO"""
@@ -218,6 +222,29 @@ class SymbenchDesignInCREO:
         """Regenerate the currently loaded assembly in CREO."""
         self.creoson_client.file_regenerate(file_=self.assembly_name)
 
+    def _export_stl(self, save_path, guid):
+        save_path = Path(save_path or self.creoson_client.creo_pwd()).resolve()
+        filename = guid[0:31] + ".stl"
+        response = self.creoson_client.interface_export_file(
+            file_type="STL", filename=filename, dirname=str(save_path)
+        )
+
+        stl_loc = response["dirname"] + os.sep + response["filename"]
+        self.logger.info(f"Saving stl for the current design state {stl_loc}")
+        return stl_loc
+
+    def _get_projected_areas(self, stl_loc):
+        """Get the projected areas for the currently loaded design in CREO.
+
+        Notes
+        -----
+        If save path is provided, the stl file will be saved in that location
+        """
+
+        areas = projected_areas(stl_loc)
+        self.logger.info(f"Calculated projected areas {areas}")
+        return areas
+
     def _swap_intf_prts_with_cyphy_names(self, intf_data):
         for data in intf_data:
             data["part_1_name"] = self.prt_to_ml_cyphy[
@@ -227,7 +254,7 @@ class SymbenchDesignInCREO:
                 data["part_2_name"].lower() + ".prt"
             ]
 
-    def get_state(self, regenerate=False):
+    def get_state(self, guid=None, stl_path=None):
         """Get the current state of the design from CREO.
 
         This method computes the mass properties and get the design parameter values and returns a json
@@ -235,8 +262,11 @@ class SymbenchDesignInCREO:
 
         Parameters
         ----------
-        regenerate: bool, default=False
-            If True, force creo to regenerate the design
+        stl_path: str, pathlib.Path
+            The path of the STL File, for projected-area calculations
+
+        guid: str
+            The guid to set for this state
 
         Returns
         -------
@@ -249,16 +279,22 @@ class SymbenchDesignInCREO:
             This class encapsulates mass properties, input parameters as well as
             the interferences in the creo design at the point.
         """
-        if regenerate:
+        stl_loc = stl_path
+
+        if not guid:
             self._regenerate_assembly()
+            guid = str(uuid.uuid4())
+            stl_loc = self._export_stl(
+                Path(stl_path or self.creoson_client.creo_pwd()).resolve(), guid
+            )
+
         intf_data = self.get_interferences()
         interferences = None
         if intf_data["num_interferences"] > 0:
             self._swap_intf_prts_with_cyphy_names(intf_data["interferences"])
             interferences = Interference.from_dicts(intf_data["interferences"])
 
-        mass_properties_dict = creopyson.file.massprops(file_=self.assembly_name)
-        print(mass_properties_dict)
+        mass_properties_dict = self.creo_properties_client.get_massproperties()
 
         mass_props = MassProperties.from_creoson_dict(mass_properties_dict)
         cad_params_dict = self.get_creo_parameters()
@@ -270,11 +306,15 @@ class SymbenchDesignInCREO:
             interferences=interferences or [],
             parameters=parameters,
             mass_properties=mass_props,
+            projected_areas=self._get_projected_areas(stl_loc),
         )
+
+        if not stl_path:
+            os.remove(stl_loc)
 
         return design_state
 
-    def apply_params(self, params):
+    def apply_params(self, params, stl_path=None):
         """Apply the parameters from a dictionary regenerate the design in CREO, and return the design state"""
         for key, value in params.items():
             self._propagate_parameter(key, value)
@@ -284,5 +324,13 @@ class SymbenchDesignInCREO:
         self.logger.info(
             "Successfully regenerated assembly after propagating parameters"
         )
-        state = self.get_state()
+        regenerated_uuid = str(uuid.uuid4())
+
+        stl_loc = self._export_stl(stl_path, regenerated_uuid)
+
+        state = self.get_state(regenerated_uuid, stl_path=stl_loc)
+
+        if not stl_path:
+            os.remove(stl_loc)
+
         return state
