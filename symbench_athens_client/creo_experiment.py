@@ -35,7 +35,6 @@ class CREOExperiment:
         self.op_csv_writer = None
         self.failures_file = None
         self.creoson_dir = creoson_dir
-        self._restart_creoson()
 
     def _create_new_run_directory(self):
         return create_directory(
@@ -44,7 +43,9 @@ class CREOExperiment:
         )
 
     def _restart_creoson(self):
-        subprocess.Popen([f"restart_creoson.bat"])
+        """ToDo: Remove HardCode"""
+        p = subprocess.Popen(["restart_creoson.bat"], shell=False)
+        time.sleep(2)
 
     def _set_design_params(self, params):
         self.logger.debug("Setting fixed parameters for the design")
@@ -82,7 +83,7 @@ class CREOExperiment:
         self.intf_dir = None
         self.geom_dir = None
 
-    def run_and_record(self, sweep_dict, samples=10000, record_intf_data=False):
+    def run_and_record(self, sweep_dict, samples=100, record_intf_data=False):
         self.results_dir = self._create_new_run_directory()
         self.intf_dir = create_directory(self.results_dir / "interferences")
         self.geom_dir = create_directory(self.results_dir / "geometries")
@@ -98,24 +99,17 @@ class CREOExperiment:
             try:
                 state = self._set_design_params(params)
                 self._record_state(state, record_intf_data)
-                self.design_in_creo.creoson_client.disconnect()
-                self.design_in_creo._initialize_clients(
-                    "localhost", 9056, "localhost", 8000
-                )
             except ConnectionError:
                 self._restart_creoson()
-                time.sleep(2)
+                time.sleep(3)
                 self.design_in_creo._initialize_clients(
                     "localhost", 9056, "localhost", 8000
                 )
-                self.design_in_creo.creoson_client.connect()
-                time.sleep(1)
                 state = self._set_design_params(params)
                 self._record_state(state, record_intf_data)
-                self.design_in_creo.creoson_client.disconnect()
             except Exception as e:
-                self.logger.error(e)
                 self._record_failure(params, e)
+
             time.sleep(1)  # FixMe: Client not efficient.
         end = time.time()
         self.logger.info(f"Time taken for {samples} samples: {end - start} seconds")
@@ -123,27 +117,3 @@ class CREOExperiment:
 
         self._deinit_writers()
         self._deinit_result_dirs()
-
-
-if __name__ == "__main__":
-    from symbench_athens_client.design_in_creo import SymbenchDesignInCREO
-    from symbench_athens_client.tests.utils import get_test_file_path
-
-    parameters_map = "./TrowelCADData/parameterMap.json"
-    with open(parameters_map) as json_file:
-        parameters_map = json.load(json_file)
-
-    trowel = SymbenchDesignInCREO(
-        assembly_path="./TrowelCADTestBench/TestBench_CADTB_V1/uav_1.asm",
-        parameters_map=parameters_map,
-    )
-
-    experiment = CREOExperiment(
-        design_in_creo=trowel,
-        outdir="./results-trowel-experiment-in-creo",
-        creoson_dir="C:\\Users\\Umesh Timalsina\\CreosonServerWithSetup-2.8.0-win64",
-    )
-
-    with open("./trowel_sweep.json", "r") as json_file:
-        sweep_params = json.load(json_file)
-        experiment.run_and_record(sweep_dict=sweep_params, record_intf_data=True)

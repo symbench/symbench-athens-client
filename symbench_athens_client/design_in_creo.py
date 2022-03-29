@@ -88,6 +88,9 @@ class SymbenchDesignInCREO:
         self, creoson_ip, creoson_port, interference_ip, interference_port
     ):
         """Initialize the interference and creoson clients."""
+        if hasattr(self, "creoson_client"):
+            self.creoson_client.disconnect()
+
         self.creoson_client = Client(ip_adress=creoson_ip, port=creoson_port)
 
         self.creo_properties_client = SymbenchCreoPropertiesClient(
