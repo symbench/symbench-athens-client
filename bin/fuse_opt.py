@@ -46,7 +46,7 @@ class FuselageOptimizationProblem(ElementwiseProblem):
             time.sleep(5)
             self.design_in_creo._initialize_clients(
                 "localhost", 9056, "localhost", 8000
-            )
+            )  # ToDo: Address this issue once merged.
             state = self.design_in_creo.apply_params(params_dict)
 
         out["F"] = [state.mass_properties.mass, params_dict["SphereDiameter"]]
