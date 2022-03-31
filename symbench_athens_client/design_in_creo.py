@@ -19,6 +19,7 @@ from symbench_athens_client.models.design_state_creo import (
     DesignInputParameter,
     Interference,
     MassProperties,
+    ProjectedAreas,
 )
 from symbench_athens_client.utils import get_logger, projected_areas
 
@@ -287,9 +288,16 @@ class SymbenchDesignInCREO:
         if not guid:
             self._regenerate_assembly()
             guid = str(uuid.uuid4())
-            stl_loc = self._export_stl(
-                Path(stl_path or self.creoson_client.creo_pwd()).resolve(), guid
-            )
+            try:
+                stl_loc = self._export_stl(
+                    Path(stl_path or self.creoson_client.creo_pwd()).resolve(), guid
+                )
+            except:
+                pass
+        if stl_loc:
+            projected_areas = self._get_projected_areas(stl_loc)
+        else:
+            projected_areas = ProjectedAreas(parea_yz=0.0, parea_xy=0.0, parea_xz=0.0)
 
         intf_data = self.get_interferences()
         interferences = None
@@ -309,11 +317,12 @@ class SymbenchDesignInCREO:
             interferences=interferences or [],
             parameters=parameters,
             mass_properties=mass_props,
-            projected_areas=self._get_projected_areas(stl_loc),
+            projected_areas=projected_areas,
         )
 
         if not stl_path:
-            os.remove(stl_loc)
+            if stl_loc:
+                os.remove(stl_loc)
 
         return design_state
 
@@ -328,12 +337,17 @@ class SymbenchDesignInCREO:
             "Successfully regenerated assembly after propagating parameters"
         )
         regenerated_uuid = str(uuid.uuid4())
+        stl_loc = None
 
-        stl_loc = self._export_stl(stl_path, regenerated_uuid)
+        try:
+            stl_loc = self._export_stl(stl_path, regenerated_uuid)
+        except:
+            pass
 
         state = self.get_state(regenerated_uuid, stl_path=stl_loc)
 
         if not stl_path:
-            os.remove(stl_loc)
+            if stl_loc:
+                os.remove(stl_loc)
 
         return state

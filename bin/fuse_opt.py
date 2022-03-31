@@ -1,3 +1,4 @@
+"""Multi-Objective optimization for fuselage."""
 import csv
 import json
 import pickle
@@ -14,6 +15,8 @@ from symbench_athens_client.utils import create_directory
 
 
 class FuselageOptimizationProblem(ElementwiseProblem):
+    """The optimization problem for Fuselage, framed in CREO"""
+
     def __init__(self, design_in_creo, parameters_index, xl, xu):
 
         self.design_in_creo = design_in_creo
@@ -22,7 +25,7 @@ class FuselageOptimizationProblem(ElementwiseProblem):
         super().__init__(
             n_var=len(self.parameters_index),
             n_obj=2,  # Minimize Mass, SurfaceArea
-            n_constr=1,  # No Interferences
+            n_constr=3,  # No Interferences, SEAT_1_FB < Length, SEAT_2_FB <  Length
             xl=xl,
             xu=xu,
         )
@@ -48,7 +51,9 @@ class FuselageOptimizationProblem(ElementwiseProblem):
 
         out["F"] = [state.mass_properties.mass, params_dict["SphereDiameter"]]
         out["G"] = [
-            self.total_intf_volume(state.interferences) if state.interferences else 0
+            self.total_intf_volume(state.interferences) if state.interferences else 0,
+            params_dict["Seat1FB"] - params_dict["Length"],
+            params_dict["Seat2FB"] - params_dict["Length"],
         ]
 
         if not state.interferences:
