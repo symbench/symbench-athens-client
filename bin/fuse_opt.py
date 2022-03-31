@@ -68,30 +68,61 @@ def optimize(problem, algorithm, n_generations=100):
     return result
 
 
+def get_pareto_csv_dict(parameters_index, X, F):
+    pareto_optimal_sets = []
+
+    for x, y in zip(X, F):
+        res = {}
+        for key in parameters_index:
+            res[parameters_index[key][0]] = x[key]
+            if len(parameters_index[key]) > 1:
+                res[parameters_index[key][1]] = x[key]
+        res["Mass"] = y[0]
+        pareto_optimal_sets.append(res)
+
+    return pareto_optimal_sets
+
+
 if __name__ == "__main__":
     from argparse import ArgumentParser
 
-    parser = ArgumentParser("Pareto Optimal Fuselage parameters with NGSA-2")
+    parser = ArgumentParser("Fuselage Optimization")
+    subparsers = parser.add_subparsers(help="help for subcommand", dest="subcommand")
 
-    parser.add_argument(
+    opt_cmd = subparsers.add_parser(
+        "optimize", help="optimize the fuselage using NSGA algorithm"
+    )
+
+    analyze_results = subparsers.add_parser("analyze", help="Analyze the results")
+
+    opt_cmd.add_argument(
         "asm", type=str, metavar="ASM", help="The location of the Fuselage assembly"
     )
 
-    parser.add_argument(
+    opt_cmd.add_argument(
         "parameters_map",
         type=str,
         metavar="PARAM_MAP",
         help="The JSON file of the parameter maps",
     )
 
-    parser.add_argument(
+    opt_cmd.add_argument(
+        "--seats-config",
+        default="side_by_side",
+        choices={"side_by_side", "front_to_back"},
+        type=str,
+        help="The seats " "configuration",
+    )
+
+    opt_cmd.add_argument(
         "--pop-size", type=int, default=100, help="The " "population size"
     )
-    parser.add_argument(
+
+    opt_cmd.add_argument(
         "--n-generations", type=int, default=100, help="The number of generations"
     )
 
-    parser.add_argument(
+    opt_cmd.add_argument(
         "--outdir",
         default="./results-fuselage-optimization",
         help="The results will be saved here",
@@ -102,7 +133,7 @@ if __name__ == "__main__":
     with open(args.parameters_map, "r") as params_map_file:
         parameters = json.load(params_map_file)
 
-    parameters_index = {
+    parameters_index_side_by_side = {
         0: ["TailDiameter"],
         1: ["Length"],
         2: ["FloorHeight"],
@@ -111,16 +142,47 @@ if __name__ == "__main__":
         5: ["Seat1FB", "Seat2FB"],
     }
 
-    xl = np.array([100, 1500, 130, 200, 1300, 750])
-    xu = np.array([200, 2000, 150, 400, 1520, 790])
+    parameters_index_front_to_back = {
+        0: ["TailDiameter"],
+        1: ["Length"],
+        2: ["FloorHeight"],
+        3: ["MiddleLength"],
+        4: ["SphereDiameter"],
+        5: ["Seat1FB"],
+        6: ["Seat2FB"],
+    }
+
+    xl_side_by_side = np.array([100, 1500, 130, 200, 1300, 750])
+    xu_side_by_side = np.array([200, 2000, 150, 400, 1520, 790])
+
+    xl_front_to_back = np.array([100, 1800, 110, 200, 800, 610, 610])
+    xu_front_to_back = np.array([300, 3000, 150, 2000, 1500, 2500, 2500])
+
+    design_in_creo = SymbenchDesignInCREO(
+        parameters_map=parameters, assembly_path=args.asm
+    )
+
+    if args.seats_config == "side_by_side":
+        params_set = {"Seat1LR": 210, "Seat2LR": -210}
+        design_in_creo.logger.info(
+            "Setting seat LR displacement to +-210 for side by side config"
+        )
+
+    else:
+        params_set = {"Seat1LR": 0, "Seat2LR": 0}
+        design_in_creo.logger.info(
+            "Setting seat LR displacement to 0 for front to back config"
+        )
+
+    design_in_creo.apply_params(params_set)
 
     fuse_problem = FuselageOptimizationProblem(
-        design_in_creo=SymbenchDesignInCREO(
-            parameters_map=parameters, assembly_path=args.asm
-        ),
-        parameters_index=parameters_index,
-        xu=xu,
-        xl=xl,
+        design_in_creo=design_in_creo,
+        parameters_index=parameters_index_side_by_side
+        if args.seats_config == "side_by_side"
+        else parameters_index_front_to_back,
+        xu=xu_side_by_side if args.seats_config == "side_by_side" else xu_front_to_back,
+        xl=xl_side_by_side if args.seats_config == "side_by_side" else xl_front_to_back,
     )
 
     ngsa2 = NSGA2(pop_size=args.pop_size)
@@ -128,9 +190,16 @@ if __name__ == "__main__":
     out = optimize(fuse_problem, algorithm=ngsa2, n_generations=args.n_generations)
 
     savedir = create_directory(args.outdir)
-
+    suffix = time.strftime("%b_%d_%Y_%H_%M_%S", time.localtime())
     with open(
-        savedir / f"results_{time.strftime('%b_%d_%Y_%H_%M_%S', time.localtime())}.pkl",
+        savedir / f"results_{suffix}.pkl",
         "wb",
     ) as pklfile:
         pickle.dump({"X": out.X, "F": out.F}, pklfile)
+
+    pareto_csv_dict = get_pareto_csv_dict(fuse_problem.parameters_index, out.X, out.F)
+
+    with open(savedir / f"results{suffix}_{args.seats_config}", "w") as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=pareto_csv_dict[0].keys())
+        writer.writeheader()
+        writer.writerows(pareto_csv_dict)
