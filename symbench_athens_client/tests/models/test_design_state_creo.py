@@ -7,6 +7,7 @@ from symbench_athens_client.models.design_state_creo import (
     DesignSweep,
     Interference,
     MassProperties,
+    ProjectedAreas,
 )
 
 
@@ -43,6 +44,9 @@ class TestDesignStateCreo:
         mass_props = MassProperties(
             mass=2.0,
             surface_area=3000.0,
+            center_of_mass_x=200.0,
+            center_of_mass_y=300.0,
+            center_of_mass_z=300.0,
             density=3.0,
             cgIxx=2500,
             cgIxy=3203,
@@ -78,6 +82,7 @@ class TestDesignStateCreo:
             mass_properties=mass_props,
             interferences=[interference],
             parameters=param_list,
+            projected_areas=ProjectedAreas(parea_xy=200, parea_xz=200, parea_yz=200),
         )
 
         flat_dict = design_state.flat_dict()
